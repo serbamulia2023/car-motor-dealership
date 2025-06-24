@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
-import Fuse from 'fuse.js';
 import IdentificationSection from './IdentificationSection';
 import dropdown from '@dropdowns/countries';
 
@@ -52,30 +51,21 @@ const selectStyles = {
   menu: (base) => ({
     ...base,
     zIndex: 9999,
+    position: 'absolute',
   }),
 };
 
 const PersonalInfoSection = ({ data = {}, setData }) => {
-  const [isIndonesian, setIsIndonesian] = useState(false);
-  const [country, setCountry] = useState(null)
   const [countries, setCountries] = useState([]);
-
-  // const fuse = new Fuse(['indonesia', 'indonesian', 'wni', 'indo', 'orang indonesia'], {
-  //   threshold: 0.3,
-  //   includeScore: true,
-  // });
 
   useEffect(() => {
     const allCountries = dropdown.getAllCountries();
-    const countryOptions = allCountries.map((c) => ({ value: c.name, label: c.name }));
+    const countryOptions = allCountries.map((c) => ({
+      value: c.name,
+      label: c.name,
+    }));
     setCountries(countryOptions);
   }, []);
-
-  // useEffect(() => {
-  //   const nationality = (data.nationality || '').toLowerCase();
-    // const result = fuse.search(nationality);
-    // setIsIndonesian(result.length > 0);
-  // }, [data.nationality]);
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
@@ -83,21 +73,13 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
     if (numericFields.includes(name) && /[^0-9]/.test(value)) return;
 
     setData({
-      ...data,
       [name]: files ? files[0] : value,
     });
   };
 
   const handleSelectChange = (field, selectedOption) => {
     const val = selectedOption ? selectedOption.value : '';
-      if (field === 'nationality') {
-      setCountry(val)
-    }
-
-    setData({
-      ...data,
-      [field]: val,
-    });
+    setData({ [field]: val });
   };
 
   const getSelectValue = (field, options) =>
@@ -154,42 +136,16 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
           onChange={(selected) => handleSelectChange('nationality', selected)}
           options={countries}
           styles={selectStyles}
-          isSearchable={true}
+          isSearchable
           menuPortalTarget={document.body}
           placeholder="Select country..."
         />
       </div>
 
       {/* Conditional Fields */}
-      {
-        country ? (
-          <>
-            {country.toLowerCase() === 'indonesia' ? (
-              <IdentificationSection
-                data={data}
-                setData={(newData) =>
-                  setData({
-                    ...data,
-                    ...newData,
-                  })
-                }
-              />
-            ) : (
-              <div>
-                <label className="block mb-1">Nomor Paspor *</label>
-                <input
-                  type="text"
-                  name="passportNumber"
-                  value={data.passportNumber || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-            )}
-          </>
-        ) : null
-      }
-      {/* {!isIndonesian && data.nationality?.trim().length > 2 && (
+      {data.nationality?.toLowerCase() === 'indonesia' ? (
+        <IdentificationSection data={data} setData={setData} />
+      ) : data.nationality ? (
         <div>
           <label className="block mb-1">Nomor Paspor *</label>
           <input
@@ -200,21 +156,9 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
           />
         </div>
-      )}
+      ) : null}
 
-      {isIndonesian && (
-        <IdentificationSection
-          data={data}
-          setData={(newData) =>
-            setData({
-              ...data,
-              ...newData,
-            })
-          }
-        />
-      )} */}
-
-      {/* Birthplace */}
+      {/* Birth Place */}
       <div>
         <label className="block mb-1">Tempat Lahir *</label>
         <input
@@ -226,7 +170,7 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Birthdate */}
+      {/* Birth Date */}
       <div>
         <label className="block mb-1">Tanggal Lahir *</label>
         <input
@@ -278,7 +222,7 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Phone Numbers */}
+      {/* Phone Number */}
       <div>
         <label className="block mb-1">Nomor Telepon *</label>
         <input
@@ -291,6 +235,7 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
+      {/* Home Phone Number */}
       <div>
         <label className="block mb-1">Telepon Rumah</label>
         <input
@@ -303,7 +248,7 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Uploads */}
+      {/* Upload Photo */}
       <div>
         <label className="block mb-1">Upload Foto (required)</label>
         <input
@@ -315,6 +260,7 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
+      {/* Upload CV */}
       <div>
         <label className="block mb-1">Upload CV / Resume</label>
         <input

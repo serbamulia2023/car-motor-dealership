@@ -11,7 +11,20 @@ import PDACheckboxSection from "../components/forms/PDACheckboxSection";
 const Questionnaire = () => {
   const [formData, setFormData] = useState({
     personalInfo: {
+      fullName: "",
       email: "",
+      gender: "",
+      nationality: "",
+      birthPlace: "",
+      birthDate: "",
+      bloodType: "",
+      address: "",
+      religion: "",
+      phoneNumber: "",
+      homePhoneNumber: "",
+      passportNumber: "",
+      photo: null,
+      cv: null,
     },
     family: [],
     education: [],
@@ -78,43 +91,111 @@ const Questionnaire = () => {
       {/* Section 1: Personal Info */}
       {sectionHeader("1. Personal Information", "personalInfo")}
       {openSections.personalInfo && (
-        <PersonalInfoSection data={formData.personalInfo} setData={setFormData} />
+        <PersonalInfoSection
+          data={formData.personalInfo}
+          setData={(newData) =>
+            setFormData((prev) => ({
+              ...prev,
+              personalInfo: {
+                ...prev.personalInfo,
+                ...newData,
+              },
+            }))
+          }
+        />
       )}
 
       {/* Section 2: Family */}
       {sectionHeader("2. Family", "family")}
       {openSections.family && (
-        <DynamicFamilyTable data={formData.family} setData={setFormData} />
+        <DynamicFamilyTable
+          data={formData.family}
+          setData={(newData) =>
+            setFormData((prev) => ({
+              ...prev,
+              family: newData,
+            }))
+          }
+        />
       )}
 
       {/* Section 3: Education */}
       {sectionHeader("3. Education", "education")}
       {openSections.education && (
-        <DynamicEducationTable data={formData.education} setData={setFormData} />
+        <DynamicEducationTable
+          data={formData.education}
+          setData={(newData) =>
+            setFormData((prev) => ({
+              ...prev,
+              education: newData,
+            }))
+          }
+        />
       )}
 
       {/* Section 4: Work Experience */}
       {sectionHeader("4. Work Experience", "work")}
       {openSections.work && (
-        <WorkExperienceSection data={formData.workExperience} setData={setFormData} />
+        <WorkExperienceSection
+          data={formData.workExperience}
+          setData={(newData) =>
+            setFormData((prev) => ({
+              ...prev,
+              workExperience: newData,
+            }))
+          }
+        />
       )}
 
       {/* Section 5: Leisure */}
       {sectionHeader("5. Leisure Activities", "leisure")}
       {openSections.leisure && (
-        <LeisureSection data={formData.leisure} setData={setFormData} />
+        <LeisureSection
+          data={formData.leisure}
+          setData={(newData) =>
+            setFormData((prev) => ({
+              ...prev,
+              leisure: {
+                ...prev.leisure,
+                ...newData,
+              },
+            }))
+          }
+        />
       )}
 
       {/* Section 6: Additional Questions */}
       {sectionHeader("6. Additional Questions", "questionnaire")}
       {openSections.questionnaire && (
-        <QuestionnaireSection data={formData.questionnaire} setData={setFormData} />
+        <QuestionnaireSection
+          data={formData.questionnaire}
+          setData={(newData) =>
+            setFormData((prev) => ({
+              ...prev,
+              questionnaire: {
+                ...prev.questionnaire,
+                ...newData,
+              },
+            }))
+          }
+        />
       )}
 
       {/* Section 7: PDA Agreement */}
       {sectionHeader("7. Personal Data Agreement", "pda")}
       {openSections.pda && (
-        <PdaAgreementSection data={formData.pdaAccepted} setData={setFormData} />
+        <PDACheckboxSection
+          data={formData.pdaAccepted}
+          setData={(newData) =>
+            setFormData((prev) => ({
+              ...prev,
+              pdaAccepted: {
+                ...prev.pdaAccepted,
+                ...newData,
+              },
+            }))
+          }
+        />
       )}
 
       {/* Submit Button */}
@@ -123,7 +204,6 @@ const Questionnaire = () => {
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded disabled:bg-gray-400"
           disabled={!formData.pdaAccepted?.first || !formData.pdaAccepted?.second}
           onClick={() => {
-            // You can add submission logic here
             console.log("Form submitted:", formData);
           }}
         >
