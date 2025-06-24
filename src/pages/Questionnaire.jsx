@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import PersonalInfoSection from "../components/forms/PersonalInfoSection";
-import FamilySection from "../components/forms/FamilySection";
-import EducationSection from "../components/forms/EducationSection";
+import DynamicFamilyTable from "../components/forms/DynamicFamilyTable";
+import DynamicEducationTable from "../components/forms/DynamicEducationTable";
 import WorkExperienceSection from "../components/forms/WorkExperienceSection";
 import LeisureSection from "../components/forms/LeisureSection";
 import QuestionnaireSection from "../components/forms/QuestionnaireSection";
@@ -9,25 +10,49 @@ import PDACheckboxSection from "../components/forms/PDACheckboxSection";
 
 const Questionnaire = () => {
   const [formData, setFormData] = useState({
-    personalInfo: {},
+    personalInfo: {
+      email: "",
+    },
     family: [],
     education: [],
     workExperience: [],
     leisure: {},
     questionnaire: {},
-    pdaAccepted: { first: false, second: false },
+    pdaAccepted: {
+      first: false,
+      second: false,
+    },
   });
 
-  // Toggle state for each section
   const [openSections, setOpenSections] = useState({
     personalInfo: true,
     family: false,
     education: false,
-    workExperience: false,
+    work: false,
     leisure: false,
     questionnaire: false,
     pda: false,
   });
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("signupCredentials");
+    if (storedEmail) {
+      try {
+        const parsedEmail = JSON.parse(storedEmail);
+        if (parsedEmail.email) {
+          setFormData((prevData) => ({
+            ...prevData,
+            personalInfo: {
+              ...prevData.personalInfo,
+              email: parsedEmail.email,
+            },
+          }));
+        }
+      } catch (e) {
+        console.error("Error parsing localStorage:", e);
+      }
+    }
+  }, []);
 
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
@@ -36,156 +61,75 @@ const Questionnaire = () => {
     }));
   };
 
-  useEffect(() => {
-    try {
-      const storedData = localStorage.getItem("signupCredentials");
-      if (storedData) {
-        const parsed = JSON.parse(storedData);
-        setFormData((prev) => ({
-          ...prev,
-          personalInfo: {
-            ...prev.personalInfo,
-            email: parsed.email || "",
-          },
-        }));
-      }
-    } catch (error) {
-      console.error("Failed to parse signupCredentials:", error);
-    }
-  }, []);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Handle submission logic
-  };
-
-  const sectionStyle = {
-    marginBottom: "1rem",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-    overflow: "hidden",
-  };
-
-  const headerStyle = {
-    background: "#f0f0f0",
-    padding: "1rem",
-    fontWeight: "bold",
-    cursor: "pointer",
-  };
-
-  const contentStyle = {
-    padding: "1rem",
-    background: "#fff",
-  };
+  const sectionHeader = (label, sectionKey) => (
+    <div
+      className="flex justify-between items-center bg-gray-100 p-4 cursor-pointer text-lg font-semibold"
+      onClick={() => toggleSection(sectionKey)}
+    >
+      <span>{label}</span>
+      {openSections[sectionKey] ? <FaChevronUp /> : <FaChevronDown />}
+    </div>
+  );
 
   return (
-    <div className="questionnaire-container" style={{ padding: "2rem" }}>
-      <h1 style={{ marginBottom: "2rem" }}>📝 Application Questionnaire</h1>
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-4">
+      <h1 className="text-2xl font-bold mb-4">Serba Mulia Questionnaire Form</h1>
 
-      <form onSubmit={handleSubmit}>
-        {/* Personal Info */}
-        <div style={sectionStyle}>
-          <div style={headerStyle} onClick={() => toggleSection("personalInfo")}>
-            1. Personal Information {openSections.personalInfo ? "▲" : "▼"}
-          </div>
-          {openSections.personalInfo && (
-            <div style={contentStyle}>
-              <PersonalInfoSection data={formData.personalInfo} setData={setFormData} />
-            </div>
-          )}
-        </div>
+      {/* Section 1: Personal Info */}
+      {sectionHeader("1. Personal Information", "personalInfo")}
+      {openSections.personalInfo && (
+        <PersonalInfoSection data={formData.personalInfo} setData={setFormData} />
+      )}
 
-        {/* Family Section */}
-        <div style={sectionStyle}>
-          <div style={headerStyle} onClick={() => toggleSection("family")}>
-            2. Family Information {openSections.family ? "▲" : "▼"}
-          </div>
-          {openSections.family && (
-            <div style={contentStyle}>
-              <FamilySection data={formData.family} setData={setFormData} />
-            </div>
-          )}
-        </div>
+      {/* Section 2: Family */}
+      {sectionHeader("2. Family", "family")}
+      {openSections.family && (
+        <DynamicFamilyTable data={formData.family} setData={setFormData} />
+      )}
 
-        {/* Education Section */}
-        <div style={sectionStyle}>
-          <div style={headerStyle} onClick={() => toggleSection("education")}>
-            3. Education Background {openSections.education ? "▲" : "▼"}
-          </div>
-          {openSections.education && (
-            <div style={contentStyle}>
-              <EducationSection data={formData.education} setData={setFormData} />
-            </div>
-          )}
-        </div>
+      {/* Section 3: Education */}
+      {sectionHeader("3. Education", "education")}
+      {openSections.education && (
+        <DynamicEducationTable data={formData.education} setData={setFormData} />
+      )}
 
-        {/* Work Experience */}
-        <div style={sectionStyle}>
-          <div style={headerStyle} onClick={() => toggleSection("workExperience")}>
-            4. Work Experience {openSections.workExperience ? "▲" : "▼"}
-          </div>
-          {openSections.workExperience && (
-            <div style={contentStyle}>
-              <WorkExperienceSection data={formData.workExperience} setData={setFormData} />
-            </div>
-          )}
-        </div>
+      {/* Section 4: Work Experience */}
+      {sectionHeader("4. Work Experience", "work")}
+      {openSections.work && (
+        <WorkExperienceSection data={formData.workExperience} setData={setFormData} />
+      )}
 
-        {/* Leisure Section */}
-        <div style={sectionStyle}>
-          <div style={headerStyle} onClick={() => toggleSection("leisure")}>
-            5. Leisure Activities {openSections.leisure ? "▲" : "▼"}
-          </div>
-          {openSections.leisure && (
-            <div style={contentStyle}>
-              <LeisureSection data={formData.leisure} setData={setFormData} />
-            </div>
-          )}
-        </div>
+      {/* Section 5: Leisure */}
+      {sectionHeader("5. Leisure Activities", "leisure")}
+      {openSections.leisure && (
+        <LeisureSection data={formData.leisure} setData={setFormData} />
+      )}
 
-        {/* Additional Questionnaire */}
-        <div style={sectionStyle}>
-          <div style={headerStyle} onClick={() => toggleSection("questionnaire")}>
-            6. Additional Questions {openSections.questionnaire ? "▲" : "▼"}
-          </div>
-          {openSections.questionnaire && (
-            <div style={contentStyle}>
-              <QuestionnaireSection data={formData.questionnaire} setData={setFormData} />
-            </div>
-          )}
-        </div>
+      {/* Section 6: Additional Questions */}
+      {sectionHeader("6. Additional Questions", "questionnaire")}
+      {openSections.questionnaire && (
+        <QuestionnaireSection data={formData.questionnaire} setData={setFormData} />
+      )}
 
-        {/* PDA Section */}
-        <div style={sectionStyle}>
-          <div style={headerStyle} onClick={() => toggleSection("pda")}>
-            7. Personal Data Agreement {openSections.pda ? "▲" : "▼"}
-          </div>
-          {openSections.pda && (
-            <div style={contentStyle}>
-              <PDACheckboxSection data={formData.pdaAccepted} setData={setFormData} />
-            </div>
-          )}
-        </div>
+      {/* Section 7: PDA Agreement */}
+      {sectionHeader("7. Personal Data Agreement", "pda")}
+      {openSections.pda && (
+        <PdaAgreementSection data={formData.pdaAccepted} setData={setFormData} />
+      )}
 
-        {/* Submit */}
-        <div style={{ marginTop: "2rem" }}>
-          <button
-            type="submit"
-            disabled={!formData.pdaAccepted.first || !formData.pdaAccepted.second}
-            style={{
-              padding: "0.75rem 1.5rem",
-              backgroundColor: "#007bff",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
-          >
-            Submit Application
-          </button>
-        </div>
-      </form>
+      {/* Submit Button */}
+      <div className="text-center mt-6">
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded disabled:bg-gray-400"
+          disabled={!formData.pdaAccepted?.first || !formData.pdaAccepted?.second}
+          onClick={() => {
+            // You can add submission logic here
+            console.log("Form submitted:", formData);
+          }}
+        >
+          Submit
+        </button>
+      </div>
     </div>
   );
 };

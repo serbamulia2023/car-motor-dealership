@@ -1,45 +1,45 @@
-import React from 'react';
+import React from "react";
 
-const PDACheckboxSection = ({ isChecked = [false, false], setIsChecked = () => {} }) => {
-  const handleCheckbox = (index) => {
-    const updated = [...isChecked];
-    updated[index] = !updated[index];
-    setIsChecked(updated); // this will now always be safe
+const PdaAgreementSection = ({ data, setData }) => {
+  const handleChange = (e) => {
+    const { name, checked } = e.target;
+    setData((prev) => ({
+      ...prev,
+      pdaAccepted: {
+        ...prev.pdaAccepted,
+        [name]: checked,
+      },
+    }));
   };
 
   return (
-    <div className="bg-white p-6 rounded shadow mt-6">
-      <h3 className="text-lg font-bold mb-4">Personal Data Agreement</h3>
-
-      <div className="space-y-4 text-sm text-gray-700">
-        <label className="flex items-start gap-2">
-          <input
-            type="checkbox"
-            checked={isChecked[0]}
-            onChange={() => handleCheckbox(0)}
-            className="mt-1"
-          />
-          <span>
-            Data/informasi yang saya berikan di atas adalah benar dan akurat. Jika di kemudian hari
-            terbukti tidak benar, saya bersedia bertanggung jawab sepenuhnya.
-          </span>
-        </label>
-
-        <label className="flex items-start gap-2">
-          <input
-            type="checkbox"
-            checked={isChecked[1]}
-            onChange={() => handleCheckbox(1)}
-            className="mt-1"
-          />
-          <span>
-            Saya menyetujui PT Serba Mulia Auto menggunakan data pribadi saya untuk keperluan proses
-            rekrutmen dan/atau keperluan lainnya sesuai kebijakan privasi perusahaan.
-          </span>
-        </label>
-      </div>
+    <div className="border p-4 rounded bg-white space-y-4">
+      <label className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          name="first"
+          checked={data?.first || false}
+          onChange={handleChange}
+          className="w-4 h-4"
+        />
+        <span className="text-sm">
+          I agree to the collection and use of my personal data.
+        </span>
+      </label>
+      <label className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          name="second"
+          checked={data?.second || false}
+          onChange={handleChange}
+          className="w-4 h-4"
+        />
+        <span className="text-sm">
+          I understand the information will be used for recruitment purposes.
+        </span>
+      </label>
     </div>
   );
 };
 
-export default PDACheckboxSection;
+export default PdaAgreementSection;
