@@ -1,0 +1,90 @@
+/* ========= DAIHATSU NAVBAR ========= */
+.daihatsu-navbar {
+  background-color: #fff;
+  color: #111;
+  padding: 0rem 3rem;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+/* Wrapper */
+.daihatsu-navbar .navbar-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo */
+.navbarLogo {
+  height: 42px;
+  width: auto;
+  display: block;
+  transform: scale(3.5); 
+  transform-origin: left center; 
+}
+
+
+/* Nav Links */
+.daihatsu-navbar .nav-links {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.daihatsu-navbar .nav-links li a {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #111;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.daihatsu-navbar .nav-links li a:hover {
+  color: #d60000;
+}
+
+/* ========= MOBILE STYLES ========= */
+@media (max-width: 768px) {
+  .daihatsu-navbar {
+    padding: 1rem 1.5rem;
+  }
+
+  .daihatsu-navbar .logo {
+    font-size: 1.5rem;
+  }
+
+  .daihatsu-navbar .nav-links {
+    flex-direction: column;
+    background-color: #fff;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 250px;
+    padding: 3rem 2rem;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 999;
+  }
+
+  .daihatsu-navbar .nav-links.open {
+    transform: translateX(0);
+  }
+
+  .daihatsu-navbar .nav-links li {
+    margin-bottom: 1.5rem;
+  }
+
+  .daihatsu-navbar .nav-links li a {
+    font-size: 1.25rem;
+  }
+}

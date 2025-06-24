@@ -1,0 +1,86 @@
+.contactPage {
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 0 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contactPage h1 {
+  font-size: 2rem;
+  color: #000;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.contactPage p {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.contactForm {
+  background-color: #f9f9f9;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.contactForm label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+
+.contactForm input,
+.contactForm textarea {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.contactForm button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #000;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.contactForm button:hover {
+  background-color: #232323;
+}
+
+.footer {
+  width: 100vw;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 2rem 1rem;
+  margin-top: 4rem;
+  box-sizing: border-box;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.footer p {
+  margin: 0.3rem 0;
+}
+
+@media (max-width: 600px) {
+  .contactForm {
+    padding: 1.5rem;
+  }
+}

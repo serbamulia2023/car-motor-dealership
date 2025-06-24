@@ -1,0 +1,45 @@
+.yamaha-navbar {
+  background-color: white;
+  color: black;
+  padding: 0rem 3rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.yamaha-navbar .navbar-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.yamaha-navbar .logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: black;
+}
+
+.yamaha-navbar .nav-links {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.yamaha-navbar .nav-links li {
+  font-size: 1rem;
+}
+
+.yamaha-navbar .nav-links a {
+  color: black;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.yamaha-navbar .nav-links a:hover {
+  color: #e60012; /* Yamaha red on hover */
+  text-decoration: none;
+}

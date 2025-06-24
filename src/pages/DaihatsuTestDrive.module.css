@@ -1,0 +1,100 @@
+.page {
+  padding: 0;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: white;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem 1rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: #d60000; /* Daihatsu red */
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: #333;
+  font-size: 1rem;
+}
+
+.formSection {
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.form {
+  width: 100%;
+  max-width: 500px;
+  background-color: #f9f9f9;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #444;
+  font-weight: 600;
+}
+
+.formGroup input,
+.formGroup select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #d60000; /* Daihatsu red */
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submitButton:hover {
+  background-color: #b80000; /* slightly darker red */
+  text-decoration: none;
+}
+
+.footer {
+  width: 100vw;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 2rem 1rem;
+  margin-top: 4rem;
+  box-sizing: border-box;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.footer p {
+  margin: 0.3rem 0;
+}
+
+@media (max-width: 600px) {
+  .form {
+    padding: 1.5rem;
+  }
+}

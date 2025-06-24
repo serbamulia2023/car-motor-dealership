@@ -1,0 +1,240 @@
+.page {
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: white;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 340px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  border-radius: 12px;
+}
+
+.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.inactive {
+  opacity: 0;
+  z-index: 0;
+}
+
+.tagline h1,
+.title {
+  font-size: 2.5rem;
+  margin: 0;
+  color: #004aad; /* Yamaha Blue */
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #333;
+  margin-top: 0.5rem;
+}
+
+.categories {
+  margin-top: 3rem;
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.card {
+  flex: 1 1 280px;
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.heading {
+  color: #004aad;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  color: #555;
+}
+
+.contactSection {
+  margin-top: 5rem;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.contactSection h2 {
+  font-size: 1.75rem;
+  color: #004aad;
+  margin-bottom: 1rem;
+}
+
+.contactSection p {
+  color: #333;
+  margin: 0.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 1rem;
+  }
+
+  .carousel {
+    max-width: 90%;
+    height: 300px;
+  }
+
+  .grid {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Dealers Section */
+.dealersSection {
+  margin-top: 5rem;
+  text-align: center;
+}
+
+.dealerGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.dealerCard {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 280px;
+  padding: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.dealerCard:hover {
+  transform: translateY(-5px);
+}
+
+.dealerImage {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.dealerHeading {
+  color: #004aad;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.dealerLink {
+  color: #333;
+  text-decoration: none;
+}
+
+.dealerLink:hover {
+  text-decoration: underline;
+}
+
+.vehicleCard {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 280px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.vehicleCard:hover {
+  transform: translateY(-5px);
+}
+
+.vehicleImage {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.vehicleInfo p {
+  color: #555;
+  margin: 0.3rem 0;
+}
+
+.vehicleName {
+  font-size: 1.25rem;
+  color: #222;
+  margin-bottom: 0.5rem;
+}
+
+.knowMoreBtn {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  background-color: #004aad;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.knowMoreBtn:hover {
+  background-color: #aa0000;
+}
+
+.footer {
+  margin-top: 4rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  background-color: #f9f9f9;
+  font-size: 0.9rem;
+  color: #666;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+}
