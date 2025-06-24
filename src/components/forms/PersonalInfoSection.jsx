@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Select from 'react-select';
 import IdentificationSection from './IdentificationSection';
 import dropdown from '@dropdowns/countries';
@@ -82,11 +82,31 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
     setData({ [field]: val });
   };
 
+  const genderValue = useMemo(
+    () => genderOptions.find((opt) => opt.value === data.gender) || null,
+    [data.gender]
+  );
+
+  const nationalityValue = useMemo(
+    () => countries.find((opt) => opt.value === data.nationality) || null,
+    [data.nationality, countries]
+  );
+
+  const bloodTypeValue = useMemo(
+    () => bloodTypeOptions.find((opt) => opt.value === data.bloodType) || null,
+    [data.bloodType]
+  );
+
+  const religionValue = useMemo(
+    () => religionOptions.find((opt) => opt.value === data.religion) || null,
+    [data.religion]
+  );
+
   const getSelectValue = (field, options) =>
     options.find((opt) => opt.value === data[field]) || null;
 
   return (
-    <div className="space-y-4 mt-4">
+    <div className="space-y-4 border rounded-sm border-t-0 p-4">
       <h3 className="text-lg font-semibold">Informasi Pribadi</h3>
 
       {/* Full Name */}
@@ -118,12 +138,12 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         <label className="block mb-1">Jenis Kelamin *</label>
         <Select
           name="gender"
-          value={getSelectValue('gender', genderOptions)}
+          value={genderValue}
           onChange={(selected) => handleSelectChange('gender', selected)}
           options={genderOptions}
           isSearchable={false}
           styles={selectStyles}
-          menuPortalTarget={document.body}
+          // menuPortalTarget={document.body}
         />
       </div>
 
@@ -132,12 +152,12 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         <label className="block mb-1">Kewarganegaraan *</label>
         <Select
           name="nationality"
-          value={getSelectValue('nationality', countries)}
+          value={nationalityValue}
           onChange={(selected) => handleSelectChange('nationality', selected)}
           options={countries}
           styles={selectStyles}
           isSearchable
-          menuPortalTarget={document.body}
+          // menuPortalTarget={document.body}
           placeholder="Select country..."
         />
       </div>
@@ -187,12 +207,12 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         <label className="block mb-1">Golongan Darah *</label>
         <Select
           name="bloodType"
-          value={getSelectValue('bloodType', bloodTypeOptions)}
+          value={bloodTypeValue}
           onChange={(selected) => handleSelectChange('bloodType', selected)}
           options={bloodTypeOptions}
           isSearchable={false}
           styles={selectStyles}
-          menuPortalTarget={document.body}
+          // menuPortalTarget={document.body}
         />
       </div>
 
@@ -213,12 +233,12 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         <label className="block mb-1">Agama *</label>
         <Select
           name="religion"
-          value={getSelectValue('religion', religionOptions)}
+          value={religionValue}
           onChange={(selected) => handleSelectChange('religion', selected)}
           options={religionOptions}
           isSearchable={false}
           styles={selectStyles}
-          menuPortalTarget={document.body}
+          // menuPortalTarget={document.body}
         />
       </div>
 

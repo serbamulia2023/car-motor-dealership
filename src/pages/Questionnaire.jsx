@@ -11,20 +11,20 @@ import PDACheckboxSection from "../components/forms/PDACheckboxSection";
 const Questionnaire = () => {
   const [formData, setFormData] = useState({
     personalInfo: {
-      fullName: "",
-      email: "",
-      gender: "",
-      nationality: "",
-      birthPlace: "",
-      birthDate: "",
-      bloodType: "",
-      address: "",
-      religion: "",
-      phoneNumber: "",
-      homePhoneNumber: "",
-      passportNumber: "",
-      photo: null,
-      cv: null,
+      // fullName: "",
+      // email: "",
+      // gender: "",
+      // nationality: "",
+      // birthPlace: "",
+      // birthDate: "",
+      // bloodType: "",
+      // address: "",
+      // religion: "",
+      // phoneNumber: "",
+      // homePhoneNumber: "",
+      // passportNumber: "",
+      // photo: null,
+      // cv: null,
     },
     family: [],
     education: [],
@@ -93,14 +93,15 @@ const Questionnaire = () => {
       {openSections.personalInfo && (
         <PersonalInfoSection
           data={formData.personalInfo}
-          setData={(newData) =>
-            setFormData((prev) => ({
-              ...prev,
-              personalInfo: {
-                ...prev.personalInfo,
-                ...newData,
-              },
-            }))
+          setData={(newData) =>{
+              setFormData((prev) => ({
+                ...prev,
+                personalInfo: {
+                  ...prev.personalInfo,
+                  ...newData,
+                },
+              }))
+            }
           }
         />
       )}

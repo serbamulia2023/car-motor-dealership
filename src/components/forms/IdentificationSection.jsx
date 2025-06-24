@@ -5,7 +5,7 @@ const IdentificationSection = ({ data, setData }) => {
   const [vehicleType, setVehicleType] = useState(data.kendaraanJenis || '');
 
   useEffect(() => {
-    if (!hasVehicle) {
+    if (!hasVehicle && !data.kendaraanStatus && !data.kendaraanDetail) {
       setData({
         kendaraanStatus: '',
         kendaraanJenis: '',
@@ -14,7 +14,7 @@ const IdentificationSection = ({ data, setData }) => {
       });
       setVehicleType('');
     }
-  }, [hasVehicle, setData]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
