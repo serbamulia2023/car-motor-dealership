@@ -2,193 +2,329 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import Fuse from 'fuse.js';
 import IdentificationSection from './IdentificationSection';
+import dropdown from '@dropdowns/countries';
 
-const PersonalInfoSection = ({ data, setData }) => {
-  const [showIdentification, setShowIdentification] = useState(false);
-  const [emailLoaded, setEmailLoaded] = useState(false);
-  const [nationalityInput, setNationalityInput] = useState(data?.nationality || '');
+const genderOptions = [
+  { value: 'Laki-laki', label: 'Laki-laki' },
+  { value: 'Perempuan', label: 'Perempuan' },
+];
 
-  const genderOptions = [
-    { value: 'Laki-laki', label: 'Laki-laki' },
-    { value: 'Perempuan', label: 'Perempuan' },
-  ];
+const bloodTypeOptions = [
+  { value: 'A', label: 'A' },
+  { value: 'B', label: 'B' },
+  { value: 'AB', label: 'AB' },
+  { value: 'O', label: 'O' },
+  { value: 'NA', label: 'NA' },
+];
 
-  const religionOptions = [
-    { value: 'Islam', label: 'Islam' },
-    { value: 'Kristen', label: 'Kristen' },
-    { value: 'Katolik', label: 'Katolik' },
-    { value: 'Hindu', label: 'Hindu' },
-    { value: 'Buddha', label: 'Buddha' },
-    { value: 'Konghucu', label: 'Konghucu' },
-  ];
+const religionOptions = [
+  { value: 'Islam', label: 'Islam' },
+  { value: 'Kristen', label: 'Kristen' },
+  { value: 'Katolik', label: 'Katolik' },
+  { value: 'Hindu', label: 'Hindu' },
+  { value: 'Buddha', label: 'Buddha' },
+  { value: 'Konghucu', label: 'Konghucu' },
+  { value: 'Lainnya', label: 'Lainnya' },
+];
 
-  const bloodOptions = [
-    { value: 'A', label: 'A' },
-    { value: 'B', label: 'B' },
-    { value: 'AB', label: 'AB' },
-    { value: 'O', label: 'O' },
-    { value: 'NA', label: 'NA' },
-  ];
+const selectStyles = {
+  control: (base) => ({
+    ...base,
+    minHeight: '40px',
+    borderColor: '#d1d5db',
+    boxShadow: 'none',
+    fontSize: '0.875rem',
+    paddingLeft: '0.25rem',
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? '#3b82f6'
+      : state.isFocused
+      ? '#e0f2fe'
+      : '#ffffff',
+    color: state.isSelected ? '#ffffff' : '#111827',
+    fontWeight: state.isSelected ? 600 : 400,
+    fontSize: '0.875rem',
+    padding: '0.5rem 0.75rem',
+    cursor: 'pointer',
+  }),
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
 
-  const fuse = new Fuse(['indonesia', 'indonesian', 'wni', 'indo'], {
-    includeScore: true,
-    threshold: 0.4,
-  });
+const PersonalInfoSection = ({ data = {}, setData }) => {
+  const [isIndonesian, setIsIndonesian] = useState(false);
+  const [country, setCountry] = useState(null)
+  const [countries, setCountries] = useState([]);
+
+  // const fuse = new Fuse(['indonesia', 'indonesian', 'wni', 'indo', 'orang indonesia'], {
+  //   threshold: 0.3,
+  //   includeScore: true,
+  // });
 
   useEffect(() => {
-    if (!emailLoaded) {
-      const stored = JSON.parse(localStorage.getItem('signupCredentials'));
-      if (stored?.email) {
-        setData(prev => ({
-          ...prev,
-          email: stored.email,
-        }));
-        setEmailLoaded(true);
-      }
+    const allCountries = dropdown.getAllCountries();
+    const countryOptions = allCountries.map((c) => ({ value: c.name, label: c.name }));
+    setCountries(countryOptions);
+  }, []);
+
+  // useEffect(() => {
+  //   const nationality = (data.nationality || '').toLowerCase();
+    // const result = fuse.search(nationality);
+    // setIsIndonesian(result.length > 0);
+  // }, [data.nationality]);
+
+  const handleInputChange = (e) => {
+    const { name, value, files } = e.target;
+    const numericFields = ['phoneNumber', 'homePhoneNumber'];
+    if (numericFields.includes(name) && /[^0-9]/.test(value)) return;
+
+    setData({
+      ...data,
+      [name]: files ? files[0] : value,
+    });
+  };
+
+  const handleSelectChange = (field, selectedOption) => {
+    const val = selectedOption ? selectedOption.value : '';
+      if (field === 'nationality') {
+      setCountry(val)
     }
-  }, [emailLoaded, setData]);
 
-  useEffect(() => {
-    const isIndonesian = fuse.search(nationalityInput.toLowerCase()).length > 0;
-    setShowIdentification(isIndonesian);
-    setData(prev => ({
-      ...prev,
-      nationality: nationalityInput,
-    }));
-  }, [nationalityInput, setData]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setData({
+      ...data,
+      [field]: val,
+    });
   };
 
-  const handleSelectChange = (selectedOption, fieldName) => {
-    setData(prev => ({
-      ...prev,
-      [fieldName]: selectedOption?.value || '',
-    }));
-  };
+  const getSelectValue = (field, options) =>
+    options.find((opt) => opt.value === data[field]) || null;
 
   return (
-    <div className="p-4 border rounded-md bg-white shadow-sm">
-      <h2 className="text-lg font-semibold mb-4">Informasi Pribadi</h2>
+    <div className="space-y-4 mt-4">
+      <h3 className="text-lg font-semibold">Informasi Pribadi</h3>
 
-      <div className="mb-4">
-        <label className="block mb-1">Nama Lengkap</label>
+      {/* Full Name */}
+      <div>
+        <label className="block mb-1">Nama Lengkap *</label>
         <input
           type="text"
           name="fullName"
           value={data.fullName || ''}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
         />
       </div>
 
-      <div className="mb-4">
+      {/* Email */}
+      <div>
         <label className="block mb-1">Email *</label>
         <input
           type="email"
           name="email"
           value={data.email || ''}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
         />
       </div>
 
-      <div className="mb-4">
+      {/* Gender */}
+      <div>
         <label className="block mb-1">Jenis Kelamin *</label>
         <Select
+          name="gender"
+          value={getSelectValue('gender', genderOptions)}
+          onChange={(selected) => handleSelectChange('gender', selected)}
           options={genderOptions}
-          value={genderOptions.find(opt => opt.value === data.gender)}
-          onChange={(opt) => handleSelectChange(opt, 'gender')}
+          isSearchable={false}
+          styles={selectStyles}
+          menuPortalTarget={document.body}
         />
       </div>
 
-      <div className="mb-4">
+      {/* Nationality */}
+      <div>
         <label className="block mb-1">Kewarganegaraan *</label>
-        <input
-          type="text"
+        <Select
           name="nationality"
-          value={nationalityInput}
-          onChange={(e) => setNationalityInput(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
-          placeholder="e.g., Indonesia"
+          value={getSelectValue('nationality', countries)}
+          onChange={(selected) => handleSelectChange('nationality', selected)}
+          options={countries}
+          styles={selectStyles}
+          isSearchable={true}
+          menuPortalTarget={document.body}
+          placeholder="Select country..."
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block mb-1">Agama *</label>
-        <Select
-          options={religionOptions}
-          value={religionOptions.find(opt => opt.value === data.religion)}
-          onChange={(opt) => handleSelectChange(opt, 'religion')}
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block mb-1">Golongan Darah</label>
-        <Select
-          options={bloodOptions}
-          value={bloodOptions.find(opt => opt.value === data.bloodType)}
-          onChange={(opt) => handleSelectChange(opt, 'bloodType')}
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block mb-1">Alamat *</label>
-        <textarea
-          name="address"
-          value={data.address || ''}
-          onChange={handleChange}
-          rows={3}
-          className="w-full border px-3 py-2 rounded"
-        ></textarea>
-      </div>
-
-      <div className="mb-4">
-        <label className="block mb-1">No. Telepon</label>
-        <input
-          type="text"
-          name="phoneNumber"
-          value={data.phoneNumber || ''}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block mb-1">No. Telepon Rumah</label>
-        <input
-          type="text"
-          name="homePhoneNumber"
-          value={data.homePhoneNumber || ''}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-      </div>
-
-      {showIdentification ? (
-        <IdentificationSection
-          data={data.identification || {}}
-          setData={(identification) =>
-            setData(prev => ({ ...prev, identification }))
-          }
-        />
-      ) : nationalityInput ? (
-        <div className="mb-4">
-          <label className="block mb-1">No. Passport *</label>
+      {/* Conditional Fields */}
+      {
+        country ? (
+          <>
+            {country.toLowerCase() === 'indonesia' ? (
+              <IdentificationSection
+                data={data}
+                setData={(newData) =>
+                  setData({
+                    ...data,
+                    ...newData,
+                  })
+                }
+              />
+            ) : (
+              <div>
+                <label className="block mb-1">Nomor Paspor *</label>
+                <input
+                  type="text"
+                  name="passportNumber"
+                  value={data.passportNumber || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            )}
+          </>
+        ) : null
+      }
+      {/* {!isIndonesian && data.nationality?.trim().length > 2 && (
+        <div>
+          <label className="block mb-1">Nomor Paspor *</label>
           <input
             type="text"
             name="passportNumber"
             value={data.passportNumber || ''}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
           />
         </div>
-      ) : null}
+      )}
+
+      {isIndonesian && (
+        <IdentificationSection
+          data={data}
+          setData={(newData) =>
+            setData({
+              ...data,
+              ...newData,
+            })
+          }
+        />
+      )} */}
+
+      {/* Birthplace */}
+      <div>
+        <label className="block mb-1">Tempat Lahir *</label>
+        <input
+          type="text"
+          name="birthPlace"
+          value={data.birthPlace || ''}
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        />
+      </div>
+
+      {/* Birthdate */}
+      <div>
+        <label className="block mb-1">Tanggal Lahir *</label>
+        <input
+          type="date"
+          name="birthDate"
+          value={data.birthDate || ''}
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        />
+      </div>
+
+      {/* Blood Type */}
+      <div>
+        <label className="block mb-1">Golongan Darah *</label>
+        <Select
+          name="bloodType"
+          value={getSelectValue('bloodType', bloodTypeOptions)}
+          onChange={(selected) => handleSelectChange('bloodType', selected)}
+          options={bloodTypeOptions}
+          isSearchable={false}
+          styles={selectStyles}
+          menuPortalTarget={document.body}
+        />
+      </div>
+
+      {/* Address */}
+      <div>
+        <label className="block mb-1">Alamat Tempat Tinggal *</label>
+        <input
+          type="text"
+          name="address"
+          value={data.address || ''}
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        />
+      </div>
+
+      {/* Religion */}
+      <div>
+        <label className="block mb-1">Agama *</label>
+        <Select
+          name="religion"
+          value={getSelectValue('religion', religionOptions)}
+          onChange={(selected) => handleSelectChange('religion', selected)}
+          options={religionOptions}
+          isSearchable={false}
+          styles={selectStyles}
+          menuPortalTarget={document.body}
+        />
+      </div>
+
+      {/* Phone Numbers */}
+      <div>
+        <label className="block mb-1">Nomor Telepon *</label>
+        <input
+          type="text"
+          name="phoneNumber"
+          value={data.phoneNumber || ''}
+          onChange={handleInputChange}
+          inputMode="numeric"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1">Telepon Rumah</label>
+        <input
+          type="text"
+          name="homePhoneNumber"
+          value={data.homePhoneNumber || ''}
+          onChange={handleInputChange}
+          inputMode="numeric"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        />
+      </div>
+
+      {/* Uploads */}
+      <div>
+        <label className="block mb-1">Upload Foto (required)</label>
+        <input
+          type="file"
+          name="photo"
+          accept="image/*"
+          onChange={handleInputChange}
+          className="block w-full text-sm text-gray-500"
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1">Upload CV / Resume</label>
+        <input
+          type="file"
+          name="cv"
+          accept=".pdf,.doc,.docx"
+          onChange={handleInputChange}
+          className="block w-full text-sm text-gray-500"
+        />
+      </div>
     </div>
   );
 };
