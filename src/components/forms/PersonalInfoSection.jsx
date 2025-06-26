@@ -102,14 +102,10 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
     [data.religion]
   );
 
-  const getSelectValue = (field, options) =>
-    options.find((opt) => opt.value === data[field]) || null;
-
   return (
-    <div className="space-y-4 border rounded-sm border-t-0 p-4">
-      <h3 className="text-lg font-semibold">Informasi Pribadi</h3>
+    <div className="space-y-4 p-4">
+      <h3 className="text-lg font-semibold mb-2">Informasi Pribadi</h3>
 
-      {/* Full Name */}
       <div>
         <label className="block mb-1">Nama Lengkap *</label>
         <input
@@ -121,7 +117,6 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Email */}
       <div>
         <label className="block mb-1">Email *</label>
         <input
@@ -133,7 +128,6 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Gender */}
       <div>
         <label className="block mb-1">Jenis Kelamin *</label>
         <Select
@@ -143,11 +137,9 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
           options={genderOptions}
           isSearchable={false}
           styles={selectStyles}
-          // menuPortalTarget={document.body}
         />
       </div>
 
-      {/* Nationality */}
       <div>
         <label className="block mb-1">Kewarganegaraan *</label>
         <Select
@@ -157,12 +149,10 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
           options={countries}
           styles={selectStyles}
           isSearchable
-          // menuPortalTarget={document.body}
-          placeholder="Select country..."
+          placeholder="Pilih negara..."
         />
       </div>
 
-      {/* Conditional Fields */}
       {data.nationality?.toLowerCase() === 'indonesia' ? (
         <IdentificationSection data={data} setData={setData} />
       ) : data.nationality ? (
@@ -178,7 +168,6 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         </div>
       ) : null}
 
-      {/* Birth Place */}
       <div>
         <label className="block mb-1">Tempat Lahir *</label>
         <input
@@ -190,7 +179,6 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Birth Date */}
       <div>
         <label className="block mb-1">Tanggal Lahir *</label>
         <input
@@ -202,7 +190,6 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Blood Type */}
       <div>
         <label className="block mb-1">Golongan Darah *</label>
         <Select
@@ -212,11 +199,9 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
           options={bloodTypeOptions}
           isSearchable={false}
           styles={selectStyles}
-          // menuPortalTarget={document.body}
         />
       </div>
 
-      {/* Address */}
       <div>
         <label className="block mb-1">Alamat Tempat Tinggal *</label>
         <input
@@ -228,7 +213,6 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Religion */}
       <div>
         <label className="block mb-1">Agama *</label>
         <Select
@@ -238,11 +222,9 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
           options={religionOptions}
           isSearchable={false}
           styles={selectStyles}
-          // menuPortalTarget={document.body}
         />
       </div>
 
-      {/* Phone Number */}
       <div>
         <label className="block mb-1">Nomor Telepon *</label>
         <input
@@ -255,7 +237,6 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Home Phone Number */}
       <div>
         <label className="block mb-1">Telepon Rumah</label>
         <input
@@ -268,7 +249,6 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Upload Photo */}
       <div>
         <label className="block mb-1">Upload Foto (required)</label>
         <input
@@ -280,7 +260,6 @@ const PersonalInfoSection = ({ data = {}, setData }) => {
         />
       </div>
 
-      {/* Upload CV */}
       <div>
         <label className="block mb-1">Upload CV / Resume</label>
         <input

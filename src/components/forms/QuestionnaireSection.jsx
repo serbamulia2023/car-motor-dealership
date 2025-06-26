@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 const defaultQuestions = [
   { question: 'Apakah anda pernah melamar di perusahaan ini sebelumnya?', required: true },
@@ -20,58 +20,29 @@ const defaultQuestions = [
   { question: 'Bila diterima, kapan anda dapat mulai bekerja?', required: true },
 ];
 
-const QuestionnaireSection = ({ formData = {}, setFormData = () => {} }) => {
-  // 🧠 fallback to default questions if not yet initialized
-  const [questions, setQuestions] = useState(() => {
-    if (Array.isArray(formData.questionnaire) && formData.questionnaire.length > 0) {
-      return formData.questionnaire;
-    } else {
-      return defaultQuestions.map((q) => ({
-        ...q,
-        answer: '',
-        explanation: '',
-      }));
-    }
-  });
-
-  // 🧹 Sync back to parent state (formData)
-  useEffect(() => {
-    if (!Array.isArray(formData.questionnaire) || formData.questionnaire.length === 0) {
-      setFormData((prev) => ({
-        ...prev,
-        questionnaire: questions,
-      }));
-    }
-  }, [setFormData]);
+const QuestionnaireSection = ({ data = [], setData }) => {
+  const questions = data.length > 0
+    ? data
+    : defaultQuestions.map(q => ({ ...q, answer: '', explanation: '' }));
 
   const handleAnswer = (index, value) => {
     const updated = [...questions];
     updated[index].answer = value;
-    setQuestions(updated);
-    setFormData((prev) => ({
-      ...prev,
-      questionnaire: updated,
-    }));
+    setData(updated);
   };
 
   const handleExplanation = (index, value) => {
     const updated = [...questions];
     updated[index].explanation = value;
-    setQuestions(updated);
-    setFormData((prev) => ({
-      ...prev,
-      questionnaire: updated,
-    }));
+    setData(updated);
   };
 
   return (
-    <div className="bg-white p-6 rounded shadow mt-6">
-      <h3 className="text-lg font-bold mb-4">Questionnaire</h3>
-
+    <div className="space-y-6">
+      <h3 className="text-lg font-bold">Pertanyaan Tambahan</h3>
       {questions.map((q, index) => (
         <div key={index} className="mb-4">
           <label className="block font-medium text-sm mb-1">{q.question}</label>
-
           <div className="flex items-center gap-6">
             <label className="inline-flex items-center">
               <input
@@ -98,7 +69,6 @@ const QuestionnaireSection = ({ formData = {}, setFormData = () => {} }) => {
               Tidak
             </label>
           </div>
-
           {(q.answer === 'yes' || q.answer === 'no') && (
             <input
               type="text"

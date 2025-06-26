@@ -1,45 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-const PdaAgreementSection = ({ data, setData }) => {
-  const handleChange = (e) => {
-    const { name, checked } = e.target;
-    setData((prev) => ({
-      ...prev,
-      pdaAccepted: {
-        ...prev.pdaAccepted,
-        [name]: checked,
-      },
-    }));
-  };
+const PersonalDataAgreement = ({ data, setData }) => {
+  const [first, setFirst] = useState(data?.first || false);
+  const [second, setSecond] = useState(data?.second || false);
+
+  useEffect(() => {
+    setData({ first, second });
+  }, [first, second]);
 
   return (
-    <div className="border p-4 rounded bg-white space-y-4">
-      <label className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          name="first"
-          checked={data?.first || false}
-          onChange={handleChange}
-          className="w-4 h-4"
-        />
-        <span className="text-sm">
-          I agree to the collection and use of my personal data.
-        </span>
-      </label>
-      <label className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          name="second"
-          checked={data?.second || false}
-          onChange={handleChange}
-          className="w-4 h-4"
-        />
-        <span className="text-sm">
-          I understand the information will be used for recruitment purposes.
-        </span>
-      </label>
+    <div className="space-y-4">
+      <h3 className="text-lg">Dengan ini saya menyatakan bahwa:</h3>
+
+      <div className="space-y-2">
+        <label className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            checked={first}
+            onChange={(e) => setFirst(e.target.checked)}
+            className="mt-1"
+          />
+          <span>
+            Data/informasi yang telah saya berikan di atas adalah benar dan akurat. Apabila ternyata dikemudian hari data/informasi tersebut terbukti terdapat ketidakbenaran dan mengakibatkan kerugian Perusahaan, maka saya akan bertanggung jawab atas akibatnya.
+          </span>
+        </label>
+
+        <label className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            checked={second}
+            onChange={(e) => setSecond(e.target.checked)}
+            className="mt-1"
+          />
+          <span>
+            Menyetujui untuk memberikan akses kepada PT Serba Mulia Auto mempergunakan data pribadi saya untuk keperluan proses penerimaan karyawan dan/atau untuk keperluan lainnya yaitu mengenai promosi produk/layanan dari PT Serba Mulia Auto/Afiliasi/pihak ketiga yang terkait dengan PT Serba Mulia Auto.
+          </span>
+        </label>
+      </div>
     </div>
   );
 };
 
-export default PdaAgreementSection;
+export default PersonalDataAgreement;

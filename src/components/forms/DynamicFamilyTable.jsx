@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
+import { FiMinus } from "react-icons/fi";
 
 const genderOptions = [
   { value: "Laki-laki", label: "Laki-laki" },
@@ -14,141 +15,97 @@ const maritalStatusOptions = [
 ];
 
 const defaultSpouseRow = {
-  hubungan: "Suami/Istri",
-  nama: "",
-  gender: "",
-  usia: "",
-  pendidikan: "",
-  pekerjaan: "",
-  noHp: "",
-  keterangan: "",
+  hubungan: "Suami/Istri", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: "",
 };
 
 const defaultPartnerWork = {
-  namaPerusahaan: "",
-  alamat: "",
-  telepon: "",
-  jenisUsaha: "",
-  jabatan: "",
-  masaKerja: "",
+  namaPerusahaan: "", alamat: "", telepon: "", jenisUsaha: "", jabatan: "", masaKerja: "",
 };
 
-const inputClass =
-  "w-full px-2 py-[6px] border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm";
+const inputClass = "w-full px-2 py-[6px] border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm";
 
-const DynamicFamilyTable = ({ data, setData }) => {
+const DynamicFamilyTable = ({ data = {}, setData }) => {
   const [status, setStatus] = useState(data.status || "");
-  const [rows, setRows] = useState(
-    data.rows || [
-      {
-        hubungan: "Ayah",
-        nama: "",
-        gender: "",
-        usia: "",
-        pendidikan: "",
-        pekerjaan: "",
-        noHp: "",
-        keterangan: "",
-      },
-      {
-        hubungan: "Ibu",
-        nama: "",
-        gender: "",
-        usia: "",
-        pendidikan: "",
-        pekerjaan: "",
-        noHp: "",
-        keterangan: "",
-      },
-    ]
+  const [rows, setRows] = useState(() =>
+    data.rows?.length
+      ? data.rows
+      : [
+          { hubungan: "Ayah", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: "" },
+          { hubungan: "Ibu", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: "" },
+        ]
   );
-  const [partnerRows, setPartnerRows] = useState(() => {
-    if (["Menikah", "Duda", "Janda"].includes(data.status)) {
-      const initial = [];
-      if (data.status === "Menikah") initial.push(defaultSpouseRow);
-      return [...initial];
-    }
-    return [];
-  });
+  const [partnerRows, setPartnerRows] = useState(data.partnerRows || []);
   const [partnerWork, setPartnerWork] = useState(data.partnerWork || defaultPartnerWork);
 
-  // 1. Update partnerRows only when status changes
   useEffect(() => {
-    let updated = [...partnerRows];
-
-    if (status === "Menikah") {
-      if (!updated.some((row) => row.hubungan === "Suami/Istri")) {
-        updated = [defaultSpouseRow, ...updated.filter((r) => r.hubungan === "Anak")];
-      }
+    if (["Menikah", "Duda", "Janda"].includes(status)) {
+      setPartnerRows((prev) => {
+        const hasSpouse = prev.some((r) => r.hubungan === "Suami/Istri");
+        if (status === "Menikah" && !hasSpouse) return [defaultSpouseRow, ...prev];
+        if (status !== "Menikah") return prev.filter((r) => r.hubungan === "Anak");
+        return prev;
+      });
     } else {
-      updated = updated.filter((row) => row.hubungan === "Anak");
+      setPartnerRows([]);
     }
-
-    setPartnerRows(updated);
   }, [status]);
 
-  // 2. Sync all data upwards only when relevant state changes
   useEffect(() => {
     setData({ status, rows, partnerRows, partnerWork });
-  }, [status, rows, partnerRows, partnerWork, setData]);
+  }, [status, rows, partnerRows, partnerWork]);
 
-  const handleRowChange = (index, field, value, isSpouse = false) => {
-    const updated = isSpouse ? [...partnerRows] : [...rows];
-    updated[index][field] = value;
-    isSpouse ? setPartnerRows(updated) : setRows(updated);
+  const handleRowChange = (index, field, value, isPartner = false) => {
+    const copy = isPartner ? [...partnerRows] : [...rows];
+    copy[index][field] = value;
+    isPartner ? setPartnerRows(copy) : setRows(copy);
   };
 
-  const addRow = () => {
-    setRows([
-      ...rows,
-      {
-        hubungan: "Saudara",
-        nama: "",
-        gender: "",
-        usia: "",
-        pendidikan: "",
-        pekerjaan: "",
-        noHp: "",
-        keterangan: "",
-      },
-    ]);
-  };
-
-  const removeRow = (index) => {
-    const updated = [...rows];
-    updated.splice(index, 1);
-    setRows(updated);
-  };
-
-  const addChild = () => {
-    setPartnerRows([
-      ...partnerRows,
-      {
-        hubungan: "Anak",
-        nama: "",
-        gender: "",
-        usia: "",
-        pendidikan: "",
-        pekerjaan: "",
-        noHp: "",
-        keterangan: "",
-      },
-    ]);
-  };
-
-  const removeChild = (index) => {
-    const updated = [...partnerRows];
-    updated.splice(index, 1);
-    setPartnerRows(updated);
-  };
+  const removeRow = (index) => setRows((prev) => prev.filter((_, i) => i !== index));
+  const removeChild = (index) => setPartnerRows((prev) => prev.filter((_, i) => i !== index));
+  const addRow = () => setRows((prev) => [...prev, {
+    hubungan: "Saudara", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: ""
+  }]);
+  const addChild = () => setPartnerRows((prev) => [...prev, {
+    hubungan: "Anak", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: ""
+  }]);
 
   const handleWorkChange = (field, value) => {
     setPartnerWork((prev) => ({ ...prev, [field]: value }));
   };
 
+  const MinusButton = ({ onClick }) => (
+    <button type="button" onClick={onClick} className="absolute top-2 right-2 text-red-500 hover:text-red-700">
+      <FiMinus size={18} />
+    </button>
+  );
+
+  const renderCard = (row, index, isPartner = false, removable = false, onRemove) => (
+    <div key={index} className="relative border p-4 rounded-md mb-4 space-y-2 pr-10">
+      <div className="text-sm font-semibold">{row.hubungan}</div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <input value={row.nama} onChange={(e) => handleRowChange(index, "nama", e.target.value, isPartner)} className={inputClass} placeholder="Nama" />
+        <Select
+          options={genderOptions}
+          value={genderOptions.find((opt) => opt.value === row.gender)}
+          onChange={(e) => handleRowChange(index, "gender", e.value, isPartner)}
+          placeholder="Jenis Kelamin" 
+          className="text-sm"
+          menuPortalTarget={document.body}
+          styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+        />
+        <input value={row.usia} onChange={(e) => handleRowChange(index, "usia", e.target.value, isPartner)} className={inputClass} placeholder="Usia" type="number" />
+        <input value={row.pendidikan} onChange={(e) => handleRowChange(index, "pendidikan", e.target.value, isPartner)} className={inputClass} placeholder="Pendidikan" />
+        <input value={row.pekerjaan} onChange={(e) => handleRowChange(index, "pekerjaan", e.target.value, isPartner)} className={inputClass} placeholder="Pekerjaan" />
+        <input value={row.noHp} onChange={(e) => handleRowChange(index, "noHp", e.target.value, isPartner)} className={inputClass} placeholder="No. Telp/HP" />
+        <input value={row.keterangan} onChange={(e) => handleRowChange(index, "keterangan", e.target.value, isPartner)} className={inputClass} placeholder="Keterangan" />
+      </div>
+      {removable && <MinusButton onClick={onRemove} />}
+    </div>
+  );
+
   return (
-    <div className="space-y-4">
-      {/* Marital Status */}
+    <div className="space-y-6">
+      {/* Status */}
       <div>
         <label className="block font-medium mb-1">Status Perkawinan</label>
         <Select
@@ -156,283 +113,35 @@ const DynamicFamilyTable = ({ data, setData }) => {
           value={maritalStatusOptions.find((opt) => opt.value === status)}
           onChange={(e) => setStatus(e.value)}
           menuPortalTarget={document.body}
-          styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+          styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
         />
       </div>
 
-      {/* Spouse & Child Section */}
+      {/* Pasangan & Anak */}
       {["Menikah", "Duda", "Janda"].includes(status) && (
-        <div className="space-y-2">
-          <h3 className="font-semibold">Suami/Istri & Anak</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm table-auto border">
-              <thead>
-                <tr className="bg-gray-100">
-                  {[
-                    "Hubungan",
-                    "Nama",
-                    "L/P",
-                    "Usia",
-                    "Pendidikan",
-                    "Pekerjaan",
-                    "No. Telp/HP",
-                    "Keterangan",
-                    "Aksi",
-                  ].map((head) => (
-                    <th key={head} className="p-2 border text-left">
-                      {head}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {partnerRows.map((row, index) => {
-                  if (row.hubungan === "Suami/Istri" && status !== "Menikah") return null;
-
-                  return (
-                    <tr key={index}>
-                      <td className="p-1 border">{row.hubungan}</td>
-                      <td className="p-1 border">
-                        <input
-                          value={row.nama}
-                          onChange={(e) =>
-                            handleRowChange(index, "nama", e.target.value, true)
-                          }
-                          className={inputClass}
-                        />
-                      </td>
-                      <td className="p-1 border w-32">
-                        <Select
-                          options={genderOptions}
-                          value={genderOptions.find((opt) => opt.value === row.gender)}
-                          onChange={(e) => handleRowChange(index, "gender", e.value, true)}
-                          className="text-sm"
-                          menuPortalTarget={document.body}
-                          styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-                        />
-                      </td>
-                      <td className="p-1 border w-20">
-                        <input
-                          type="number"
-                          value={row.usia}
-                          onChange={(e) =>
-                            handleRowChange(index, "usia", e.target.value, true)
-                          }
-                          className={inputClass}
-                        />
-                      </td>
-                      <td className="p-1 border">
-                        <input
-                          value={row.pendidikan}
-                          onChange={(e) =>
-                            handleRowChange(index, "pendidikan", e.target.value, true)
-                          }
-                          className={inputClass}
-                        />
-                      </td>
-                      <td className="p-1 border">
-                        <input
-                          value={row.pekerjaan}
-                          onChange={(e) =>
-                            handleRowChange(index, "pekerjaan", e.target.value, true)
-                          }
-                          className={inputClass}
-                        />
-                      </td>
-                      <td className="p-1 border">
-                        <input
-                          value={row.noHp}
-                          onChange={(e) =>
-                            handleRowChange(index, "noHp", e.target.value, true)
-                          }
-                          className={inputClass}
-                        />
-                      </td>
-                      <td className="p-1 border">
-                        <input
-                          value={row.keterangan}
-                          onChange={(e) =>
-                            handleRowChange(index, "keterangan", e.target.value, true)
-                          }
-                          className={inputClass}
-                        />
-                      </td>
-                      <td className="p-1 border">
-                        {row.hubungan === "Anak" && (
-                          <button
-                            type="button"
-                            className="text-red-600"
-                            onClick={() => removeChild(index)}
-                          >
-                            Hapus
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <button
-            type="button"
-            onClick={addChild}
-            className="mt-2 px-4 py-1 bg-blue-600 text-white rounded"
-          >
-            Tambah Anak
-          </button>
+        <div>
+          <h3 className="font-semibold mb-2">Suami/Istri & Anak</h3>
+          {partnerRows.map((row, i) => renderCard(row, i, true, row.hubungan === "Anak", () => removeChild(i)))}
+          <button onClick={addChild} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm">+ Tambah Anak</button>
 
           {status === "Menikah" && (
             <div className="mt-4 p-4 bg-blue-50 rounded-md">
               <h4 className="font-semibold mb-2">Pekerjaan Pasangan (opsional)</h4>
               <div className="grid grid-cols-2 gap-4">
-                <input
-                  placeholder="Nama Perusahaan"
-                  value={partnerWork.namaPerusahaan}
-                  onChange={(e) => handleWorkChange("namaPerusahaan", e.target.value)}
-                  className={inputClass}
-                />
-                <input
-                  placeholder="Alamat"
-                  value={partnerWork.alamat}
-                  onChange={(e) => handleWorkChange("alamat", e.target.value)}
-                  className={inputClass}
-                />
-                <input
-                  placeholder="Telepon"
-                  value={partnerWork.telepon}
-                  onChange={(e) => handleWorkChange("telepon", e.target.value)}
-                  className={inputClass}
-                />
-                <input
-                  placeholder="Jenis Usaha"
-                  value={partnerWork.jenisUsaha}
-                  onChange={(e) => handleWorkChange("jenisUsaha", e.target.value)}
-                  className={inputClass}
-                />
-                <input
-                  placeholder="Jabatan"
-                  value={partnerWork.jabatan}
-                  onChange={(e) => handleWorkChange("jabatan", e.target.value)}
-                  className={inputClass}
-                />
-                <input
-                  placeholder="Masa Kerja"
-                  value={partnerWork.masaKerja}
-                  onChange={(e) => handleWorkChange("masaKerja", e.target.value)}
-                  className={inputClass}
-                />
+                {Object.entries(partnerWork).map(([key, val]) => (
+                  <input key={key} value={val} onChange={(e) => handleWorkChange(key, e.target.value)} className={inputClass} placeholder={key} />
+                ))}
               </div>
             </div>
           )}
         </div>
       )}
 
-      {/* Family Table */}
-      <div className="space-y-2 mt-6">
-        <h3 className="font-semibold">Susunan Keluarga</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm table-auto border">
-            <thead>
-              <tr className="bg-gray-100">
-                {[
-                  "Hubungan",
-                  "Nama",
-                  "L/P",
-                  "Usia",
-                  "Pendidikan",
-                  "Pekerjaan",
-                  "No. Telp/HP",
-                  "Keterangan",
-                  "Aksi",
-                ].map((head) => (
-                  <th key={head} className="p-2 border text-left">
-                    {head}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, index) => (
-                <tr key={index}>
-                  <td className="p-1 border">{row.hubungan}</td>
-                  <td className="p-1 border">
-                    <input
-                      value={row.nama}
-                      onChange={(e) => handleRowChange(index, "nama", e.target.value)}
-                      className={inputClass}
-                    />
-                  </td>
-                  <td className="p-1 border w-32">
-                    <Select
-                      options={genderOptions}
-                      value={genderOptions.find((opt) => opt.value === row.gender)}
-                      onChange={(e) => handleRowChange(index, "gender", e.value)}
-                      className="text-sm"
-                      menuPortalTarget={document.body}
-                      styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-                    />
-                  </td>
-                  <td className="p-1 border w-20">
-                    <input
-                      type="number"
-                      value={row.usia}
-                      onChange={(e) => handleRowChange(index, "usia", e.target.value)}
-                      className={inputClass}
-                    />
-                  </td>
-                  <td className="p-1 border">
-                    <input
-                      value={row.pendidikan}
-                      onChange={(e) => handleRowChange(index, "pendidikan", e.target.value)}
-                      className={inputClass}
-                    />
-                  </td>
-                  <td className="p-1 border">
-                    <input
-                      value={row.pekerjaan}
-                      onChange={(e) => handleRowChange(index, "pekerjaan", e.target.value)}
-                      className={inputClass}
-                    />
-                  </td>
-                  <td className="p-1 border">
-                    <input
-                      value={row.noHp}
-                      onChange={(e) => handleRowChange(index, "noHp", e.target.value)}
-                      className={inputClass}
-                    />
-                  </td>
-                  <td className="p-1 border">
-                    <input
-                      value={row.keterangan}
-                      onChange={(e) => handleRowChange(index, "keterangan", e.target.value)}
-                      className={inputClass}
-                    />
-                  </td>
-                  <td className="p-1 border">
-                    {row.hubungan === "Saudara" && (
-                      <button
-                        type="button"
-                        className="text-red-600"
-                        onClick={() => removeRow(index)}
-                      >
-                        Hapus
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <button
-          type="button"
-          onClick={addRow}
-          className="mt-2 px-4 py-1 bg-blue-600 text-white rounded"
-        >
-          Tambah Saudara
-        </button>
+      {/* Susunan Keluarga */}
+      <div>
+        <h3 className="font-semibold mb-2">Susunan Keluarga</h3>
+        {rows.map((row, i) => renderCard(row, i, false, row.hubungan === "Saudara", () => removeRow(i)))}
+        <button onClick={addRow} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm">+ Tambah Saudara</button>
       </div>
     </div>
   );

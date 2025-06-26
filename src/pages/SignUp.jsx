@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import axios from 'axios';
 
 const SignUp = ({ showToast }) => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const SignUp = ({ showToast }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
 
     if (!name || !email || !password || !confirmPassword) {
@@ -25,11 +26,30 @@ const SignUp = ({ showToast }) => {
       return;
     }
 
-    // Pass data via localStorage or navigate state (simplified with localStorage here)
-    localStorage.setItem('signupCredentials', JSON.stringify({ name, email, password }));
+    try {
+      const res = await axios.post('http://localhost:5050/api/seed-after-signup', {
+        name,
+        email
+      });
 
-    // Redirect to questionnaire
-    navigate('/questionnaire');
+      if (res.data.status === 'success') {
+        localStorage.setItem('signupCredentials', JSON.stringify({ name, email }));
+        showToast('Account created and prefilled! ✅', 'success');
+
+        // 👇 Pass name and email to questionnaire
+        navigate('/questionnaire', {
+          state: {
+            fullName: name,
+            email: email,
+          },
+        });
+      } else {
+        showToast('Something went wrong during seeding.', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to sign up. Try again.', 'error');
+    }
   };
 
   return (
