@@ -44,12 +44,11 @@ const Questionnaire = () => {
         cv: null,
       },
       family: { rows: [], partnerWork: [] },
-      education: [],
+      education: { base: [], universities: [] },
       kursus: [],
       bahasa: [],
       kegiatan: [],
-      workExperience: [],
-      businesses: [],
+      workExperience: { workExperience: [], businesses: [] },
       leisure: {},
       questionnaire: [],
       referensi: { references: [], emergencyContacts: [] },
@@ -57,7 +56,7 @@ const Questionnaire = () => {
     },
   });
 
-  const { watch, reset, handleSubmit } = methods;
+  const { watch, reset, handleSubmit, getValues } = methods;
   const navigate = useNavigate();
   const location = useLocation();
   const [toast, setToast] = useState(null);
@@ -114,7 +113,28 @@ const Questionnaire = () => {
     if (photo) form.append("photo", photo);
     if (cv) form.append("cv", cv);
 
-    const payload = { ...data, personalInfo: info };
+    const payload = {
+      ...data,
+      personalInfo: info,
+      education: {
+        base: data.education?.base || [],
+        universities: data.education?.universities || [],
+      },
+      workExperience: {
+        workExperience: data.workExperience?.workExperience || [],
+      },
+      businesses: data.workExperience?.businesses || [],
+      family: {
+        rows: data.family?.rows || [],
+        partnerWork: data.family?.partnerWork || [],
+      },
+      referensi: {
+        references: data.referensi?.references || [],
+        emergencyContacts: data.referensi?.emergencyContacts || [],
+      },
+    };
+
+    console.log("📦 Payload sent to backend:", payload);
     form.append("data", JSON.stringify(payload));
 
     try {
@@ -141,15 +161,15 @@ const Questionnaire = () => {
             <PersonalInfoSection />
           </Section>
 
-          <Section title="2. Family & Partner" open={openSections.family} toggle={() => toggleSection("family")}>
+          <Section title="2. Family & Partner" open={openSections.family} toggle={() => toggleSection("family")}>          
             <DynamicFamilyTable />
           </Section>
 
-          <Section title="3. Education & Activities" open={openSections.education} toggle={() => toggleSection("education")}>
+          <Section title="3. Education & Activities" open={openSections.education} toggle={() => toggleSection("education")}>            
             <DynamicEducationTable />
           </Section>
 
-          <Section title="4. Work & Business" open={openSections.work} toggle={() => toggleSection("work")}>
+          <Section title="4. Work & Business" open={openSections.work} toggle={() => toggleSection("work")}>            
             <WorkExperienceSection mode="combined" />
           </Section>
 

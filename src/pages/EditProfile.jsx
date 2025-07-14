@@ -1,5 +1,5 @@
 // EditProfile.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useForm, FormProvider } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -28,9 +28,11 @@ const EditProfile = () => {
     referensi: false,
   });
 
+  const emailRef = useRef("");
   const methods = useForm({ defaultValues: {} });
   const { reset, watch } = methods;
   const watchPDA = watch("pdaAccepted");
+  const watchEmail = watch("personalInfo.email");
 
   const toggleSection = (key) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -47,6 +49,7 @@ const EditProfile = () => {
         });
 
         const data = res.data;
+        if (data?.personalInfo?.email) emailRef.current = data.personalInfo.email;
 
         reset({
           personalInfo: data.personalInfo || {},
@@ -66,7 +69,10 @@ const EditProfile = () => {
             references: (data.reference || []).filter((r) => r.tipe === "referrer"),
             emergencyContacts: (data.reference || []).filter((r) => r.tipe === "emergency"),
           },
-          pdaAccepted: { first: false, second: false },
+          pdaAccepted: {
+            first: data.pdaAccepted?.first || false,
+            second: data.pdaAccepted?.second || false,
+          },
         });
       } catch (err) {
         console.error("❌ Failed to load profile:", err);
@@ -85,6 +91,12 @@ const EditProfile = () => {
     if (photo instanceof File) form.append("photo", photo);
     if (cv instanceof File) form.append("cv", cv);
 
+    const emailToUse = info.email || emailRef.current;
+    if (!emailToUse) {
+      showToast("Email tidak ditemukan untuk memperbarui profil.", "error");
+      return;
+    }
+
     const allReferences = [
       ...(referensi.references || []).map((r) => ({ ...r, tipe: "referrer" })),
       ...(referensi.emergencyContacts || []).map((r) => ({ ...r, tipe: "emergency" })),
@@ -93,14 +105,14 @@ const EditProfile = () => {
     form.append(
       "data",
       JSON.stringify({
-        personalInfo: info,
+        personalInfo: { ...info, email: emailToUse },
         referensi: allReferences,
         ...rest,
       })
     );
 
     try {
-      await axios.put(`http://localhost:5050/api/profiles/${info.email}`, form, {
+      await axios.put(`http://localhost:5050/api/profiles/${emailToUse}`, form, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });

@@ -1,6 +1,7 @@
 // ------------------ IMPORTS ------------------
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
 // 🔧 Helper to sanitize integers
 const sanitizeInt = (val) => {
@@ -8,7 +9,21 @@ const sanitizeInt = (val) => {
   return isNaN(parsed) ? null : parsed;
 };
 
-module.exports = (app, pool, upload) => {
+// 🔧 Multer Configuration (embedded)
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../public/uploads'));
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const name = file.originalname.replace(/\s+/g, '-').replace(ext, '');
+    cb(null, `${Date.now()}-${name}${ext}`);
+  }
+});
+
+const upload = multer({ storage });
+
+module.exports = (app, pool) => {
   app.post('/api/questionnaire', upload.fields([
     { name: 'photo', maxCount: 1 },
     { name: 'cv', maxCount: 1 },
@@ -19,19 +34,20 @@ module.exports = (app, pool, upload) => {
     let client;
     try {
       const data = JSON.parse(req.body.data || '{}');
-      console.log("📅 Incoming Full Questionnaire Data:", data);
+      console.log("\ud83d\uddd5 Incoming Full Questionnaire Data:", JSON.stringify(data, null, 2));
+      console.log("\ud83d\udccc Uploaded files:", req.files);
 
       const {
         personalInfo = {},
         family = {},
-        education = {},
+        education = { base: [], universities: [] },
         kursus = [],
         bahasa = [],
         kegiatan = [],
-        workExperience = {},
+        workExperience = { workExperience: [] },
         businesses = [],
         questionnaire = [],
-        referensi = {},
+        referensi = { references: [], emergencyContacts: [] },
         pdaAccepted = {},
         leisure = {},
       } = data;
@@ -54,22 +70,14 @@ module.exports = (app, pool, upload) => {
       }));
 
       const baseUrl = `${req.protocol}://${req.get('host')}/uploads`;
-
-      const photo = req.files?.photo?.[0]?.filename 
-        ? `${baseUrl}/${req.files.photo[0].filename}` 
-        : null;
-
-      const cv = req.files?.cv?.[0]?.filename 
-        ? `${baseUrl}/${req.files.cv[0].filename}` 
-        : null;
+      const photo = req.files?.photo?.[0]?.filename ? `${baseUrl}/${req.files.photo[0].filename}` : null;
+      const cv = req.files?.cv?.[0]?.filename ? `${baseUrl}/${req.files.cv[0].filename}` : null;
 
       client = await pool.connect();
       await client.query('BEGIN');
 
       const profileRes = await client.query('SELECT * FROM profiles WHERE user_id = $1', [user.userId]);
-      if (profileRes.rows.length === 0) {
-        return res.status(400).json({ message: 'Profile not found' });
-      }
+      if (profileRes.rows.length === 0) return res.status(400).json({ message: 'Profile not found' });
       const profileId = profileRes.rows[0].id;
 
       // ----------- UPDATE PROFILES --------------
@@ -81,7 +89,6 @@ module.exports = (app, pool, upload) => {
         'kendaraan_jenis_lainnya', 'kendaraan_detail', 'kendaraan_status',
         'pda_accepted_1', 'pda_accepted_2', 'photo', 'cv'
       ];
-
       const profileValues = [
         personalInfo.full_name, personalInfo.email, personalInfo.gender, personalInfo.birth_place, personalInfo.birth_date,
         personalInfo.blood_type, personalInfo.religion, personalInfo.nationality, personalInfo.marital_status,
@@ -90,27 +97,25 @@ module.exports = (app, pool, upload) => {
         personalInfo.kendaraan_jenis_lainnya, personalInfo.kendaraan_detail, personalInfo.kendaraan_status,
         pdaAccepted.first || false, pdaAccepted.second || false, photo, cv
       ];
-
-      await client.query(
-        `UPDATE profiles SET ${profileFields.map((f, i) => `${f} = $${i + 1}`).join(', ')} WHERE id = $${profileFields.length + 1}`,
-        [...profileValues, profileId]
-      );
+      await client.query(`UPDATE profiles SET ${profileFields.map((f, i) => `${f} = $${i + 1}`).join(', ')} WHERE id = $${profileFields.length + 1}`, [...profileValues, profileId]);
 
       // ----------- CLEAR OLD DATA --------------
       const relatedTables = [
         'educations', 'kursus', 'bahasa', 'kegiatan_sosial',
         'work_experience', 'usaha_sendiri', 'family',
-        'reference', 'partner_work', 'questionnaire'
+        'reference', 'partner_work', 'questionnaire', 'leisure'
       ];
-      for (const table of relatedTables) {
-        await client.query(`DELETE FROM ${table} WHERE profile_id = $1`, [profileId]);
-      }
+      for (const table of relatedTables) await client.query(`DELETE FROM ${table} WHERE profile_id = $1`, [profileId]);
 
       // ----------- INSERT HELPER --------------
       const insertAll = async (table, columns, rows) => {
-        if (!Array.isArray(rows) || rows.length === 0) return;
+        if (!Array.isArray(rows) || rows.length === 0) {
+          console.log(`⚠️ Skipping insert for ${table}: No rows`);
+          return;
+        }
         for (const row of rows) {
           const values = columns.map(col => row[col] === '' ? null : row[col]);
+          console.log(`📥 Inserting into ${table}:`, values);
           await client.query(
             `INSERT INTO ${table} (profile_id, ${columns.join(', ')}) VALUES ($1, ${columns.map((_, i) => `$${i + 2}`).join(', ')})`,
             [profileId, ...values]
@@ -118,19 +123,15 @@ module.exports = (app, pool, upload) => {
         }
       };
 
-      // ----------- INSERT EDUCATION --------------
-      const eduRows = [
-        ...(education.base || []),
-        ...(education.universities || [])
-      ].map(e => ({
-        jenjang: e.jenjang || null,
-        nama_sekolah: e.sekolah || null,
-        jurusan: e.jurusan || null,
-        tahun_masuk: sanitizeInt(e.tahunMasuk),
-        tahun_lulus: sanitizeInt(e.tahunLulus),
-        nilai: null,
-      }));
-      await insertAll('educations', ['jenjang', 'nama_sekolah', 'jurusan', 'tahun_masuk', 'tahun_lulus', 'nilai'], eduRows);
+      await insertAll('educations', ['jenjang', 'sekolah', 'kota', 'jurusan', 'tahun_masuk', 'tahun_lulus'],
+        [...(education.base || []), ...(education.universities || [])].map(e => ({
+          jenjang: e.jenjang || null,
+          sekolah: e.sekolah || null,
+          kota: e.kota || null,
+          jurusan: e.jurusan || null,
+          tahun_masuk: sanitizeInt(e.tahunMasuk),
+          tahun_lulus: sanitizeInt(e.tahunLulus),
+        })));
 
       await insertAll('kursus', ['bidang', 'penyelenggara', 'kota', 'lama', 'tahun', 'dibiayai_oleh', 'lulus'], kursus.map(k => ({
         bidang: k.bidang || null,
@@ -138,7 +139,7 @@ module.exports = (app, pool, upload) => {
         kota: k.kota || null,
         lama: k.lama || null,
         tahun: sanitizeInt(k.tahun),
-        dibiayai_oleh: k.dibiayaiOleh || null,
+        dibiayai_oleh: k.dibiayai_oleh || k.dibiayaiOleh || null,
         lulus: k.lulus || null
       })));
 
@@ -155,10 +156,7 @@ module.exports = (app, pool, upload) => {
         'dari', 'sampai', 'masih_bekerja', 'nama_perusahaan', 'jenis_usaha',
         'jabatan_awal', 'jabatan_akhir', 'deskripsi_pekerjaan',
         'jumlah_karyawan', 'alasan_berhenti', 'atasan_langsung', 'nama_direktur'
-      ], workExperienceRows.map(w => ({
-        ...w,
-        jumlah_karyawan: sanitizeInt(w.jumlah_karyawan)
-      })));
+      ], workExperienceRows.map(w => ({ ...w, jumlah_karyawan: sanitizeInt(w.jumlah_karyawan) })));
 
       await insertAll('usaha_sendiri', [
         'nama_perusahaan', 'alamat', 'no_telp', 'tahun_berdiri',
@@ -170,7 +168,6 @@ module.exports = (app, pool, upload) => {
       })));
 
       await insertAll('reference', ['nama', 'hubungan', 'perusahaan_or_alamat', 'jabatan', 'no_hp', 'tipe'], references);
-
       await insertAll('questionnaire', ['question', 'answer', 'explanation'], questionnaire);
 
       await insertAll('family', ['hubungan', 'nama', 'gender', 'usia', 'pendidikan', 'pekerjaan', 'no_hp', 'keterangan'], familyRows.map(f => ({
@@ -185,11 +182,12 @@ module.exports = (app, pool, upload) => {
       })));
 
       await insertAll('partner_work', ['nama_perusahaan', 'alamat', 'telepon', 'jenis_usaha', 'jabatan', 'masa_kerja'], partnerWork);
-      // ----------- INSERT LEISURE --------------
+
       if (leisure && Object.keys(leisure).length > 0) {
+        await client.query('DELETE FROM leisure WHERE profile_id = $1', [profileId]);
         await client.query(
           `INSERT INTO leisure (profile_id, kegiatan, frekuensi_membaca, topik_dibaca, jenis_bacaan)
-          VALUES ($1, $2, $3, $4, $5)`,
+           VALUES ($1, $2, $3, $4, $5)`,
           [
             profileId,
             leisure.hobi || null,
@@ -199,11 +197,9 @@ module.exports = (app, pool, upload) => {
           ]
         );
       }
-      
-      await client.query('COMMIT');
-      console.log(`✅ Questionnaire submitted successfully for profile ID: ${profileId}`);
-      res.status(200).json({ message: 'Questionnaire submitted successfully' });
 
+      await client.query('COMMIT');
+      res.status(200).json({ message: 'Questionnaire submitted successfully' });
     } catch (err) {
       if (client) await client.query('ROLLBACK');
       console.error('❌ Error in questionnaire submission:', err);

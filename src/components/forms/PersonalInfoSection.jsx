@@ -66,7 +66,7 @@ const PersonalInfoSection = () => {
   const nationality = watchFields.nationality;
 
   const getFileUrl = (filePath) =>
-    filePath?.startsWith('http') ? filePath : `${backendUrl}/${filePath.replace(/^\/+/, '')}`;
+    filePath?.startsWith('http') ? filePath : `${backendUrl}/${filePath.replace(/^\/+/g, '')}`;
 
   return (
     <div className="space-y-4 p-4">
@@ -160,7 +160,10 @@ const PersonalInfoSection = () => {
           <input
             type="file"
             accept={accept}
-            onChange={(e) => setValue(`personalInfo.${name}`, e.target.files[0])}
+            onChange={(e) => {
+              const file = e.target.files[0];
+              setValue(`personalInfo.${name}`, file || watchFields[name]);
+            }}
             className="block w-full text-sm text-gray-500"
           />
         </div>

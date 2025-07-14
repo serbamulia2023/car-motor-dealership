@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useFieldArray, useFormContext, Controller, useWatch } from 'react-hook-form';
 import { FiMinus } from 'react-icons/fi';
 
@@ -28,8 +28,10 @@ const defaultPartnerWork = {
 };
 
 export default function DynamicFamilyTable() {
-  const { control, register } = useFormContext();
+  const { control, register, setValue } = useFormContext();
   const maritalStatus = useWatch({ name: 'personalInfo.marital_status', control });
+
+  const initializedRef = useRef(false);
 
   const {
     fields: familyFields,
@@ -51,15 +53,11 @@ export default function DynamicFamilyTable() {
   });
 
   useEffect(() => {
-    const hubunganMap = new Map();
-    const filtered = [];
+    if (initializedRef.current) return;
 
+    const hubunganMap = new Map();
     familyFields.forEach((f) => {
-      if (!hubunganMap.has(f.hubungan)) {
-        hubunganMap.set(f.hubungan, f);
-      } else {
-        filtered.push(f); // duplicates to discard
-      }
+      if (!hubunganMap.has(f.hubungan)) hubunganMap.set(f.hubungan, f);
     });
 
     const nextRows = [];
@@ -74,9 +72,10 @@ export default function DynamicFamilyTable() {
       else nextRows.push(hubunganMap.get('Suami/Istri'));
     }
 
-    const remaining = familyFields.filter(f => !['Ayah', 'Ibu', 'Suami/Istri'].includes(f.hubungan));
+    const remaining = familyFields.filter((f) => !['Ayah', 'Ibu', 'Suami/Istri'].includes(f.hubungan));
     replaceFamily([...nextRows, ...remaining]);
-  }, [maritalStatus]);
+    initializedRef.current = true;
+  }, [familyFields, maritalStatus, replaceFamily]);
 
   const inputClass = 'w-full px-2 py-1 border rounded text-sm';
 
