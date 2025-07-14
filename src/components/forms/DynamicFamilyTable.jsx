@@ -1,150 +1,192 @@
-import React, { useEffect, useState } from "react";
-import Select from "react-select";
-import { FiMinus } from "react-icons/fi";
+import React, { useEffect } from 'react';
+import { useFieldArray, useFormContext, Controller, useWatch } from 'react-hook-form';
+import { FiMinus } from 'react-icons/fi';
 
 const genderOptions = [
-  { value: "Laki-laki", label: "Laki-laki" },
-  { value: "Perempuan", label: "Perempuan" },
+  { value: 'Laki-laki', label: 'Laki-laki' },
+  { value: 'Perempuan', label: 'Perempuan' },
 ];
 
-const maritalStatusOptions = [
-  { value: "Belum Menikah", label: "Belum Menikah" },
-  { value: "Menikah", label: "Menikah" },
-  { value: "Duda", label: "Duda" },
-  { value: "Janda", label: "Janda" },
-];
-
-const defaultSpouseRow = {
-  hubungan: "Suami/Istri", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: "",
-};
+const defaultRow = (hubungan) => ({
+  hubungan,
+  nama: '',
+  gender: '',
+  usia: '',
+  pendidikan: '',
+  pekerjaan: '',
+  noHp: '',
+  keterangan: hubungan === 'Anak' || hubungan === 'Saudara' ? '' : hubungan,
+});
 
 const defaultPartnerWork = {
-  namaPerusahaan: "", alamat: "", telepon: "", jenisUsaha: "", jabatan: "", masaKerja: "",
+  nama_perusahaan: '',
+  alamat: '',
+  telepon: '',
+  jenis_usaha: '',
+  jabatan: '',
+  masa_kerja: '',
 };
 
-const inputClass = "w-full px-2 py-[6px] border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm";
+export default function DynamicFamilyTable() {
+  const { control, register } = useFormContext();
+  const maritalStatus = useWatch({ name: 'personalInfo.marital_status', control });
 
-const DynamicFamilyTable = ({ data = {}, setData }) => {
-  const [status, setStatus] = useState(data.status || "");
-  const [rows, setRows] = useState(() =>
-    data.rows?.length
-      ? data.rows
-      : [
-          { hubungan: "Ayah", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: "" },
-          { hubungan: "Ibu", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: "" },
-        ]
-  );
-  const [partnerRows, setPartnerRows] = useState(data.partnerRows || []);
-  const [partnerWork, setPartnerWork] = useState(data.partnerWork || defaultPartnerWork);
+  const {
+    fields: familyFields,
+    append: appendFamily,
+    remove: removeFamily,
+    replace: replaceFamily,
+  } = useFieldArray({
+    control,
+    name: 'family.rows',
+  });
+
+  const {
+    fields: partnerFields,
+    append: appendPartner,
+    remove: removePartner,
+  } = useFieldArray({
+    control,
+    name: 'family.partnerWork',
+  });
 
   useEffect(() => {
-    if (["Menikah", "Duda", "Janda"].includes(status)) {
-      setPartnerRows((prev) => {
-        const hasSpouse = prev.some((r) => r.hubungan === "Suami/Istri");
-        if (status === "Menikah" && !hasSpouse) return [defaultSpouseRow, ...prev];
-        if (status !== "Menikah") return prev.filter((r) => r.hubungan === "Anak");
-        return prev;
-      });
-    } else {
-      setPartnerRows([]);
+    const hubunganMap = new Map();
+    const filtered = [];
+
+    familyFields.forEach((f) => {
+      if (!hubunganMap.has(f.hubungan)) {
+        hubunganMap.set(f.hubungan, f);
+      } else {
+        filtered.push(f); // duplicates to discard
+      }
+    });
+
+    const nextRows = [];
+    if (!hubunganMap.has('Ayah')) nextRows.push(defaultRow('Ayah'));
+    else nextRows.push(hubunganMap.get('Ayah'));
+
+    if (!hubunganMap.has('Ibu')) nextRows.push(defaultRow('Ibu'));
+    else nextRows.push(hubunganMap.get('Ibu'));
+
+    if (maritalStatus === 'Kawin') {
+      if (!hubunganMap.has('Suami/Istri')) nextRows.push(defaultRow('Suami/Istri'));
+      else nextRows.push(hubunganMap.get('Suami/Istri'));
     }
-  }, [status]);
 
-  useEffect(() => {
-    setData({ status, rows, partnerRows, partnerWork });
-  }, [status, rows, partnerRows, partnerWork]);
+    const remaining = familyFields.filter(f => !['Ayah', 'Ibu', 'Suami/Istri'].includes(f.hubungan));
+    replaceFamily([...nextRows, ...remaining]);
+  }, [maritalStatus]);
 
-  const handleRowChange = (index, field, value, isPartner = false) => {
-    const copy = isPartner ? [...partnerRows] : [...rows];
-    copy[index][field] = value;
-    isPartner ? setPartnerRows(copy) : setRows(copy);
-  };
+  const inputClass = 'w-full px-2 py-1 border rounded text-sm';
 
-  const removeRow = (index) => setRows((prev) => prev.filter((_, i) => i !== index));
-  const removeChild = (index) => setPartnerRows((prev) => prev.filter((_, i) => i !== index));
-  const addRow = () => setRows((prev) => [...prev, {
-    hubungan: "Saudara", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: ""
-  }]);
-  const addChild = () => setPartnerRows((prev) => [...prev, {
-    hubungan: "Anak", nama: "", gender: "", usia: "", pendidikan: "", pekerjaan: "", noHp: "", keterangan: ""
-  }]);
-
-  const handleWorkChange = (field, value) => {
-    setPartnerWork((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const MinusButton = ({ onClick }) => (
-    <button type="button" onClick={onClick} className="absolute top-2 right-2 text-red-500 hover:text-red-700">
-      <FiMinus size={18} />
-    </button>
-  );
-
-  const renderCard = (row, index, isPartner = false, removable = false, onRemove) => (
-    <div key={index} className="relative border p-4 rounded-md mb-4 space-y-2 pr-10">
-      <div className="text-sm font-semibold">{row.hubungan}</div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <input value={row.nama} onChange={(e) => handleRowChange(index, "nama", e.target.value, isPartner)} className={inputClass} placeholder="Nama" />
-        <Select
-          options={genderOptions}
-          value={genderOptions.find((opt) => opt.value === row.gender)}
-          onChange={(e) => handleRowChange(index, "gender", e.value, isPartner)}
-          placeholder="Jenis Kelamin" 
-          className="text-sm"
-          menuPortalTarget={document.body}
-          styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+  const renderFamilyRow = (field, index) => (
+    <div key={field.id || `${field.hubungan}-${index}`} className="relative border p-4 mb-4 rounded-md pr-10">
+      <div className="text-sm font-bold mb-2">{field.hubungan}</div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <input {...register(`family.rows.${index}.nama`)} className={inputClass} placeholder="Nama" />
+        <Controller
+          control={control}
+          name={`family.rows.${index}.gender`}
+          render={({ field }) => (
+            <select {...field} className={inputClass}>
+              <option value="">Jenis Kelamin</option>
+              {genderOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          )}
         />
-        <input value={row.usia} onChange={(e) => handleRowChange(index, "usia", e.target.value, isPartner)} className={inputClass} placeholder="Usia" type="number" />
-        <input value={row.pendidikan} onChange={(e) => handleRowChange(index, "pendidikan", e.target.value, isPartner)} className={inputClass} placeholder="Pendidikan" />
-        <input value={row.pekerjaan} onChange={(e) => handleRowChange(index, "pekerjaan", e.target.value, isPartner)} className={inputClass} placeholder="Pekerjaan" />
-        <input value={row.noHp} onChange={(e) => handleRowChange(index, "noHp", e.target.value, isPartner)} className={inputClass} placeholder="No. Telp/HP" />
-        <input value={row.keterangan} onChange={(e) => handleRowChange(index, "keterangan", e.target.value, isPartner)} className={inputClass} placeholder="Keterangan" />
+        <input {...register(`family.rows.${index}.usia`)} className={inputClass} placeholder="Usia" />
+        <input {...register(`family.rows.${index}.pendidikan`)} className={inputClass} placeholder="Pendidikan" />
+        <input {...register(`family.rows.${index}.pekerjaan`)} className={inputClass} placeholder="Pekerjaan" />
+        <input {...register(`family.rows.${index}.noHp`)} className={inputClass} placeholder="No. Telp/HP" />
+        <input {...register(`family.rows.${index}.keterangan`)} className={inputClass} placeholder="Keterangan" />
       </div>
-      {removable && <MinusButton onClick={onRemove} />}
+      {!['Ayah', 'Ibu', 'Suami/Istri'].includes(field.hubungan) && (
+        <button
+          type="button"
+          onClick={() => removeFamily(index)}
+          className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+        >
+          <FiMinus size={18} />
+        </button>
+      )}
     </div>
   );
 
   return (
     <div className="space-y-6">
-      {/* Status */}
       <div>
-        <label className="block font-medium mb-1">Status Perkawinan</label>
-        <Select
-          options={maritalStatusOptions}
-          value={maritalStatusOptions.find((opt) => opt.value === status)}
-          onChange={(e) => setStatus(e.value)}
-          menuPortalTarget={document.body}
-          styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
-        />
+        <h3 className="font-semibold mb-2">Ayah, Ibu, dan Saudara</h3>
+        {familyFields.map((f, i) =>
+          ['Ayah', 'Ibu', 'Saudara'].includes(f.hubungan) ? renderFamilyRow(f, i) : null
+        )}
+        <button
+          type="button"
+          onClick={() => appendFamily(defaultRow('Saudara'))}
+          className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+        >
+          + Tambah Saudara
+        </button>
       </div>
 
-      {/* Pasangan & Anak */}
-      {["Menikah", "Duda", "Janda"].includes(status) && (
+      {maritalStatus === 'Kawin' && (
         <div>
-          <h3 className="font-semibold mb-2">Suami/Istri & Anak</h3>
-          {partnerRows.map((row, i) => renderCard(row, i, true, row.hubungan === "Anak", () => removeChild(i)))}
-          <button onClick={addChild} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm">+ Tambah Anak</button>
-
-          {status === "Menikah" && (
-            <div className="mt-4 p-4 bg-blue-50 rounded-md">
-              <h4 className="font-semibold mb-2">Pekerjaan Pasangan (opsional)</h4>
-              <div className="grid grid-cols-2 gap-4">
-                {Object.entries(partnerWork).map(([key, val]) => (
-                  <input key={key} value={val} onChange={(e) => handleWorkChange(key, e.target.value)} className={inputClass} placeholder={key} />
-                ))}
-              </div>
-            </div>
+          <h3 className="font-semibold mb-2">Suami/Istri</h3>
+          {familyFields.map((f, i) =>
+            f.hubungan === 'Suami/Istri' ? renderFamilyRow(f, i) : null
           )}
+
+          <div className="bg-blue-50 p-4 rounded space-y-4 mt-4">
+            <h4 className="font-semibold">Pekerjaan Pasangan (opsional)</h4>
+            {partnerFields.map((field, i) => (
+              <div key={field.id} className="relative border p-4 rounded-md pr-10">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {Object.keys(defaultPartnerWork).map((key) => (
+                    <input
+                      key={key}
+                      {...register(`family.partnerWork.${i}.${key}`)}
+                      className={inputClass}
+                      placeholder={key.replace(/_/g, ' ')}
+                    />
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removePartner(i)}
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                >
+                  <FiMinus size={18} />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => appendPartner({ ...defaultPartnerWork })}
+              className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+            >
+              + Tambah Pekerjaan
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Susunan Keluarga */}
-      <div>
-        <h3 className="font-semibold mb-2">Susunan Keluarga</h3>
-        {rows.map((row, i) => renderCard(row, i, false, row.hubungan === "Saudara", () => removeRow(i)))}
-        <button onClick={addRow} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm">+ Tambah Saudara</button>
-      </div>
+      {(maritalStatus === 'Kawin' || maritalStatus === 'Cerai') && (
+        <div>
+          <h3 className="font-semibold mb-2">Anak</h3>
+          {familyFields.map((f, i) =>
+            f.hubungan === 'Anak' ? renderFamilyRow(f, i) : null
+          )}
+          <button
+            type="button"
+            onClick={() => appendFamily(defaultRow('Anak'))}
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+          >
+            + Tambah Anak
+          </button>
+        </div>
+      )}
     </div>
   );
-};
-
-export default DynamicFamilyTable;
+}

@@ -30,7 +30,6 @@ const Career = () => {
         setLoading(false);
       }
     };
-
     fetchJobs();
   }, []);
 
@@ -45,14 +44,14 @@ const Career = () => {
   };
 
   const renderBrandLogo = (brand) => {
-    const brandName = brand?.toLowerCase().replace('.png', '');
-    if (!VALID_BRANDS.includes(brandName)) return null;
+    const clean = brand?.toLowerCase();
+    if (!VALID_BRANDS.includes(clean)) return null;
 
     return (
       <img
-        src={`http://localhost:5050/brands/${brandName}.png`}
-        alt={`${brandName} logo`}
-        className="object-contain h-full max-w-[100px]"
+        src={`/brands/${clean}.png`}
+        alt={clean}
+        className="object-contain h-12 w-auto mx-auto mb-4"
         onError={(e) => (e.target.style.display = 'none')}
       />
     );
@@ -66,7 +65,6 @@ const Career = () => {
           Explore open positions and grow your career with Serba Mulia Auto.
         </p>
 
-        {/* 🔍 Search Bar */}
         <div className="flex justify-center mb-12">
           <input
             type="text"
@@ -84,52 +82,42 @@ const Career = () => {
           </button>
         </div>
 
-        {/* 🔄 Loading */}
         {loading && <p className="text-gray-500">Loading jobs...</p>}
-
-        {/* ⚠️ Error */}
         {!loading && error && <p className="text-red-500">{error}</p>}
 
-        {/* 📄 Job Cards */}
-        {!loading && !error && results.length > 0 ? (
+        {!loading && !error && results.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {results.map((job) => (
               <div
                 key={job.id}
                 className="relative border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition duration-200 p-6 text-left bg-white"
               >
-                {/* 🖼 Brand Logo */}
-                <div className="flex items-center h-10 mb-4">
-                  {job.brand ? (
-                    renderBrandLogo(job.brand)
-                  ) : (
-                    <span className="text-sm text-gray-400 italic">No brand</span>
-                  )}
-                </div>
+                {renderBrandLogo(job.brand)}
 
-                <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                  {job.title}
+                <h2 className="text-2xl font-semibold text-gray-800 mb-2 text-center">
+                  {job.title || 'Untitled'}
                 </h2>
-                <div className="text-sm text-gray-500 mb-3">
-                  📍 {job.location || '-'} • 🕒 {job.type || 'Full-time'}
+                <div className="text-sm text-gray-500 mb-3 text-center">
+                  📍 {job.location || '-'} • 🕒 {job.type || '-'}
                 </div>
-                <p className="text-gray-600 mb-6 line-clamp-3">
-                  {job.description || 'No description available.'}
+                <p className="text-gray-600 mb-6 line-clamp-3 text-center">
+                  {job.description?.trim() || 'No description available.'}
                 </p>
-                <button
-                  onClick={() => navigate(`/careers/${job.id}`)}
-                  className="bg-black text-white px-5 py-2 rounded-lg hover:bg-blue-600 transition"
-                >
-                  Apply Now
-                </button>
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => navigate(`/careers/${job.id}`)}
+                    className="bg-black text-white px-5 py-2 rounded-lg hover:bg-blue-600 transition"
+                  >
+                    Apply Now
+                  </button>
+                </div>
               </div>
             ))}
           </div>
-        ) : (
-          !loading &&
-          !error && (
-            <p className="text-gray-500 text-md">No jobs found matching your search.</p>
-          )
+        )}
+
+        {!loading && !error && results.length === 0 && searchTerm.trim() !== '' && (
+          <p className="text-gray-500 text-md">No jobs found matching your search.</p>
         )}
       </div>
     </div>

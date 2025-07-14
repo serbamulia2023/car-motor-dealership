@@ -1,96 +1,127 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import Toast from '../components/Toast';
 
-const Login = ({ showToast }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Login = () => {
+  const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
+  const [toast, setToast] = useState(null);
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  // 🔄 Input handler
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const togglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleCloseToast = () => {
+    setToast(null);
+  };
+
+  // ✅ Handle login and store userId + email
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Dummy validation
-    const validEmail = 'user@email.com';
-    const validPassword = 'password123';
+    try {
+      const res = await axios.post(
+        'http://localhost:5050/api/login',
+        form,
+        { withCredentials: true }
+      );
 
-    if (email !== validEmail || password !== validPassword) {
-      showToast('Invalid email or password.', 'error');
-    } else {
-      console.log('Logging in with', { email, password });
-      // Success logic here
+      const { userId, email } = res.data;
+
+      // ✅ Store both userId and email in localStorage
+      localStorage.setItem(
+        'loggedInUser',
+        JSON.stringify({ userId, email })
+      );
+
+      setToast({ message: 'Login berhasil!', type: 'success' });
+
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1000);
+    } catch (err) {
+      console.error('Login error:', err);
+      setToast({ message: 'Email atau password salah.', type: 'error' });
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-          Login to Your Account
-        </h2>
+    <div className="relative min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      {/* ✅ Toast Notification */}
+      {toast && (
+        <div className="absolute top-4 right-3 transform -translate-x-1/2 z-50">
+          <Toast message={toast.message} type={toast.type} onClose={handleCloseToast} />
+        </div>
+      )}
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          {/* Email */}
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-semibold text-center mb-6">Login ke Akun Anda</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email Field */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email Address
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
-              id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={form.email}
+              onChange={handleInputChange}
               required
               placeholder="you@example.com"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-0"
+              className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* Password */}
-          <div className="relative">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Enter your password"
-              className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-0"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute top-[68%] right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              tabIndex={-1}
-            >
-              {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
-            </button>
+          {/* Password Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={form.password}
+                onChange={handleInputChange}
+                required
+                placeholder="Password"
+                className="w-full border border-gray-300 px-3 py-2 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={togglePassword}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500"
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
+            </div>
+            <div className="text-right mt-1">
+              <a href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                Lupa password?
+              </a>
+            </div>
           </div>
 
-          {/* Forgot Password */}
-          <div className="text-right">
-            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition focus:outline-none focus:ring-0 focus:border-transparent"
+            className="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition"
           >
             Login
           </button>
         </form>
 
-        <p className="text-sm text-center text-gray-600 mt-6">
-          Don’t have an account?{' '}
-          <Link to="/signup" className="text-blue-600 hover:underline font-medium">
-            Sign up
-          </Link>
+        <p className="mt-4 text-sm text-center text-gray-600">
+          Belum punya akun?{' '}
+          <a href="/signup" className="text-blue-600 hover:underline">
+            Daftar sekarang
+          </a>
         </p>
       </div>
     </div>

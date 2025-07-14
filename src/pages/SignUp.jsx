@@ -27,28 +27,31 @@ const SignUp = ({ showToast }) => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5050/api/seed-after-signup', {
-        name,
-        email
+      const res = await axios.post(
+        'http://localhost:5050/api/register',
+        { name, email, password },
+        { withCredentials: true }
+      );
+
+      const { userId, email: returnedEmail } = res.data;
+
+      // ✅ Store both userId and email
+      localStorage.setItem(
+        'loggedInUser',
+        JSON.stringify({ userId, email: returnedEmail })
+      );
+
+      showToast('Account created successfully! ✅', 'success');
+
+      navigate('/questionnaire', {
+        state: { fullName: name, email: returnedEmail },
       });
-
-      if (res.data.status === 'success') {
-        localStorage.setItem('signupCredentials', JSON.stringify({ name, email }));
-        showToast('Account created and prefilled! ✅', 'success');
-
-        // 👇 Pass name and email to questionnaire
-        navigate('/questionnaire', {
-          state: {
-            fullName: name,
-            email: email,
-          },
-        });
-      } else {
-        showToast('Something went wrong during seeding.', 'error');
-      }
     } catch (err) {
-      console.error(err);
-      showToast('Failed to sign up. Try again.', 'error');
+      console.error('Signup error:', err.response?.data || err.message);
+      showToast(
+        err.response?.data?.message || 'Failed to sign up. Try again.',
+        'error'
+      );
     }
   };
 
@@ -58,6 +61,7 @@ const SignUp = ({ showToast }) => {
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Create Your Account</h2>
 
         <form onSubmit={handleSignup} className="space-y-4">
+          {/* Name */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
             <input
@@ -67,10 +71,11 @@ const SignUp = ({ showToast }) => {
               onChange={(e) => setName(e.target.value)}
               required
               placeholder="John Doe"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-0"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none"
             />
           </div>
 
+          {/* Email */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
             <input
@@ -80,10 +85,11 @@ const SignUp = ({ showToast }) => {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@example.com"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-0"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none"
             />
           </div>
 
+          {/* Password */}
           <div className="relative">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
             <input
@@ -93,7 +99,7 @@ const SignUp = ({ showToast }) => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••"
-              className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-0"
+              className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none"
             />
             <button
               type="button"
@@ -105,6 +111,7 @@ const SignUp = ({ showToast }) => {
             </button>
           </div>
 
+          {/* Confirm Password */}
           <div className="relative">
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
             <input
@@ -114,7 +121,7 @@ const SignUp = ({ showToast }) => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               placeholder="••••••••"
-              className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-0"
+              className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none"
             />
             <button
               type="button"

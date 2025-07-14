@@ -1,152 +1,141 @@
-import React, { useEffect, useState } from "react";
-import { FiMinus } from "react-icons/fi";
+import React from 'react';
+import { useFormContext, useFieldArray, Controller } from 'react-hook-form';
+import { FiMinus } from 'react-icons/fi';
+import Select from 'react-select';
 
-const defaultBaseEducation = [
-  { jenjang: "SD", sekolah: "", kota: "", jurusan: "", tahunMasuk: "", tahunLulus: "" },
-  { jenjang: "SMP", sekolah: "", kota: "", jurusan: "", tahunMasuk: "", tahunLulus: "" },
-  { jenjang: "SMA/SMK", sekolah: "", kota: "", jurusan: "", tahunMasuk: "", tahunLulus: "" },
-];
+const levelOptions = ["Baik", "Sedang", "Kurang"].map((l) => ({ value: l, label: l }));
+const inputClass = "border px-2 py-1 rounded text-sm w-full";
 
-const defaultUniversityRow = { jenjang: "Universitas", sekolah: "", kota: "", jurusan: "", tahunMasuk: "", tahunLulus: "" };
-const defaultKursusRow = { penyelenggara: "", kota: "", lama: "", tahun: "", dibiayaiOleh: "", lulusTidak: "" };
-const defaultBahasaRow = { bahasa: "", mendengar: "", membaca: "", berbicara: "", menulis: "" };
-const defaultKegiatanRow = { namaOrganisasi: "", macamKegiatan: "", tahun: "", jabatan: "" };
+const defaultUniversity = { jenjang: "Universitas", sekolah: "", kota: "", jurusan: "", tahunMasuk: "", tahunLulus: "" };
+const defaultKursus = { bidang: "", penyelenggara: "", kota: "", lama: "", tahun: "", dibiayaiOleh: "", lulus: "" };
+const defaultBahasa = { nama: "", bicara: "", menulis: "", membaca: "" };
+const defaultKegiatan = { nama_organisasi: "", macam_kegiatan: "", tahun: "", jabatan: "" };
 
-const DynamicEducationTable = ({ data, setData }) => {
-  const [base, setBase] = useState(defaultBaseEducation);
-  const [universities, setUniversities] = useState([]);
-  const [kursus, setKursus] = useState([]);
-  const [bahasa, setBahasa] = useState([]);
-  const [kegiatan, setKegiatan] = useState([]);
+export default function DynamicEducationTable() {
+  const { register, control } = useFormContext();
 
-  useEffect(() => {
-    if (data) {
-      setBase(data.base || defaultBaseEducation);
-      setUniversities(data.universities || []);
-      setKursus(data.kursus || []);
-      setBahasa(data.bahasa || []);
-      setKegiatan(data.kegiatan || []);
-    }
-  }, []);
+  const { fields: universityFields, append: appendUni, remove: removeUni } = useFieldArray({
+    control,
+    name: 'education.universities',
+  });
 
-  useEffect(() => {
-    setData({ base, universities, kursus, bahasa, kegiatan });
-  }, [base, universities, kursus, bahasa, kegiatan]);
+  const { fields: kursusFields, append: appendKursus, remove: removeKursus } = useFieldArray({
+    control,
+    name: 'kursus',
+  });
 
-  const inputClass = "border px-2 py-1 rounded text-sm w-full";
+  const { fields: bahasaFields, append: appendBahasa, remove: removeBahasa } = useFieldArray({
+    control,
+    name: 'bahasa',
+  });
 
-  const handleArrayChange = (arr, setArr, index, field, value) => {
-    const copy = [...arr];
-    copy[index][field] = value;
-    setArr(copy);
-  };
-
-  const addRow = (arr, setArr, def) => setArr([...arr, { ...def }]);
-  const removeRow = (arr, setArr, index) => {
-    const updated = [...arr];
-    updated.splice(index, 1);
-    setArr(updated);
-  };
+  const { fields: kegiatanFields, append: appendKegiatan, remove: removeKegiatan } = useFieldArray({
+    control,
+    name: 'kegiatan',
+  });
 
   const MinusButton = ({ onClick }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className="absolute top-2 right-2 text-red-500 hover:text-red-700 z-10"
-    >
+    <button type="button" onClick={onClick} className="absolute top-2 right-2 text-red-500 hover:text-red-700 z-10">
       <FiMinus size={18} />
     </button>
   );
 
-  const renderSection = (title, items, fields, setFn, defaults, isSelect = {}, selectOptions = {}) => (
-    <div>
-      <h3 className="font-semibold mb-2">{title}</h3>
-      {items.map((row, i) => (
-        <div key={i} className="relative border p-4 pr-10 rounded mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-          {fields.map((f) =>
-            isSelect[f] ? (
-              <select key={f} className={inputClass} value={row[f]} onChange={(e) => handleArrayChange(items, setFn, i, f, e.target.value)}>
-                <option value="">{selectOptions[f].label}</option>
-                {selectOptions[f].options.map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-            ) : (
-              <input key={f} className={inputClass} placeholder={f} value={row[f]} onChange={(e) => handleArrayChange(items, setFn, i, f, e.target.value)} />
-            )
-          )}
-          <MinusButton onClick={() => removeRow(items, setFn, i)} />
-        </div>
-      ))}
-      <button onClick={() => addRow(items, setFn, defaults)} className="flex items-center gap-2 text-white font-semibold bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm">
-        + Tambah {title.split(" ")[0]}
-      </button>
-    </div>
-  );
-
   return (
     <div className="space-y-10">
-      {/* Riwayat Pendidikan */}
+      {/* Base Education */}
       <div>
         <h3 className="font-semibold mb-2">Riwayat Pendidikan</h3>
-        {[...base, ...universities].map((row, idx) => {
-          const isUni = row.jenjang === "Universitas";
-          return (
-            <div key={idx} className="relative border p-4 pr-10 rounded mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="col-span-2 md:col-span-3 font-semibold">{row.jenjang}</div>
-              <input className={inputClass} placeholder="Nama Sekolah/Universitas" value={row.sekolah} onChange={(e) =>
-                idx < base.length
-                  ? handleArrayChange(base, setBase, idx, "sekolah", e.target.value)
-                  : handleArrayChange(universities, setUniversities, idx - base.length, "sekolah", e.target.value)
-              } />
-              <input className={inputClass} placeholder="Kota" value={row.kota} onChange={(e) =>
-                idx < base.length
-                  ? handleArrayChange(base, setBase, idx, "kota", e.target.value)
-                  : handleArrayChange(universities, setUniversities, idx - base.length, "kota", e.target.value)
-              } />
-              <input className={inputClass} placeholder="Jurusan" value={row.jurusan} onChange={(e) =>
-                idx < base.length
-                  ? handleArrayChange(base, setBase, idx, "jurusan", e.target.value)
-                  : handleArrayChange(universities, setUniversities, idx - base.length, "jurusan", e.target.value)
-              } />
-              <input className={inputClass} placeholder="Tahun Masuk" value={row.tahunMasuk} onChange={(e) =>
-                idx < base.length
-                  ? handleArrayChange(base, setBase, idx, "tahunMasuk", e.target.value)
-                  : handleArrayChange(universities, setUniversities, idx - base.length, "tahunMasuk", e.target.value)
-              } />
-              <input className={inputClass} placeholder="Tahun Lulus" value={row.tahunLulus} onChange={(e) =>
-                idx < base.length
-                  ? handleArrayChange(base, setBase, idx, "tahunLulus", e.target.value)
-                  : handleArrayChange(universities, setUniversities, idx - base.length, "tahunLulus", e.target.value)
-              } />
-              {isUni && <MinusButton onClick={() => removeRow(universities, setUniversities, idx - base.length)} />}
-            </div>
-          );
-        })}
-        <button onClick={() => addRow(universities, setUniversities, defaultUniversityRow)} className="flex items-center gap-2 text-white font-semibold bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm">
+        {["SD", "SMP", "SMA/SMK"].map((jenjang, idx) => (
+          <div key={jenjang} className="border p-4 rounded mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="col-span-2 md:col-span-3 font-semibold">{jenjang}</div>
+            <input className={inputClass} placeholder="Nama Sekolah" {...register(`education.base.${idx}.sekolah`)} />
+            <input className={inputClass} placeholder="Kota" {...register(`education.base.${idx}.kota`)} />
+            <input className={inputClass} placeholder="Jurusan" {...register(`education.base.${idx}.jurusan`)} />
+            <input className={inputClass} placeholder="Tahun Masuk" {...register(`education.base.${idx}.tahunMasuk`)} />
+            <input className={inputClass} placeholder="Tahun Lulus" {...register(`education.base.${idx}.tahunLulus`)} />
+            <input type="hidden" value={jenjang} {...register(`education.base.${idx}.jenjang`)} />
+          </div>
+        ))}
+
+        {/* University Fields */}
+        {universityFields.map((row, i) => (
+          <div key={row.id} className="relative border p-4 pr-10 rounded mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="col-span-2 md:col-span-3 font-semibold">Universitas</div>
+            <input className={inputClass} placeholder="Nama Universitas" {...register(`education.universities.${i}.sekolah`)} />
+            <input className={inputClass} placeholder="Kota" {...register(`education.universities.${i}.kota`)} />
+            <input className={inputClass} placeholder="Jurusan" {...register(`education.universities.${i}.jurusan`)} />
+            <input className={inputClass} placeholder="Tahun Masuk" {...register(`education.universities.${i}.tahunMasuk`)} />
+            <input className={inputClass} placeholder="Tahun Lulus" {...register(`education.universities.${i}.tahunLulus`)} />
+            <input type="hidden" value="Universitas" {...register(`education.universities.${i}.jenjang`)} />
+            <MinusButton onClick={() => removeUni(i)} />
+          </div>
+        ))}
+        <button type="button" onClick={() => appendUni(defaultUniversity)} className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
           + Tambah Universitas
         </button>
       </div>
 
       {/* Kursus */}
-      {renderSection("Kursus / Pelatihan", kursus, ["penyelenggara", "kota", "lama", "tahun", "dibiayaiOleh", "lulusTidak"], setKursus, defaultKursusRow, { lulusTidak: true }, {
-        lulusTidak: { label: "Lulus/Tidak", options: ["Lulus", "Tidak"] },
-      })}
+      <div>
+        <h3 className="font-semibold mb-2">Kursus / Pelatihan</h3>
+        {kursusFields.map((_, i) => (
+          <div key={i} className="relative border p-4 pr-10 rounded mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+            {["bidang", "penyelenggara", "kota", "lama", "tahun", "dibiayaiOleh", "lulus"].map((f) => (
+              <input key={f} className={inputClass} placeholder={f.replace(/([A-Z])/g, ' $1')} {...register(`kursus.${i}.${f}`)} />
+            ))}
+            <MinusButton onClick={() => removeKursus(i)} />
+          </div>
+        ))}
+        <button type="button" onClick={() => appendKursus(defaultKursus)} className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+          + Tambah Kursus
+        </button>
+      </div>
 
       {/* Bahasa */}
-      {renderSection("Bahasa", bahasa, ["bahasa", "mendengar", "membaca", "berbicara", "menulis"], setBahasa, defaultBahasaRow, {
-        mendengar: true, membaca: true, berbicara: true, menulis: true
-      }, {
-        mendengar: { label: "Pilih mendengar", options: ["Baik", "Sedang", "Kurang"] },
-        membaca: { label: "Pilih membaca", options: ["Baik", "Sedang", "Kurang"] },
-        berbicara: { label: "Pilih berbicara", options: ["Baik", "Sedang", "Kurang"] },
-        menulis: { label: "Pilih menulis", options: ["Baik", "Sedang", "Kurang"] },
-      })}
+      <div>
+        <h3 className="font-semibold mb-2">Bahasa</h3>
+        {bahasaFields.map((row, i) => (
+          <div key={row.id} className="relative border p-4 pr-10 rounded mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+            <input className={inputClass} placeholder="Bahasa" {...register(`bahasa.${i}.nama`)} />
+            {["bicara", "menulis", "membaca"].map((field) => (
+              <Controller
+                key={field}
+                control={control}
+                name={`bahasa.${i}.${field}`}
+                render={({ field: rhfField }) => (
+                  <Select
+                    {...rhfField}
+                    options={levelOptions}
+                    placeholder={`Kemampuan ${field}`}
+                    value={levelOptions.find((opt) => opt.value === rhfField.value) || null}
+                    onChange={(opt) => rhfField.onChange(opt?.value || "")}
+                  />
+                )}
+              />
+            ))}
+            <MinusButton onClick={() => removeBahasa(i)} />
+          </div>
+        ))}
+        <button type="button" onClick={() => appendBahasa(defaultBahasa)} className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+          + Tambah Bahasa
+        </button>
+      </div>
 
       {/* Kegiatan Sosial */}
-      {renderSection("Kegiatan Sosial", kegiatan, ["namaOrganisasi", "macamKegiatan", "tahun", "jabatan"], setKegiatan, defaultKegiatanRow)}
+      <div>
+        <h3 className="font-semibold mb-2">Kegiatan Sosial</h3>
+        {kegiatanFields.map((_, i) => (
+          <div key={i} className="relative border p-4 pr-10 rounded mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+            {["nama_organisasi", "macam_kegiatan", "tahun", "jabatan"].map((f) => (
+              <input key={f} className={inputClass} placeholder={f.replace(/_/g, " ")} {...register(`kegiatan.${i}.${f}`)} />
+            ))}
+            <MinusButton onClick={() => removeKegiatan(i)} />
+          </div>
+        ))}
+        <button type="button" onClick={() => appendKegiatan(defaultKegiatan)} className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+          + Tambah Kegiatan Sosial
+        </button>
+      </div>
     </div>
   );
-};
-
-export default DynamicEducationTable;
+}

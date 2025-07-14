@@ -1,16 +1,17 @@
-// backend/db.js (or wherever you place it)
+// backend/db.js
 const { Pool } = require('pg');
+require('dotenv').config(); // ✅ Load from .env
 
-// Create a new PostgreSQL connection pool
+// ✅ Create a new PostgreSQL connection pool using .env values
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'car_motor_db', // ✅ Make sure this matches your actual DB name
-  password: 'postgres',     // ✅ Only use 'postgres' as password if you set it that way
-  port: 5432,               // ✅ Default PostgreSQL port
+  host: process.env.PG_HOST,
+  port: process.env.PG_PORT,
+  user: process.env.PG_USER,
+  password: process.env.PG_PASSWORD,
+  database: process.env.PG_DATABASE,
 });
 
-// Optional: test the connection on startup
+// ✅ Optional: test the connection at startup
 pool.connect()
   .then((client) => {
     console.log('✅ PostgreSQL connected successfully!');

@@ -126,6 +126,7 @@
   flex-shrink: 0;                          /* 👈 Prevent squishing */
 }
 
+
 .footer {
   width: 100%;
   background-color: #000;

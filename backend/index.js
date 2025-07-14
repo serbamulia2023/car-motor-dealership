@@ -1,279 +1,205 @@
+// ------------------ IMPORTS ------------------
 const express = require('express');
-const cors = require('cors');
 const multer = require('multer');
+const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const session = require('express-session');
 const bcrypt = require('bcrypt');
+require('dotenv').config();
+
 const pool = require('./db/db');
-const seedUserData = require('./seeds/seedUserData');
+const seedJobs = require('./seeds/seedJobs');
 
 const app = express();
-const PORT = 5050;
+const PORT = process.env.PORT || 5050;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'serbaMuliaSecret$123';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-// ✅ Ensure uploads & brand folder exists
-const uploadDir = path.join(__dirname, 'uploads');
-const brandDir = path.join(__dirname, 'public/brands');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-if (!fs.existsSync(brandDir)) fs.mkdirSync(brandDir);
-
-// ✅ Middleware
-app.use(cors({ origin: 'http://localhost:5173' }));
-app.use(express.urlencoded({ extended: true }));
+// ------------------ MIDDLEWARE ------------------
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json());
-app.use('/uploads', express.static(uploadDir));
-app.use('/brands', express.static(brandDir)); // Serves static logos
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 1000 * 60 * 60 * 24,
+  },
+}));
 
-// ✅ Multer for file upload
+// ------------------ STATIC FILES ------------------
+const publicPath = path.join(__dirname, 'public');
+app.use('/uploads', express.static(path.join(publicPath, 'uploads')));
+app.use('/brands', express.static(path.join(__dirname, 'brands')));
+
+// ------------------ FILE UPLOAD CONFIG ------------------
+const uploadDir = path.join(publicPath, 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads'),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+  destination: (_, __, cb) => cb(null, uploadDir),
+  filename: (_, file, cb) => {
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    cb(null, `${Date.now()}-${safeName}`);
+  },
 });
-const upload = multer({ storage });
+const fileFilter = (_, file, cb) => {
+  const allowed = [
+    'image/jpeg', 'image/png', 'application/pdf',
+    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  cb(null, allowed.includes(file.mimetype));
+};
+const upload = multer({ storage, fileFilter });
 
-// ✅ Dummy job list (can be replaced with DB later)
-const jobList = [
-  {
-    id: 1,
-    title: 'Sales Executive',
-    location: 'Jakarta',
-    type: 'Full-time',
-    brand: 'daihatsu.png',
-    description: 'Engage with walk-in customers and close deals.'
-  },
-  {
-    id: 2,
-    title: 'Marketing Specialist',
-    location: 'Surabaya',
-    type: 'Contract',
-    brand: 'isuzu.png',
-    description: 'Develop local campaigns and manage digital marketing efforts.'
-  },
-  {
-    id: 3,
-    title: 'Service Advisor',
-    location: 'Bandung',
-    type: 'Full-time',
-    brand: 'daihatsu.png',
-    description: 'Coordinate vehicle servicing and advise customers.'
-  },
-  {
-    id: 4,
-    title: 'Finance Admin',
-    location: 'Remote',
-    type: 'Part-time',
-    brand: 'isuzu.png',
-    description: 'Manage daily accounting and cashflow records remotely.'
-  },
-  {
-    id: 5,
-    title: 'Graphic Designer',
-    location: 'Yogyakarta',
-    type: 'Internship',
-    brand: 'daihatsu.png',
-    description: 'Design visual content for internal and external communications.'
-  }
-];
-
-// ✅ Health check endpoints
-app.get('/', (req, res) => res.send('✅ Backend is up and running!'));
-app.get('/ping', (req, res) => res.json({ message: 'pong' }));
-
-// ✅ GET all jobs
-app.get('/api/jobs', (req, res) => {
-  res.json(jobList);
-});
-
-// ✅ POST new job (future HR panel)
-app.post('/api/jobs', (req, res) => {
-  const { title, location, type, brand, description } = req.body;
-
-  if (!title || !location || !type || !brand || !description) {
-    return res.status(400).json({ error: 'All fields required' });
-  }
-
-  const newJob = {
-    id: jobList.length + 1,
-    title,
-    location,
-    type,
-    brand,
-    description
-  };
-
-  jobList.push(newJob);
-  res.status(201).json({ message: '✅ Job posted successfully', job: newJob });
-});
-
-// ✅ Signup with password hashing and seeding
-app.post('/api/signup', async (req, res) => {
-  const client = await pool.connect();
+// ------------------ AUTH ROUTES ------------------
+app.post('/api/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    if (!name || !email || !password)
+      return res.status(400).json({ message: 'Name, email, and password are required' });
 
-    const existing = await client.query('SELECT id FROM users WHERE email = $1', [email]);
-    if (existing.rows.length > 0) {
+    const existing = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (existing.rows.length > 0)
       return res.status(400).json({ message: 'Email already registered' });
-    }
 
     const hashed = await bcrypt.hash(password, 10);
-    const userInsert = await client.query(
-      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id',
+    const result = await pool.query(
+      'INSERT INTO users (name, email, password, created_at) VALUES ($1, $2, $3, NOW()) RETURNING id',
       [name, email, hashed]
     );
 
-    const userId = userInsert.rows[0].id;
-    await seedUserData(userId);
+    const userId = result.rows[0].id;
 
-    res.status(201).json({ status: 'success', userId });
+    await pool.query(
+      'INSERT INTO profiles (user_id, email, full_name, created_at) VALUES ($1, $2, $3, NOW())',
+      [userId, email, name]
+    );
+
+    req.session.user = { userId, email };
+    res.status(201).json({ message: 'User registered successfully', userId, email });
   } catch (err) {
-    console.error('❌ Signup error:', err);
-    res.status(500).json({ message: 'Signup failed' });
-  } finally {
-    client.release();
+    console.error('❌ Register error:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// ✅ Questionnaire form + file uploads
-app.post('/api/questionnaire', upload.fields([
-  { name: 'photo', maxCount: 1 },
-  { name: 'cv', maxCount: 1 }
-]), async (req, res) => {
-  const formData = req.body;
-  const files = req.files;
-  const client = await pool.connect();
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
-  const photoPath = files?.photo?.[0]?.path || null;
-  const cvPath = files?.cv?.[0]?.path || null;
+    if (result.rows.length === 0) return res.status(401).json({ message: 'Invalid credentials' });
+    const user = result.rows[0];
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
+
+    req.session.user = { userId: user.id, email: user.email };
+    res.status(200).json({ message: 'Login successful' });
+  } catch (err) {
+    console.error('❌ Login error:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/api/me', async (req, res) => {
+  const user = req.session?.user;
+  if (!user) return res.status(401).json({ message: 'Unauthorized' });
 
   try {
-    await client.query('BEGIN');
+    const result = await pool.query('SELECT * FROM profiles WHERE user_id = $1', [user.userId]);
+    if (result.rows.length === 0)
+      return res.status(200).json({ hasProfile: false, userId: user.userId });
 
-    const profileInsert = await client.query(`
-      INSERT INTO profiles (
-        name, email, nationality, gender, birth_place, birth_date,
-        address, phone, religion, marital_status,
-        photo_path, cv_path,
-        ktp, sim_a, sim_c, npwp, jamsostek,
-        kendaraan_jenis, kendaraan_jenis_lainnya, kendaraan_detail, kendaraan_status
-      ) VALUES (
-        $1,$2,$3,$4,$5,$6,
-        $7,$8,$9,$10,
-        $11,$12,
-        $13,$14,$15,$16,$17,
-        $18,$19,$20,$21
-      ) RETURNING id
-    `, [
-      formData.nama_lengkap,
-      formData.email,
-      formData.nationality,
-      formData.gender,
-      formData.birth_place,
-      formData.birth_date,
-      formData.address,
-      formData.phone,
-      formData.religion,
-      formData.marital_status,
-      photoPath,
-      cvPath,
-      formData.ktp,
-      formData.simA,
-      formData.simC,
-      formData.npwp,
-      formData.jamsostek,
-      formData.kendaraanJenis,
-      formData.kendaraanJenisLainnya,
-      formData.kendaraanDetail,
-      formData.kendaraanStatus
+    const profile = result.rows[0];
+    const profileId = profile.id;
+
+    const fetchTable = async (table) =>
+      (await pool.query(`SELECT * FROM ${table} WHERE profile_id = $1`, [profileId])).rows;
+
+    const [
+      education, kursus, bahasa, kegiatan, workExperience, businesses,
+      partnerWork, family, referensi, questionnaire
+    ] = await Promise.all([
+      fetchTable('educations'),
+      fetchTable('kursus'),
+      fetchTable('bahasa'),
+      fetchTable('kegiatan_sosial'),
+      fetchTable('work_experience'),
+      fetchTable('usaha_sendiri'),
+      fetchTable('partner_work'),
+      fetchTable('family'),
+      fetchTable('reference'),
+      fetchTable('questionnaire'),
     ]);
 
-    const profileId = profileInsert.rows[0].id;
-
-    const baseEdu = JSON.parse(formData.education_base || '[]');
-    const universities = JSON.parse(formData.education_universities || '[]');
-    const kursusList = JSON.parse(formData.education_kursus || '[]');
-    const bahasaList = JSON.parse(formData.education_bahasa || '[]');
-    const kegiatanList = JSON.parse(formData.education_kegiatan || '[]');
-    const workExpList = JSON.parse(formData.workExperience || '[]');
-    const bisnisList = JSON.parse(formData.businesses || '[]');
-
-    for (const edu of [...baseEdu, ...universities]) {
-      await client.query(`
-        INSERT INTO educations (profile_id, jenjang, sekolah, kota, jurusan, tahun_masuk, tahun_lulus)
-        VALUES ($1,$2,$3,$4,$5,$6,$7)
-      `, [profileId, edu.jenjang, edu.sekolah, edu.kota, edu.jurusan, edu.tahunMasuk, edu.tahunLulus]);
-    }
-
-    for (const kursus of kursusList) {
-      await client.query(`
-        INSERT INTO kursus (profile_id, penyelenggara, kota, lama, tahun, dibiayai_oleh, lulus_tidak)
-        VALUES ($1,$2,$3,$4,$5,$6,$7)
-      `, [profileId, kursus.penyelenggara, kursus.kota, kursus.lama, kursus.tahun, kursus.dibiayaiOleh, kursus.lulusTidak]);
-    }
-
-    for (const bahasa of bahasaList) {
-      await client.query(`
-        INSERT INTO bahasa (profile_id, bahasa, mendengar, membaca, berbicara, menulis)
-        VALUES ($1,$2,$3,$4,$5,$6)
-      `, [profileId, bahasa.bahasa, bahasa.mendengar, bahasa.membaca, bahasa.berbicara, bahasa.menulis]);
-    }
-
-    for (const kegiatan of kegiatanList) {
-      await client.query(`
-        INSERT INTO kegiatan_sosial (profile_id, nama_organisasi, macam_kegiatan, tahun, jabatan)
-        VALUES ($1,$2,$3,$4,$5)
-      `, [profileId, kegiatan.namaOrganisasi, kegiatan.macamKegiatan, kegiatan.tahun, kegiatan.jabatan]);
-    }
-
-    for (const work of workExpList) {
-      await client.query(`
-        INSERT INTO work_experience (
-          profile_id, dari, sampai, masih_bekerja,
-          nama_perusahaan, jenis_usaha,
-          jabatan_awal, jabatan_akhir,
-          deskripsi_pekerjaan, jumlah_karyawan,
-          alasan_berhenti, atasan_langsung, nama_direktur
-        ) VALUES (
-          $1,$2,$3,$4,
-          $5,$6,$7,$8,
-          $9,$10,$11,$12,$13
-        )
-      `, [
-        profileId, work.dari, work.sampai, work.masihBekerja,
-        work.namaPerusahaan, work.jenisUsaha,
-        work.jabatanAwal, work.jabatanAkhir,
-        work.deskripsiPekerjaan, work.jumlahKaryawan,
-        work.alasanBerhenti, work.atasanLangsung, work.namaDirektur
-      ]);
-    }
-
-    for (const bisnis of bisnisList) {
-      await client.query(`
-        INSERT INTO usaha_sendiri (
-          profile_id, nama_perusahaan, alamat, no_telp, tahun_berdiri,
-          status_kepemilikan, jenis_usaha, jumlah_karyawan, pendapatan_bulanan
-        ) VALUES (
-          $1,$2,$3,$4,$5,
-          $6,$7,$8,$9
-        )
-      `, [
-        profileId, bisnis.namaPerusahaan, bisnis.alamat, bisnis.noTelp,
-        bisnis.tahunBerdiri, bisnis.statusKepemilikan, bisnis.jenisUsaha,
-        bisnis.jumlahKaryawan, bisnis.pendapatanBulanan
-      ]);
-    }
-
-    await client.query('COMMIT');
-    res.json({ status: 'success', message: '✅ All data saved to database' });
+    res.status(200).json({
+      hasProfile: true,
+      userId: user.userId,
+      photo: profile.photo,
+      cv: profile.cv,
+      personalInfo: {
+        email: profile.email, // ✅ Moved here
+        full_name: profile.full_name,
+        gender: profile.gender,
+        nationality: profile.nationality,
+        birth_place: profile.birth_place,
+        birth_date: profile.birth_date,
+        address: profile.address,
+        phone: profile.phone,
+        telepon_rumah: profile.telepon_rumah,
+        religion: profile.religion,
+        blood_type: profile.blood_type,
+        marital_status: profile.marital_status,
+        nik: profile.nik,
+        npwp: profile.npwp,
+        no_bpjs: profile.no_bpjs,
+        sim_a: profile.sim_a,
+        sim_c: profile.sim_c,
+        passport_number: profile.passport_number,
+        kendaraan_jenis: profile.kendaraan_jenis,
+        kendaraan_jenis_lainnya: profile.kendaraan_jenis_lainnya,
+        kendaraan_detail: profile.kendaraan_detail,
+        kendaraan_status: profile.kendaraan_status,
+      },
+      education,
+      kursus,
+      bahasa,
+      kegiatan,
+      workExperience,
+      businesses,
+      partnerWork: profile.marital_status?.toLowerCase() === 'menikah' ? partnerWork : [],
+      family,
+      referensi,
+      questionnaire,
+      pdaAccepted: {
+        first: profile.pda_accepted_1,
+        second: profile.pda_accepted_2,
+      },
+    });
   } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('❌ Backend error:', err);
-    res.status(500).json({ error: '❌ Failed to save data to database' });
-  } finally {
-    client.release();
+    console.error('❌ /api/me error:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// ✅ Launch server
+// ------------------ CUSTOM ROUTES ------------------
+require('./routes/questionnaire')(app, pool, upload);
+require('./routes/profile')(app, pool, upload);
+require('./routes/jobs')(app, pool, seedJobs);
+
+// ------------------ ERROR HANDLER ------------------
+app.use((err, req, res, next) => {
+  console.error('❌ Unhandled error:', err);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
+// ------------------ START SERVER ------------------
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

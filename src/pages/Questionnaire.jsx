@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { useForm, FormProvider } from "react-hook-form";
+
 import PersonalInfoSection from "../components/forms/PersonalInfoSection";
 import DynamicFamilyTable from "../components/forms/DynamicFamilyTable";
 import DynamicEducationTable from "../components/forms/DynamicEducationTable";
@@ -10,240 +12,193 @@ import LeisureSection from "../components/forms/LeisureSection";
 import QuestionnaireSection from "../components/forms/QuestionnaireSection";
 import ReferenceSection from "../components/forms/ReferenceSection";
 import PDACheckboxSection from "../components/forms/PDACheckboxSection";
+import Toast from "../components/Toast";
 
 const Questionnaire = () => {
-  const location = useLocation();
-
-  const [formData, setFormData] = useState({
-    personalInfo: {},
-    family: [],
-    education: [],
-    workExperience: [],
-    leisure: {},
-    questionnaire: [],
-    reference: {},
-    pdaAccepted: {
-      first: false,
-      second: false,
+  const methods = useForm({
+    defaultValues: {
+      personalInfo: {
+        full_name: "",
+        email: "",
+        gender: "",
+        birth_place: "",
+        birth_date: "",
+        blood_type: "",
+        religion: "",
+        nationality: "",
+        marital_status: "",
+        address: "",
+        phone: "",
+        telepon_rumah: "",
+        nik: "",
+        npwp: "",
+        no_bpjs: "",
+        sim_a: "",
+        sim_c: "",
+        passport_number: "",
+        kendaraan_jenis: "",
+        kendaraan_jenis_lainnya: "",
+        kendaraan_detail: "",
+        kendaraan_status: "",
+        photo: null,
+        cv: null,
+      },
+      family: { rows: [], partnerWork: [] },
+      education: [],
+      kursus: [],
+      bahasa: [],
+      kegiatan: [],
+      workExperience: [],
+      businesses: [],
+      leisure: {},
+      questionnaire: [],
+      referensi: { references: [], emergencyContacts: [] },
+      pdaAccepted: { first: false, second: false },
     },
   });
 
+  const { watch, reset, handleSubmit } = methods;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [toast, setToast] = useState(null);
+
   const [openSections, setOpenSections] = useState({
-    family: false,
-    education: false,
+    family: true,
+    education: true,
     work: true,
     leisure: false,
     questionnaire: false,
-    reference: false,
+    referensi: false,
   });
 
+  const showToast = (message, type = "success") => setToast({ message, type });
+  const handleCloseToast = () => setToast(null);
+
+  const isPDACompleted = watch("pdaAccepted.first") && watch("pdaAccepted.second");
+
   useEffect(() => {
-    const stateCreds = location?.state;
-    const storedCreds = localStorage.getItem("signupCredentials");
+    const fetchUserInfo = async () => {
+      try {
+        const res = await axios.get("http://localhost:5050/api/me", { withCredentials: true });
+        reset(res.data);
+      } catch {
+        const state = location?.state;
+        const stored = localStorage.getItem("signupCredentials");
+        let fallbackName = "", fallbackEmail = "";
 
-    let fullName = "";
-    let email = "";
+        if (state?.fullName || state?.email) {
+          fallbackName = state.fullName || "";
+          fallbackEmail = state.email || "";
+        } else if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            fallbackName = parsed?.name || "";
+            fallbackEmail = parsed?.email || "";
+          } catch {}
+        }
 
-    try {
-      if (stateCreds?.fullName || stateCreds?.email) {
-        fullName = stateCreds.fullName || "";
-        email = stateCreds.email || "";
-      } else if (storedCreds) {
-        const parsed = JSON.parse(storedCreds);
-        fullName = parsed?.name || "";
-        email = parsed?.email || "";
+        reset({ personalInfo: { full_name: fallbackName, email: fallbackEmail } });
       }
+    };
+    fetchUserInfo();
+  }, [location, reset]);
 
-      if (fullName || email) {
-        setFormData((prev) => ({
-          ...prev,
-          personalInfo: {
-            ...prev.personalInfo,
-            fullName,
-            email,
-          },
-        }));
-      }
-    } catch (err) {
-      console.error("❌ Failed to parse signup credentials:", err);
-    }
-  }, [location]);
-
-  const toggleSection = (section) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
+  const toggleSection = (key) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const sectionWrapper = (label, sectionKey, children) => (
-    <div className="border rounded-md shadow-sm">
-      <div
-        className="flex justify-between items-center bg-gray-100 p-4 cursor-pointer text-lg font-semibold"
-        onClick={() => toggleSection(sectionKey)}
-      >
-        <span>{label}</span>
-        {openSections[sectionKey] ? <FaChevronUp /> : <FaChevronDown />}
-      </div>
-      {openSections[sectionKey] && <div className="p-4">{children}</div>}
-    </div>
-  );
-
-  const isPDACompleted = formData.pdaAccepted.first && formData.pdaAccepted.second;
-
-  const handleSubmit = async () => {
+  const onSubmit = async (data) => {
     const form = new FormData();
+    const { photo, cv, ...info } = data.personalInfo || {};
 
-    for (const key in formData.personalInfo) {
-      if (key === "photo" || key === "cv") {
-        if (formData.personalInfo[key]) {
-          form.append(key, formData.personalInfo[key]);
-        }
-      } else {
-        form.append(key, formData.personalInfo[key] || "");
-      }
-    }
+    if (photo) form.append("photo", photo);
+    if (cv) form.append("cv", cv);
 
-    form.append("family", JSON.stringify(formData.family));
-    form.append("education", JSON.stringify(formData.education));
-    form.append("workExperience", JSON.stringify(formData.workExperience));
-    form.append("leisure", JSON.stringify(formData.leisure));
-    form.append("questionnaire", JSON.stringify(formData.questionnaire));
-    form.append("reference", JSON.stringify(formData.reference));
-    form.append("pdaAccepted", JSON.stringify(formData.pdaAccepted));
+    const payload = { ...data, personalInfo: info };
+    form.append("data", JSON.stringify(payload));
 
     try {
-      const response = await axios.post("http://localhost:5050/api/questionnaire", form, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      await axios.post("http://localhost:5050/api/questionnaire", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
       });
-      console.log("✅ Submission success:", response.data);
-      alert("✅ Form submitted successfully!");
-    } catch (error) {
-      console.error("❌ Submission failed:", error);
-      alert("❌ Failed to submit form. Please check console.");
+      showToast("✅ Berhasil mengirim form!", "success");
+      localStorage.setItem("profileComplete", "true");
+      setTimeout(() => navigate("/dashboard"), 1000);
+    } catch (err) {
+      console.error("❌ Submit gagal:", err);
+      showToast("❌ Gagal mengirim data. Silakan cek console.", "error");
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold mb-4">Serba Mulia Questionnaire Form</h1>
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+          <h1 className="text-2xl font-bold mb-4">Serba Mulia Questionnaire Form</h1>
 
-      {/* 1. Personal Info */}
-      <div className="border rounded-md shadow-sm">
-        <h2 className="bg-gray-100 p-4 text-lg font-semibold">1. Personal Information</h2>
-        <div className="p-4">
-          <PersonalInfoSection
-            data={formData.personalInfo}
-            setData={(newData) =>
-              setFormData((prev) => ({
-                ...prev,
-                personalInfo: {
-                  ...prev.personalInfo,
-                  ...newData,
-                },
-              }))
-            }
-          />
+          <Section title="1. Personal Information">
+            <PersonalInfoSection />
+          </Section>
+
+          <Section title="2. Family & Partner" open={openSections.family} toggle={() => toggleSection("family")}>
+            <DynamicFamilyTable />
+          </Section>
+
+          <Section title="3. Education & Activities" open={openSections.education} toggle={() => toggleSection("education")}>
+            <DynamicEducationTable />
+          </Section>
+
+          <Section title="4. Work & Business" open={openSections.work} toggle={() => toggleSection("work")}>
+            <WorkExperienceSection mode="combined" />
+          </Section>
+
+          <Section title="5. Leisure" open={openSections.leisure} toggle={() => toggleSection("leisure")}>
+            <LeisureSection />
+          </Section>
+
+          <Section title="6. Additional Questions" open={openSections.questionnaire} toggle={() => toggleSection("questionnaire")}>
+            <QuestionnaireSection />
+          </Section>
+
+          <Section title="7. Reference" open={openSections.referensi} toggle={() => toggleSection("referensi")}>
+            <ReferenceSection />
+          </Section>
+
+          <Section title="8. Personal Data Agreement">
+            <PDACheckboxSection />
+          </Section>
+
+          <div className="text-center mt-6">
+            <button
+              type="submit"
+              disabled={!isPDACompleted}
+              className={`px-6 py-2 rounded font-semibold text-white ${
+                isPDACompleted ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"
+              }`}
+            >
+              Submit
+            </button>
+          </div>
+
+          {toast && <Toast message={toast.message} type={toast.type} onClose={handleCloseToast} />}
         </div>
-      </div>
-
-      {/* 2–7 Collapsible Sections */}
-      {sectionWrapper("2. Family", "family", (
-        <DynamicFamilyTable
-          data={formData.family}
-          setData={(newData) => setFormData((prev) => ({ ...prev, family: newData }))}
-        />
-      ))}
-
-      {sectionWrapper("3. Education", "education", (
-        <DynamicEducationTable
-          data={formData.education}
-          setData={(newData) => setFormData((prev) => ({ ...prev, education: newData }))}
-        />
-      ))}
-
-      {sectionWrapper("4. Work Experience", "work", (
-        <WorkExperienceSection
-          data={formData.workExperience}
-          setData={(newData) =>
-            setFormData((prev) => ({
-              ...prev,
-              workExperience: Array.isArray(newData) ? [...newData] : [],
-            }))
-          }
-        />
-      ))}
-
-      {sectionWrapper("5. Leisure Activities", "leisure", (
-        <LeisureSection
-          data={formData.leisure}
-          setData={(newData) =>
-            setFormData((prev) => ({
-              ...prev,
-              leisure: { ...prev.leisure, ...newData },
-            }))
-          }
-        />
-      ))}
-
-      {sectionWrapper("6. Additional Questions", "questionnaire", (
-        <QuestionnaireSection
-          data={formData.questionnaire}
-          setData={(newData) =>
-            setFormData((prev) => ({
-              ...prev,
-              questionnaire: newData,
-            }))
-          }
-        />
-      ))}
-
-      {sectionWrapper("7. Reference", "reference", (
-        <ReferenceSection
-          data={formData.reference}
-          setData={(newData) =>
-            setFormData((prev) => ({
-              ...prev,
-              reference: { ...prev.reference, ...newData },
-            }))
-          }
-        />
-      ))}
-
-      {/* 8. PDA Section */}
-      <div className="border rounded-md shadow-sm">
-        <h2 className="bg-gray-100 p-4 text-lg font-semibold">8. Personal Data Agreement</h2>
-        <div className="p-4">
-          <PDACheckboxSection
-            data={formData.pdaAccepted}
-            setData={(newData) =>
-              setFormData((prev) => ({
-                ...prev,
-                pdaAccepted: { ...prev.pdaAccepted, ...newData },
-              }))
-            }
-          />
-        </div>
-      </div>
-
-      {/* Submit */}
-      <div className="text-center mt-6">
-        <button
-          className={`px-6 py-2 rounded font-semibold text-white ${
-            isPDACompleted
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-          disabled={!isPDACompleted}
-          onClick={handleSubmit}
-        >
-          Submit
-        </button>
-      </div>
-    </div>
+      </form>
+    </FormProvider>
   );
 };
+
+const Section = ({ title, open = true, toggle, children }) => (
+  <div className="border rounded-md shadow-sm">
+    <div
+      className="bg-gray-100 p-4 text-lg font-semibold flex justify-between cursor-pointer"
+      onClick={toggle}
+    >
+      <span>{title}</span>
+      {toggle && (open ? <FaChevronUp /> : <FaChevronDown />)}
+    </div>
+    {open && <div className="p-4">{children}</div>}
+  </div>
+);
 
 export default Questionnaire;
