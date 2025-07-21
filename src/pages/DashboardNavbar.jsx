@@ -5,7 +5,7 @@ export default function DashboardNavbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [userProfile, setUserProfile] = useState({
     name: 'User',
-    photo: 'http://localhost:5050/uploads/default-profile.jpg',
+    photo: 'http://localhost:5050/uploads/profile-default.jpg',
   });
 
   const navigate = useNavigate();
@@ -29,12 +29,12 @@ export default function DashboardNavbar() {
         const data = await res.json();
         console.log('✅ Fetched /api/me:', data);
 
-        const fullName = data.personalInfo?.full_name || data.full_name || data.name || 'User';
-        const photoUrl = data.photo
-          ? data.photo.startsWith('http')
-            ? data.photo
-            : `http://localhost:5050${data.photo}`
-          : 'http://localhost:5050/uploads/default-profile.jpg';
+        const fullName =
+          data.personalInfo?.full_name || data.full_name || data.name || 'User';
+
+        const photoUrl = data.personalInfo?.photo?.startsWith('http')
+          ? data.personalInfo.photo
+          : 'http://localhost:5050/uploads/profile-default.jpg';
 
         setUserProfile({
           name: fullName,
@@ -42,6 +42,10 @@ export default function DashboardNavbar() {
         });
       } catch (err) {
         console.error('❌ Error fetching profile:', err.message || err);
+        setUserProfile({
+          name: 'User',
+          photo: 'http://localhost:5050/uploads/profile-default.jpg',
+        });
       }
     };
 

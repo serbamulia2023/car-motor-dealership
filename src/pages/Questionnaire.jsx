@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import React, { useEffect, useRef, useState } from "react";
+import axios from "../axios";
 import { useForm, FormProvider } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import {
+  FaChevronDown,
+  FaChevronUp,
+  FaQuestionCircle,
+} from "react-icons/fa";
 
 import PersonalInfoSection from "../components/forms/PersonalInfoSection";
 import DynamicFamilyTable from "../components/forms/DynamicFamilyTable";
@@ -13,198 +17,276 @@ import QuestionnaireSection from "../components/forms/QuestionnaireSection";
 import ReferenceSection from "../components/forms/ReferenceSection";
 import PDACheckboxSection from "../components/forms/PDACheckboxSection";
 import Toast from "../components/Toast";
+import DashboardNavbar from "./DashboardNavbar";
 
 const Questionnaire = () => {
-  const methods = useForm({
-    defaultValues: {
-      personalInfo: {
-        full_name: "",
-        email: "",
-        gender: "",
-        birth_place: "",
-        birth_date: "",
-        blood_type: "",
-        religion: "",
-        nationality: "",
-        marital_status: "",
-        address: "",
-        phone: "",
-        telepon_rumah: "",
-        nik: "",
-        npwp: "",
-        no_bpjs: "",
-        sim_a: "",
-        sim_c: "",
-        passport_number: "",
-        kendaraan_jenis: "",
-        kendaraan_jenis_lainnya: "",
-        kendaraan_detail: "",
-        kendaraan_status: "",
-        photo: null,
-        cv: null,
-      },
-      family: { rows: [], partnerWork: [] },
-      education: { base: [], universities: [] },
-      kursus: [],
-      bahasa: [],
-      kegiatan: [],
-      workExperience: { workExperience: [], businesses: [] },
-      leisure: {},
-      questionnaire: [],
-      referensi: { references: [], emergencyContacts: [] },
-      pdaAccepted: { first: false, second: false },
-    },
-  });
-
-  const { watch, reset, handleSubmit, getValues } = methods;
   const navigate = useNavigate();
-  const location = useLocation();
+  const emailRef = useRef("");
+  const nameRef = useRef("User");
   const [toast, setToast] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   const [openSections, setOpenSections] = useState({
-    family: true,
-    education: true,
-    work: true,
+    family: false,
+    education: false,
+    work: false,
     leisure: false,
     questionnaire: false,
     referensi: false,
   });
 
-  const showToast = (message, type = "success") => setToast({ message, type });
+  const methods = useForm();
+  const { reset, watch, handleSubmit } = methods;
+  const watchPDA = watch("pdaAccepted");
+  const watchFiles = watch("personalInfo") || {};
+
+  const toggleSection = (key) =>
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const showToast = (message, type = "success") =>
+    setToast({ message, type });
   const handleCloseToast = () => setToast(null);
 
-  const isPDACompleted = watch("pdaAccepted.first") && watch("pdaAccepted.second");
+  const normalizeDate = (value) =>
+    typeof value === "string" && value.includes("T")
+      ? value.slice(0, 10)
+      : value;
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5050/api/me", { withCredentials: true });
-        reset(res.data);
-      } catch {
-        const state = location?.state;
-        const stored = localStorage.getItem("signupCredentials");
-        let fallbackName = "", fallbackEmail = "";
+        const { data } = await axios.get("/me");
 
-        if (state?.fullName || state?.email) {
-          fallbackName = state.fullName || "";
-          fallbackEmail = state.email || "";
-        } else if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            fallbackName = parsed?.name || "";
-            fallbackEmail = parsed?.email || "";
-          } catch {}
-        }
+        emailRef.current = data.personalInfo?.email || data.user?.email || "";
+        nameRef.current = data.personalInfo?.fullName || data.full_name || "User";
 
-        reset({ personalInfo: { full_name: fallbackName, email: fallbackEmail } });
+        const normalizedWork = (data.workExperience || []).map((job) => ({
+          ...job,
+          dari: normalizeDate(job.dari),
+          sampai: normalizeDate(job.sampai),
+        }));
+
+        reset({
+          personalInfo: {
+            ...(data.personalInfo || {}),
+            birth_date: normalizeDate(data.personalInfo?.birth_date),
+            ...(data.identification || {}),
+            photo: data.personalInfo?.photo || null,
+            cv: data.personalInfo?.cv || null,
+          },
+          family: {
+            rows: data.family?.rows || [],
+            partnerWork: data.family?.partnerWork || [],
+          },
+          education: {
+            base: (data.education || []).filter((e) =>
+              ["SD", "SMP", "SMA/SMK"].includes(e.jenjang)
+            ),
+            universities: (data.education || []).filter(
+              (e) => e.jenjang === "Universitas"
+            ),
+          },
+          kursus: data.kursus || [],
+          bahasa: data.bahasa || [],
+          kegiatan: data.kegiatan || [],
+          workExperience: {
+            workExperience: normalizedWork,
+            businesses: data.businesses || [],
+          },
+          leisure: data.leisure || {},
+          referensi: {
+            references: Array.isArray(data.reference)
+              ? data.reference.filter((r) => r.tipe === "referrer")
+              : data.reference?.references || [],
+            emergencyContacts: Array.isArray(data.reference)
+              ? data.reference.filter((r) => r.tipe === "emergency")
+              : data.reference?.emergencyContacts || [],
+          },
+          questionnaire: Array.isArray(data.questionnaire)
+            ? data.questionnaire
+            : [],
+          pdaAccepted: {
+            first: data.pdaAccepted?.first || false,
+            second: data.pdaAccepted?.second || false,
+          },
+        });
+      } catch (err) {
+        console.error("❌ Failed to load profile:", err);
+        showToast("❌ Gagal memuat data profil", "error");
+      } finally {
+        setLoading(false);
       }
     };
-    fetchUserInfo();
-  }, [location, reset]);
 
-  const toggleSection = (key) => {
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+    fetchProfile();
+  }, [reset]);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (formValues) => {
     const form = new FormData();
-    const { photo, cv, ...info } = data.personalInfo || {};
+    const { personalInfo, referensi, education, workExperience, ...rest } =
+      formValues;
+    const { photo, cv, ...info } = personalInfo || {};
+    const email = info.email || emailRef.current;
+    if (!email) {
+      showToast("Email tidak ditemukan untuk mengirim data.", "error");
+      return;
+    }
 
-    if (photo) form.append("photo", photo);
-    if (cv) form.append("cv", cv);
+    if (photo instanceof File) form.append("photo", photo);
+    if (cv instanceof File) form.append("cv", cv);
 
-    const payload = {
-      ...data,
-      personalInfo: info,
-      education: {
-        base: data.education?.base || [],
-        universities: data.education?.universities || [],
-      },
-      workExperience: {
-        workExperience: data.workExperience?.workExperience || [],
-      },
-      businesses: data.workExperience?.businesses || [],
-      family: {
-        rows: data.family?.rows || [],
-        partnerWork: data.family?.partnerWork || [],
-      },
-      referensi: {
-        references: data.referensi?.references || [],
-        emergencyContacts: data.referensi?.emergencyContacts || [],
-      },
+    const reference = [
+      ...(referensi?.references || []).map((r) => ({
+        ...r,
+        tipe: "referrer",
+      })),
+      ...(referensi?.emergencyContacts || []).map((r) => ({
+        ...r,
+        tipe: "emergency",
+      })),
+    ];
+
+    const flatEducation = [
+      ...(education?.base || []),
+      ...(education?.universities || []),
+    ].map((e) => ({
+      ...e,
+      tahun_masuk: e.tahunMasuk ?? null,
+      tahun_lulus: e.tahunLulus ?? null,
+    }));
+
+    const fullPayload = {
+      ...rest,
+      personalInfo: { ...info, email },
+      education: flatEducation,
+      reference,
+      workExperience,
     };
 
-    console.log("📦 Payload sent to backend:", payload);
-    form.append("data", JSON.stringify(payload));
+    for (const [key, value] of Object.entries(fullPayload)) {
+      form.append(key, JSON.stringify(value));
+    }
 
     try {
-      await axios.post("http://localhost:5050/api/questionnaire", form, {
+      await axios.post("/questionnaire", form, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
-      showToast("✅ Berhasil mengirim form!", "success");
+      showToast("✅ Formulir berhasil dikirim!", "success");
       localStorage.setItem("profileComplete", "true");
-      setTimeout(() => navigate("/dashboard"), 1000);
+      navigate("/dashboard");
     } catch (err) {
-      console.error("❌ Submit gagal:", err);
+      console.error("❌ Submit error:", err);
       showToast("❌ Gagal mengirim data. Silakan cek console.", "error");
     }
   };
 
+  const isPDACompleted = watchPDA?.first && watchPDA?.second;
+
+  if (loading)
+    return <div className="text-center py-12">Loading...</div>;
+
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-          <h1 className="text-2xl font-bold mb-4">Serba Mulia Questionnaire Form</h1>
+    <>
+      <DashboardNavbar name={nameRef.current} />
 
-          <Section title="1. Personal Information">
-            <PersonalInfoSection />
-          </Section>
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        <h1 className="text-2xl font-bold mb-4">
+          Serba Mulia Questionnaire Form
+        </h1>
 
-          <Section title="2. Family & Partner" open={openSections.family} toggle={() => toggleSection("family")}>          
-            <DynamicFamilyTable />
-          </Section>
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <Section title="1. Personal Information">
+              <PersonalInfoSection />
+            </Section>
 
-          <Section title="3. Education & Activities" open={openSections.education} toggle={() => toggleSection("education")}>            
-            <DynamicEducationTable />
-          </Section>
-
-          <Section title="4. Work & Business" open={openSections.work} toggle={() => toggleSection("work")}>            
-            <WorkExperienceSection mode="combined" />
-          </Section>
-
-          <Section title="5. Leisure" open={openSections.leisure} toggle={() => toggleSection("leisure")}>
-            <LeisureSection />
-          </Section>
-
-          <Section title="6. Additional Questions" open={openSections.questionnaire} toggle={() => toggleSection("questionnaire")}>
-            <QuestionnaireSection />
-          </Section>
-
-          <Section title="7. Reference" open={openSections.referensi} toggle={() => toggleSection("referensi")}>
-            <ReferenceSection />
-          </Section>
-
-          <Section title="8. Personal Data Agreement">
-            <PDACheckboxSection />
-          </Section>
-
-          <div className="text-center mt-6">
-            <button
-              type="submit"
-              disabled={!isPDACompleted}
-              className={`px-6 py-2 rounded font-semibold text-white ${
-                isPDACompleted ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"
-              }`}
+            <Section
+              title="2. Family & Partner Work"
+              open={openSections.family}
+              toggle={() => toggleSection("family")}
             >
-              Submit
-            </button>
-          </div>
+              <DynamicFamilyTable />
+            </Section>
 
-          {toast && <Toast message={toast.message} type={toast.type} onClose={handleCloseToast} />}
-        </div>
-      </form>
-    </FormProvider>
+            <Section
+              title="3. Education & Social Activities"
+              open={openSections.education}
+              toggle={() => toggleSection("education")}
+            >
+              <DynamicEducationTable />
+            </Section>
+
+            <Section
+              title="4. Work & Business"
+              open={openSections.work}
+              toggle={() => toggleSection("work")}
+            >
+              <WorkExperienceSection mode="combined" />
+            </Section>
+
+            <Section
+              title="5. Leisure"
+              open={openSections.leisure}
+              toggle={() => toggleSection("leisure")}
+            >
+              <LeisureSection />
+            </Section>
+
+            <Section
+              title="6. Additional Questions"
+              open={openSections.questionnaire}
+              toggle={() => toggleSection("questionnaire")}
+            >
+              <QuestionnaireSection />
+            </Section>
+
+            <Section
+              title="7. Reference"
+              open={openSections.referensi}
+              toggle={() => toggleSection("referensi")}
+            >
+              <ReferenceSection />
+            </Section>
+
+            <Section title="8. Personal Data Agreement">
+              <PDACheckboxSection />
+            </Section>
+
+            <div className="text-center mt-6">
+              <button
+                type="submit"
+                disabled={!isPDACompleted}
+                className={`px-6 py-2 rounded font-semibold text-white ${
+                  isPDACompleted
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </FormProvider>
+
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={handleCloseToast}
+          />
+        )}
+      </div>
+
+      <a
+        href="/questionnaire-guide"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50"
+        title="Lihat Panduan Pengisian"
+      >
+        <FaQuestionCircle size={24} />
+      </a>
+    </>
   );
 };
 

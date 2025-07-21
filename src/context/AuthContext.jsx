@@ -1,6 +1,7 @@
-import { useLocation } from 'react-router-dom';
-import { createContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import { createContext, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+
 
 export const AuthContext = createContext();
 
@@ -11,29 +12,29 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const publicPaths = ['/login', '/signup', '/forgot-password'];
-    if (publicPaths.includes(location.pathname)) {
-      setLoading(false); // Skip auth check
-      return;
-    }
+    const isPublic = publicPaths.includes(location.pathname);
 
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:5050/api/me', {
-          withCredentials: true,
-        });
+        const res = await axios.get('/me'); // ✅ uses /api/me under the hood
         setProfile(res.data);
       } catch (err) {
         if (err.response?.status === 401) {
-          setProfile(null); // expected on public routes
+          if (!isPublic) console.warn('⚠️ User not authenticated');
         } else {
           console.error('❌ Unexpected auth error:', err);
         }
+        setProfile(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
+    if (isPublic) {
+      setLoading(false);
+    } else {
+      fetchProfile();
+    }
   }, [location.pathname]);
 
   return (

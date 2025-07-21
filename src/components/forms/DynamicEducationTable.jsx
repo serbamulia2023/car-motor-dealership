@@ -6,8 +6,8 @@ import Select from 'react-select';
 const levelOptions = ["Baik", "Sedang", "Kurang"].map((l) => ({ value: l, label: l }));
 const inputClass = "border px-2 py-1 rounded text-sm w-full";
 
-const defaultUniversity = { jenjang: "Universitas", sekolah: "", kota: "", jurusan: "", tahunMasuk: "", tahunLulus: "" };
-const defaultKursus = { bidang: "", penyelenggara: "", kota: "", lama: "", tahun: "", dibiayaiOleh: "", lulus: "" };
+const defaultUniversity = { jenjang: "Universitas", sekolah: "", kota: "", jurusan: "", tahun_masuk: "", tahun_lulus: "" };
+const defaultKursus = { bidang: "", penyelenggara: "", kota: "", lama: "", tahun: "", dibiayai_oleh: "", lulus: "" };
 const defaultBahasa = { nama: "", bicara: "", menulis: "", membaca: "" };
 const defaultKegiatan = { nama_organisasi: "", macam_kegiatan: "", tahun: "", jabatan: "" };
 
@@ -51,8 +51,8 @@ export default function DynamicEducationTable() {
             <input className={inputClass} placeholder="Nama Sekolah" {...register(`education.base.${idx}.sekolah`)} />
             <input className={inputClass} placeholder="Kota" {...register(`education.base.${idx}.kota`)} />
             <input className={inputClass} placeholder="Jurusan" {...register(`education.base.${idx}.jurusan`)} />
-            <input className={inputClass} placeholder="Tahun Masuk" {...register(`education.base.${idx}.tahunMasuk`)} />
-            <input className={inputClass} placeholder="Tahun Lulus" {...register(`education.base.${idx}.tahunLulus`)} />
+            <input className={inputClass} placeholder="Tahun Masuk" {...register(`education.base.${idx}.tahun_masuk`)} />
+            <input className={inputClass} placeholder="Tahun Lulus" {...register(`education.base.${idx}.tahun_lulus`)} />
             <input type="hidden" value={jenjang} {...register(`education.base.${idx}.jenjang`)} />
           </div>
         ))}
@@ -64,8 +64,8 @@ export default function DynamicEducationTable() {
             <input className={inputClass} placeholder="Nama Universitas" {...register(`education.universities.${i}.sekolah`)} />
             <input className={inputClass} placeholder="Kota" {...register(`education.universities.${i}.kota`)} />
             <input className={inputClass} placeholder="Jurusan" {...register(`education.universities.${i}.jurusan`)} />
-            <input className={inputClass} placeholder="Tahun Masuk" {...register(`education.universities.${i}.tahunMasuk`)} />
-            <input className={inputClass} placeholder="Tahun Lulus" {...register(`education.universities.${i}.tahunLulus`)} />
+            <input className={inputClass} placeholder="Tahun Masuk" {...register(`education.universities.${i}.tahun_masuk`)} />
+            <input className={inputClass} placeholder="Tahun Lulus" {...register(`education.universities.${i}.tahun_lulus`)} />
             <input type="hidden" value="Universitas" {...register(`education.universities.${i}.jenjang`)} />
             <MinusButton onClick={() => removeUni(i)} />
           </div>
@@ -80,8 +80,8 @@ export default function DynamicEducationTable() {
         <h3 className="font-semibold mb-2">Kursus / Pelatihan</h3>
         {kursusFields.map((_, i) => (
           <div key={i} className="relative border p-4 pr-10 rounded mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-            {["bidang", "penyelenggara", "kota", "lama", "tahun", "dibiayaiOleh", "lulus"].map((f) => (
-              <input key={f} className={inputClass} placeholder={f.replace(/([A-Z])/g, ' $1')} {...register(`kursus.${i}.${f}`)} />
+            {Object.keys(defaultKursus).map((f) => (
+              <input key={f} className={inputClass} placeholder={f.replace(/_/g, ' ')} {...register(`kursus.${i}.${f}`)} />
             ))}
             <MinusButton onClick={() => removeKursus(i)} />
           </div>
@@ -126,7 +126,7 @@ export default function DynamicEducationTable() {
         <h3 className="font-semibold mb-2">Kegiatan Sosial</h3>
         {kegiatanFields.map((_, i) => (
           <div key={i} className="relative border p-4 pr-10 rounded mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-            {["nama_organisasi", "macam_kegiatan", "tahun", "jabatan"].map((f) => (
+            {Object.keys(defaultKegiatan).map((f) => (
               <input key={f} className={inputClass} placeholder={f.replace(/_/g, " ")} {...register(`kegiatan.${i}.${f}`)} />
             ))}
             <MinusButton onClick={() => removeKegiatan(i)} />

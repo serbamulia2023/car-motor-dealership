@@ -66,13 +66,13 @@ const PersonalInfoSection = () => {
   const nationality = watchFields.nationality;
 
   const getFileUrl = (filePath) =>
-    filePath?.startsWith('http') ? filePath : `${backendUrl}/${filePath.replace(/^\/+/g, '')}`;
+    filePath?.startsWith('http') ? filePath : `${backendUrl}/${filePath.replace(/^\/+/, '')}`;
 
   return (
     <div className="space-y-4 p-4">
       <h3 className="text-lg font-semibold mb-2">Informasi Pribadi</h3>
 
-      {/* === Text Inputs (snake_case) === */}
+      {/* === Text Inputs === */}
       {[
         { name: 'full_name', label: 'Nama Lengkap', type: 'text' },
         { name: 'email', label: 'Email', type: 'email' },
@@ -83,9 +83,7 @@ const PersonalInfoSection = () => {
         { name: 'telepon_rumah', label: 'Telepon Rumah', type: 'text' },
       ].map(({ name, label, type }) => (
         <div key={name}>
-          <label className="block mb-1">
-            {label} <span className="text-red-500">*</span>
-          </label>
+          <label className="block mb-1">{label} <span className="text-red-500">*</span></label>
           <input
             type={type}
             {...register(`personalInfo.${name}`)}
@@ -94,7 +92,7 @@ const PersonalInfoSection = () => {
         </div>
       ))}
 
-      {/* === Select Inputs (snake_case) === */}
+      {/* === Select Inputs === */}
       {[
         { name: 'gender', label: 'Jenis Kelamin', options: genderOptions },
         { name: 'marital_status', label: 'Status Pernikahan', options: maritalOptions },
@@ -103,9 +101,7 @@ const PersonalInfoSection = () => {
         { name: 'religion', label: 'Agama', options: religionOptions },
       ].map(({ name, label, options }) => (
         <div key={name}>
-          <label className="block mb-1">
-            {label} <span className="text-red-500">*</span>
-          </label>
+          <label className="block mb-1">{label} <span className="text-red-500">*</span></label>
           <Controller
             control={control}
             name={`personalInfo.${name}`}
@@ -122,14 +118,12 @@ const PersonalInfoSection = () => {
         </div>
       ))}
 
-      {/* === Conditional Identification Section === */}
+      {/* === Conditional Identification / Passport === */}
       {nationality?.toLowerCase() === 'indonesia' ? (
         <IdentificationSection />
       ) : nationality ? (
         <div>
-          <label className="block mb-1">
-            Nomor Paspor <span className="text-red-500">*</span>
-          </label>
+          <label className="block mb-1">Nomor Paspor <span className="text-red-500">*</span></label>
           <input
             type="text"
             {...register('personalInfo.passport_number')}
@@ -138,31 +132,34 @@ const PersonalInfoSection = () => {
         </div>
       ) : null}
 
-      {/* === File Uploads (photo, cv) === */}
+      {/* === File Uploads === */}
       {[
         { name: 'photo', label: 'Upload Foto', accept: 'image/*' },
         { name: 'cv', label: 'Upload CV / Resume', accept: '.pdf,.doc,.docx' },
       ].map(({ name, label, accept }) => (
         <div key={name}>
           <label className="block mb-1">{label}</label>
+
+          {/* Link preview if file is already uploaded */}
           {watchFields[name] && typeof watchFields[name] === 'string' && (
-            <div className="mb-2">
+            <div className="mb-1 text-sm">
               <a
                 href={getFileUrl(watchFields[name])}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 underline text-sm"
+                className="text-blue-600 underline"
               >
-                {watchFields[name].split('/').pop()}
+                📁 {watchFields[name].split('/').pop()}
               </a>
             </div>
           )}
+
           <input
             type="file"
             accept={accept}
             onChange={(e) => {
-              const file = e.target.files[0];
-              setValue(`personalInfo.${name}`, file || watchFields[name]);
+              const file = e.target.files?.[0];
+              if (file) setValue(`personalInfo.${name}`, file);
             }}
             className="block w-full text-sm text-gray-500"
           />

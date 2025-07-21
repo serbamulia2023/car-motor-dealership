@@ -1,52 +1,79 @@
-.toast {
+.toastContainer {
   position: fixed;
-  top: 2rem;
-  right: 2rem;
-  z-index: 9999;
-  background-color: #333;
-  color: #fff;
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.4;
-  min-width: 250px;
-  max-width: 90vw;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: fadeInOut 3s ease-in-out forwards;
+  top: 5.5rem; /* ✅ lower to avoid navbar */
+  right: 1.5rem;
+  z-index: 9999; /* ✅ high enough to appear above navbar */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  pointer-events: none;
+  max-width: 100vw;
+}
+
+/* Toast card */
+.toast {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: #333;
+  animation: fadeSlideUp 0.3s ease-out, fadeOut 0.4s ease-in forwards;
+  animation-delay: 0s, 2.6s;
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+  will-change: transform, opacity;
 }
 
+/* Better entry animation */
+@keyframes fadeSlideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Toast types */
 .success {
-  background-color: #28a745; /* green */
+  background: linear-gradient(135deg, #38a169, #2f855a);
 }
 
 .error {
-  background-color: #dc3545; /* red */
+  background: linear-gradient(135deg, #e53e3e, #c53030);
 }
 
-@keyframes fadeInOut {
-  0% {
-    opacity: 0;
-    transform: translateY(-10%);
-  }
-  10% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  90% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-10%);
-  }
+/* Dismiss button */
+.closeButton {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  margin-left: 1rem;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 0.2s ease-in-out;
+}
+
+.closeButton:hover {
+  color: #fefcbf;
 }

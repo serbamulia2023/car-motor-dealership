@@ -1,43 +1,27 @@
-import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import axios from '../axios';
 
-export default function ProtectedRoute({ children, allowIncompleteProfile = true }) {
-  const [authChecked, setAuthChecked] = useState(false);
-  const [authenticated, setAuthenticated] = useState(false);
-  const [hasProfile, setHasProfile] = useState(true); // assume true unless proven otherwise
+export default function ProtectedRoute({ user, children, allowIncompleteProfile = true }) {
   const location = useLocation();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await axios.get('/me', { withCredentials: true });
-        if (res.status === 200) {
-          setAuthenticated(true);
-          setHasProfile(res.data.hasProfile !== false); // safe for both old/new versions
-        } else {
-          setAuthenticated(false);
-        }
-      } catch (error) {
-        console.warn('❌ Not authenticated:', error.response?.data || error.message);
-        setAuthenticated(false);
-      } finally {
-        setAuthChecked(true);
-      }
-    };
+  // 🟡 Step 1: Still waiting for user data from App.jsx
+  if (user === null) {
+    console.log('⏳ ProtectedRoute: Waiting for user session...');
+    return null; // Optional: return <div>Loading...</div>;
+  }
 
-    checkAuth();
-  }, []);
-
-  if (!authChecked) return null; // or return a spinner/loading state
-
-  if (!authenticated) {
+  // 🔴 Step 2: No session → redirect to login
+  if (!user?.email) {
+    console.log('🔐 ProtectedRoute: No session. Redirecting to /login');
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (!hasProfile && !allowIncompleteProfile) {
+  // 🔶 Step 3: Session exists, but no profile and it's required → redirect to questionnaire
+  if (!user.hasProfile && !allowIncompleteProfile) {
+    console.log('📝 ProtectedRoute: No profile. Redirecting to /questionnaire');
     return <Navigate to="/questionnaire" state={{ from: location }} replace />;
   }
 
+  // ✅ Step 4: Auth + profile ok → allow access
+  console.log('✅ ProtectedRoute: Access granted to protected route');
   return children;
 }

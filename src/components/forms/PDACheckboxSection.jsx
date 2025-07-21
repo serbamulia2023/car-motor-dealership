@@ -2,12 +2,7 @@ import React from "react";
 import { useFormContext } from "react-hook-form";
 
 const PersonalDataAgreement = () => {
-  const { watch, setValue, formState: { errors } } = useFormContext();
-  const pdaAccepted = watch("pdaAccepted") || {};
-
-  const handleCheckboxChange = (field) => (e) => {
-    setValue(`pdaAccepted.${field}`, e.target.checked, { shouldValidate: true });
-  };
+  const { register, formState: { errors } } = useFormContext();
 
   return (
     <div className="space-y-4">
@@ -17,12 +12,13 @@ const PersonalDataAgreement = () => {
         <label className="flex items-start gap-2 text-sm text-gray-700">
           <input
             type="checkbox"
-            checked={pdaAccepted.first || false}
-            onChange={handleCheckboxChange("first")}
+            {...register("pdaAccepted.first", { required: true })}
             className="mt-1"
           />
           <span>
-            Data/informasi yang telah saya berikan di atas adalah benar dan akurat. Apabila ternyata dikemudian hari data/informasi tersebut terbukti terdapat ketidakbenaran dan mengakibatkan kerugian Perusahaan, maka saya akan bertanggung jawab atas akibatnya.
+            Data/informasi yang telah saya berikan di atas adalah benar dan akurat. Apabila ternyata
+            dikemudian hari data/informasi tersebut terbukti terdapat ketidakbenaran dan
+            mengakibatkan kerugian Perusahaan, maka saya akan bertanggung jawab atas akibatnya.
           </span>
         </label>
         {errors?.pdaAccepted?.first && (
@@ -32,12 +28,14 @@ const PersonalDataAgreement = () => {
         <label className="flex items-start gap-2 text-sm text-gray-700">
           <input
             type="checkbox"
-            checked={pdaAccepted.second || false}
-            onChange={handleCheckboxChange("second")}
+            {...register("pdaAccepted.second", { required: true })}
             className="mt-1"
           />
           <span>
-            Menyetujui untuk memberikan akses kepada PT Serba Mulia Auto mempergunakan data pribadi saya untuk keperluan proses penerimaan karyawan dan/atau untuk keperluan lainnya yaitu mengenai promosi produk/layanan dari PT Serba Mulia Auto/Afiliasi/pihak ketiga yang terkait dengan PT Serba Mulia Auto.
+            Menyetujui untuk memberikan akses kepada PT Serba Mulia Auto mempergunakan data pribadi saya
+            untuk keperluan proses penerimaan karyawan dan/atau untuk keperluan lainnya yaitu mengenai
+            promosi produk/layanan dari PT Serba Mulia Auto/Afiliasi/pihak ketiga yang terkait dengan
+            PT Serba Mulia Auto.
           </span>
         </label>
         {errors?.pdaAccepted?.second && (

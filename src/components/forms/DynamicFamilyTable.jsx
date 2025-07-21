@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import { useFieldArray, useFormContext, Controller, useWatch } from 'react-hook-form';
+import React, { useEffect, useRef, useState } from 'react';
+import { useFormContext, useFieldArray, useWatch, Controller } from 'react-hook-form';
 import { FiMinus } from 'react-icons/fi';
+import Select from 'react-select';
 
 const genderOptions = [
   { value: 'Laki-laki', label: 'Laki-laki' },
@@ -14,7 +15,7 @@ const defaultRow = (hubungan) => ({
   usia: '',
   pendidikan: '',
   pekerjaan: '',
-  noHp: '',
+  no_hp: '',
   keterangan: hubungan === 'Anak' || hubungan === 'Saudara' ? '' : hubungan,
 });
 
@@ -28,10 +29,11 @@ const defaultPartnerWork = {
 };
 
 export default function DynamicFamilyTable() {
-  const { control, register, setValue } = useFormContext();
-  const maritalStatus = useWatch({ name: 'personalInfo.marital_status', control });
-
+  const { control, register } = useFormContext();
+  const rawMaritalStatus = useWatch({ name: 'personalInfo.marital_status', control });
+  const maritalStatus = (rawMaritalStatus || 'Belum Kawin').toLowerCase();
   const initializedRef = useRef(false);
+  const [isReady, setIsReady] = useState(false);
 
   const {
     fields: familyFields,
@@ -61,21 +63,36 @@ export default function DynamicFamilyTable() {
     });
 
     const nextRows = [];
-    if (!hubunganMap.has('Ayah')) nextRows.push(defaultRow('Ayah'));
-    else nextRows.push(hubunganMap.get('Ayah'));
+    nextRows.push(hubunganMap.get('Ayah') || defaultRow('Ayah'));
+    nextRows.push(hubunganMap.get('Ibu') || defaultRow('Ibu'));
 
-    if (!hubunganMap.has('Ibu')) nextRows.push(defaultRow('Ibu'));
-    else nextRows.push(hubunganMap.get('Ibu'));
-
-    if (maritalStatus === 'Kawin') {
-      if (!hubunganMap.has('Suami/Istri')) nextRows.push(defaultRow('Suami/Istri'));
-      else nextRows.push(hubunganMap.get('Suami/Istri'));
+    if (maritalStatus === 'kawin') {
+      nextRows.push(hubunganMap.get('Suami/Istri') || defaultRow('Suami/Istri'));
     }
 
     const remaining = familyFields.filter((f) => !['Ayah', 'Ibu', 'Suami/Istri'].includes(f.hubungan));
     replaceFamily([...nextRows, ...remaining]);
+
     initializedRef.current = true;
+    setIsReady(true);
   }, [familyFields, maritalStatus, replaceFamily]);
+
+  useEffect(() => {
+    if (!initializedRef.current) return;
+
+    const hasSpouse = familyFields.some((f) => f.hubungan === 'Suami/Istri');
+
+    if (maritalStatus === 'kawin' && !hasSpouse) {
+      appendFamily(defaultRow('Suami/Istri'));
+    }
+
+    if (maritalStatus !== 'kawin') {
+      const spouseIndexes = familyFields
+        .map((f, i) => (f.hubungan === 'Suami/Istri' ? i : null))
+        .filter((i) => i !== null);
+      spouseIndexes.forEach((i) => removeFamily(i));
+    }
+  }, [maritalStatus, familyFields, appendFamily, removeFamily]);
 
   const inputClass = 'w-full px-2 py-1 border rounded text-sm';
 
@@ -88,18 +105,27 @@ export default function DynamicFamilyTable() {
           control={control}
           name={`family.rows.${index}.gender`}
           render={({ field }) => (
-            <select {...field} className={inputClass}>
-              <option value="">Jenis Kelamin</option>
-              {genderOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+            <Select
+              {...field}
+              options={genderOptions}
+              placeholder="Jenis Kelamin"
+              className="text-sm"
+              classNamePrefix="react-select"
+              onChange={(val) => field.onChange(val?.value || '')}
+              value={genderOptions.find((opt) => opt.value === field.value) ?? ''}
+            />
           )}
         />
-        <input {...register(`family.rows.${index}.usia`)} className={inputClass} placeholder="Usia" />
+        <input
+          {...register(`family.rows.${index}.usia`, {
+            setValueAs: (v) => (v === '' ? null : parseInt(v, 10)),
+          })}
+          className={inputClass}
+          placeholder="Usia"
+        />
         <input {...register(`family.rows.${index}.pendidikan`)} className={inputClass} placeholder="Pendidikan" />
         <input {...register(`family.rows.${index}.pekerjaan`)} className={inputClass} placeholder="Pekerjaan" />
-        <input {...register(`family.rows.${index}.noHp`)} className={inputClass} placeholder="No. Telp/HP" />
+        <input {...register(`family.rows.${index}.no_hp`)} className={inputClass} placeholder="No. Telp/HP" />
         <input {...register(`family.rows.${index}.keterangan`)} className={inputClass} placeholder="Keterangan" />
       </div>
       {!['Ayah', 'Ibu', 'Suami/Istri'].includes(field.hubungan) && (
@@ -114,13 +140,14 @@ export default function DynamicFamilyTable() {
     </div>
   );
 
+  if (!isReady) return null;
+
   return (
     <div className="space-y-6">
+      {/* Ayah / Ibu / Saudara */}
       <div>
         <h3 className="font-semibold mb-2">Ayah, Ibu, dan Saudara</h3>
-        {familyFields.map((f, i) =>
-          ['Ayah', 'Ibu', 'Saudara'].includes(f.hubungan) ? renderFamilyRow(f, i) : null
-        )}
+        {familyFields.map((f, i) => ['Ayah', 'Ibu', 'Saudara'].includes(f.hubungan) && renderFamilyRow(f, i))}
         <button
           type="button"
           onClick={() => appendFamily(defaultRow('Saudara'))}
@@ -130,12 +157,11 @@ export default function DynamicFamilyTable() {
         </button>
       </div>
 
-      {maritalStatus === 'Kawin' && (
+      {/* Suami/Istri */}
+      {familyFields.some((f) => f.hubungan === 'Suami/Istri') && (
         <div>
           <h3 className="font-semibold mb-2">Suami/Istri</h3>
-          {familyFields.map((f, i) =>
-            f.hubungan === 'Suami/Istri' ? renderFamilyRow(f, i) : null
-          )}
+          {familyFields.map((f, i) => f.hubungan === 'Suami/Istri' && renderFamilyRow(f, i))}
 
           <div className="bg-blue-50 p-4 rounded space-y-4 mt-4">
             <h4 className="font-semibold">Pekerjaan Pasangan (opsional)</h4>
@@ -171,12 +197,11 @@ export default function DynamicFamilyTable() {
         </div>
       )}
 
-      {(maritalStatus === 'Kawin' || maritalStatus === 'Cerai') && (
+      {/* Anak */}
+      {['kawin', 'cerai'].includes(maritalStatus) && (
         <div>
           <h3 className="font-semibold mb-2">Anak</h3>
-          {familyFields.map((f, i) =>
-            f.hubungan === 'Anak' ? renderFamilyRow(f, i) : null
-          )}
+          {familyFields.map((f, i) => f.hubungan === 'Anak' && renderFamilyRow(f, i))}
           <button
             type="button"
             onClick={() => appendFamily(defaultRow('Anak'))}

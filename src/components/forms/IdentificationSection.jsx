@@ -98,6 +98,7 @@ const IdentificationSection = () => {
               render={({ field }) => (
                 <select
                   {...field}
+                  value={field.value ?? ''} // ✅ handle null
                   onChange={(e) => {
                     field.onChange(e);
                     if (e.target.value !== 'lainnya') {
@@ -155,6 +156,7 @@ const IdentificationSection = () => {
               render={({ field }) => (
                 <select
                   {...field}
+                  value={field.value ?? ''} // ✅ handle null
                   className="mt-1 w-full px-4 py-2 border rounded-md bg-white shadow-sm"
                 >
                   <option value="">Pilih salah satu</option>

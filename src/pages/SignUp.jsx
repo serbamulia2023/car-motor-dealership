@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import axios from 'axios';
 
-const SignUp = ({ showToast }) => {
-  const navigate = useNavigate();
-
+const SignUp = ({ showToast, onLoginSuccess }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,18 +32,11 @@ const SignUp = ({ showToast }) => {
       );
 
       const { userId, email: returnedEmail } = res.data;
+      const user = { userId, email: returnedEmail, fullName: name };
 
-      // ✅ Store both userId and email
-      localStorage.setItem(
-        'loggedInUser',
-        JSON.stringify({ userId, email: returnedEmail })
-      );
-
+      localStorage.setItem('loggedInUser', JSON.stringify(user));
       showToast('Account created successfully! ✅', 'success');
-
-      navigate('/questionnaire', {
-        state: { fullName: name, email: returnedEmail },
-      });
+      onLoginSuccess?.(user); // ✅ Will redirect based on user
     } catch (err) {
       console.error('Signup error:', err.response?.data || err.message);
       showToast(
@@ -58,12 +49,16 @@ const SignUp = ({ showToast }) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Create Your Account</h2>
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+          Create Your Account
+        </h2>
 
         <form onSubmit={handleSignup} className="space-y-4">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Full Name
+            </label>
             <input
               id="name"
               type="text"
@@ -77,7 +72,9 @@ const SignUp = ({ showToast }) => {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email Address
+            </label>
             <input
               id="email"
               type="email"
@@ -91,7 +88,9 @@ const SignUp = ({ showToast }) => {
 
           {/* Password */}
           <div className="relative">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
             <input
               id="password"
               type={showPassword ? 'text' : 'password'}
@@ -113,7 +112,9 @@ const SignUp = ({ showToast }) => {
 
           {/* Confirm Password */}
           <div className="relative">
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              Confirm Password
+            </label>
             <input
               id="confirmPassword"
               type={showConfirm ? 'text' : 'password'}
@@ -143,7 +144,9 @@ const SignUp = ({ showToast }) => {
 
         <p className="text-sm text-center text-gray-600 mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline font-medium">Login</Link>
+          <Link to="/login" className="text-blue-600 hover:underline font-medium">
+            Login
+          </Link>
         </p>
       </div>
     </div>
