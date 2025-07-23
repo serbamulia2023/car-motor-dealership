@@ -4,7 +4,7 @@ import axios from '../axios';
 
 import AppliedJobCard from '../components/userdashboard/AppliedJobCard';
 import DashboardNavbar from './DashboardNavbar';
-import JobCard from '../components/userdashboard/jobcard';
+import JobCard from '../components/userdashboard/JobCard';
 
 const UserJobDashboard = ({ showToast }) => {
   const [session, setSession] = useState(null);
