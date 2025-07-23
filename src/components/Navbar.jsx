@@ -8,10 +8,12 @@ export default function Navbar() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const location = useLocation();
 
+  // Close menu when route changes
   useEffect(() => {
     setMenuOpen(false);
   }, [location]);
 
+  // Track screen size
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
@@ -32,28 +34,34 @@ export default function Navbar() {
             />
           </Link>
         </div>
-        <div className="navbar-right">
-          {isMobile && !menuOpen && (
-            <div className="hamburger" onClick={() => setMenuOpen(true)}>
-              <FaBars size={22} />
-            </div>
-          )}
 
-          <ul className={`nav-links ${menuOpen ? 'open' : ''}`}>
-            {isMobile && (
-              <li className="close-icon" onClick={() => setMenuOpen(false)}>
-                <FaTimes size={22} />
-              </li>
-            )}
-            {['/', '/contact', '/careers'].map((path, idx) => {
-              const text = ['Home', 'Contact', 'Careers'][idx];
-              return (
-                <li key={path}>
-                  <Link to={path}>{text}</Link>
-                </li>
-              );
-            })}
-          </ul>
+        <div className="navbar-right">
+          {isMobile ? (
+            <>
+              {!menuOpen && (
+                <div className="hamburger" onClick={() => setMenuOpen(true)}>
+                  <FaBars size={22} />
+                </div>
+              )}
+
+              <div className={`side-menu ${menuOpen ? 'open' : ''}`}>
+                <div className="close-icon" onClick={() => setMenuOpen(false)}>
+                  <FaTimes size={22} />
+                </div>
+                <ul className="nav-links-vertical">
+                  <li><Link to="/">Home</Link></li>
+                  <li><Link to="/contact">Contact</Link></li>
+                  <li><Link to="/careers">Careers</Link></li>
+                </ul>
+              </div>
+            </>
+          ) : (
+            <ul className="nav-links">
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/contact">Contact</Link></li>
+              <li><Link to="/careers">Careers</Link></li>
+            </ul>
+          )}
         </div>
       </div>
     </nav>

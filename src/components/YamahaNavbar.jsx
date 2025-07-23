@@ -8,10 +8,10 @@ export default function YamahaNavbar() {
 
   const handleHomeClick = (e) => {
     e.preventDefault();
-    if (path === '/brands/yamaha') {
+    if (path === '/yamaha') {
       navigate('/');
     } else {
-      navigate('/brands/yamaha');
+      navigate('/yamaha');
     }
   };
 
@@ -29,10 +29,10 @@ export default function YamahaNavbar() {
               <a href="/" onClick={handleHomeClick}>Home</a>
             </li>
             <li>
-              <Link to="/brands/yamaha/models">Models</Link>
+              <Link to="/yamaha/models">Models</Link>
             </li>
             <li>
-              <Link to="/brands/yamaha/test-drive">Book Test Drive</Link>
+              <Link to="/yamaha/test-drive">Book Test Drive</Link>
             </li>
           </ul>
         </div>

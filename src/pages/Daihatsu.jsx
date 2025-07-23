@@ -5,7 +5,7 @@ import styles from './Daihatsu.module.css';
 const Daihatsu = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const images = ['/car.jpg', '/car2.jpg'];
-
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);

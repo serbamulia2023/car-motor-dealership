@@ -3,7 +3,7 @@ import './BrandLogos.css';
 
 const brands = [
   { name: 'Daihatsu', image: '/brands/daihatsu.png', route: '/daihatsu' },
-  { name: 'Castrol', image: '/brands/castrol.png', route: '/castrol' },
+  { name: 'Castrol', image: '/brands/castrol.png' },
   { name: 'Yamaha', image: '/brands/yamaha.png', route: '/yamaha' }
 ];
 

@@ -1,3 +1,4 @@
+// src/pages/YamahaTestDrive.jsx
 import React, { useState, useEffect } from 'react';
 import axios from '../axios';
 import styles from './YamahaTestDrive.module.css';
@@ -6,14 +7,44 @@ import Select from 'react-select';
 import { useSearchParams } from 'react-router-dom';
 
 const yamahaSeries = [
+  // MAXI Series
   { label: 'XMAX Series', value: 'XMAX' },
   { label: 'NMAX Series', value: 'NMAX' },
   { label: 'Aerox Series', value: 'Aerox' },
-  { label: 'XSR Series', value: 'XSR' },
-  { label: 'R Series', value: 'R-Series' },
-  { label: 'Fazzio Series', value: 'Fazzio' },
-  { label: 'Gear Series', value: 'Gear' },
   { label: 'Lexi Series', value: 'Lexi' },
+  { label: 'Freego Series', value: 'Freego' },
+  { label: 'Gear Series', value: 'Gear' },
+  { label: 'Fazzio Series', value: 'Fazzio' },
+  { label: 'Filano Series', value: 'Filano' },
+
+  // Matic Adventure
+  { label: 'X-Ride Series', value: 'XRide' },
+
+  // Matic Classic / Trendy
+  { label: 'Mio Series', value: 'Mio' },
+  { label: 'Fino Series', value: 'Fino' },
+
+  // Sport Heritage
+  { label: 'XSR Series', value: 'XSR' },
+
+  // Sport Racing
+  { label: 'R15 Series', value: 'R15' },
+  { label: 'R25 Series', value: 'R25' },
+
+  // Naked Sport
+  { label: 'MT-25 Series', value: 'MT25' },
+  { label: 'MT-15 Series', value: 'MT15' },
+  { label: 'Vixion Series', value: 'Vixion' },
+
+  // Off-Road
+  { label: 'WR155R Series', value: 'WR155R' },
+  { label: 'YZ125X Series', value: 'YZ125X' },
+  { label: 'YZ250 Series', value: 'YZ250' },
+
+  // Bebek / Underbone
+  { label: 'MX King Series', value: 'MXKing' },
+  { label: 'Jupiter Z1 Series', value: 'JupiterZ1' },
+  { label: 'Vega Force Series', value: 'VegaForce' },
 ];
 
 const YamahaTestDrive = () => {
@@ -126,7 +157,7 @@ const YamahaTestDrive = () => {
           <div className={styles.formGroup}>
             <label htmlFor="model">Preferred Series</label>
             <Select
-              id="model"
+              inputId="model"
               options={yamahaSeries}
               placeholder="Select a series"
               value={yamahaSeries.find((opt) => opt.value === formData.model)}

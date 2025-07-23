@@ -36,7 +36,7 @@ app.use(session({
     httpOnly: true,
     secure: false,
     sameSite: 'lax',
-    maxAge: 1000 * 60 * 60 * 24,
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
   },
 }));
 
@@ -82,6 +82,7 @@ try {
   require('./routes/questionnaire')(app, pool, upload);
   require('./routes/jobs')(app, pool, seedJobs);
   app.use('/api', require('./routes/testDrive')(pool));
+  app.use('/api', require('./routes/contactInquiry')(pool)); // ✅ NEW LINE
 } catch (err) {
   console.error('❌ Route registration failed:', err);
 }

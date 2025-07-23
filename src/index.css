@@ -80,6 +80,10 @@ html, body, #root {
 
 .hamburger {
   display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 1000;
+  align-items: right;
 }
 
 .hero {
@@ -311,49 +315,56 @@ html, body, #root {
 }
 
 @media (max-width: 768px) {
-  .logo {
-    font-size: 1.2rem;
-  }
-
   .hamburger {
     display: block;
-    font-size: 1.5rem;
-    cursor: pointer;
-    z-index: 1000;
+    margin-left: auto;
   }
 
-  .navbar-right {
-    gap: 1rem;
-  }
-
-  .nav-links {
+  .side-menu {
     position: fixed;
     top: 0;
-    right: 0;
+    right: -100%;
+    width: 260px;
     height: 100vh;
-    width: 85vw;
-    max-width: 300px;
-    flex-direction: column;
-    background: #fff;
+    background: white;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.1);
     padding: 2rem 1.5rem;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-    transform: translateX(100%);
-    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    transition: right 0.3s ease;
     z-index: 999;
   }
 
-  .nav-links.open {
-    transform: translateX(0);
+  .side-menu.open {
+    right: 0;
   }
 
-  .nav-links li {
-    margin-bottom: 1.5rem;
+  .nav-links-vertical {
+    list-style: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0;
+    margin-top: 2rem;
   }
 
-  .nav-links .close-icon {
-    margin-left: auto;
-    margin-bottom: 2rem;
-    font-size: 1.5rem;
+  .nav-links-vertical li a {
+    font-size: 1.15rem;
+    color: #111;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .nav-links-vertical li a:hover {
+    color: #007bff;
+  }
+
+  .close-icon {
+    align-self: flex-end;
     cursor: pointer;
   }
 

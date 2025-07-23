@@ -24,6 +24,21 @@ import Xmax from './pages/Xmax';
 import Lexi from './pages/Lexi';
 import Nmax from './pages/Nmax';
 import Aerox from './pages/Aerox';
+import Filano from './pages/Filano';
+import Fazzio from './pages/Fazzio';
+import Gear125 from './pages/Gear125';
+import Freego from './pages/Freego';
+import Xride from './pages/Xride';
+import MioM3 from './pages/MioM3';
+import Fino from './pages/Fino';
+import XSR from './pages/XSR';
+import R15 from './pages/R15';
+import R25 from './pages/R25';
+import Mt25 from './pages/Mt25';
+import Mt15 from './pages/Mt15';
+import Vixion from './pages/Vixion';
+import WR155R from './pages/WR155R';
+import Yz125x from './pages/Yz125x';
 import YamahaTestDrive from './pages/YamahaTestDrive';
 import Terios from './pages/Terios';
 import Xenia from './pages/Xenia';
@@ -49,6 +64,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/autoplay';
+import Yz250Series from './pages/Yz250Series';
+import Mxking from './pages/MxKing';
+import VegaForce from './pages/VegaForce'
+import JupiterZ1 from './pages/JupiterZ1';
 
 function App() {
   const location = useLocation();
@@ -108,13 +127,13 @@ function App() {
 
   const handleSearch = () => {
     const term = query.toLowerCase().trim();
+    console.log(term);
+    
     if (term.includes('terios')) navigate('/daihatsu/models/terios');
     else if (term.includes('xenia')) navigate('/daihatsu/models/xenia');
     else if (term.includes('granmax')) {
-      if (term.includes('pickup') || term.includes('pick up')) {
+      if (term.includes('pickup') || term.includes('pickup')) {
         navigate('/daihatsu/models/granmax-pickup');
-      } else if (term.includes('van') || term.includes('minibus') || term.includes('blind')) {
-        navigate('/daihatsu/models/granmax-van');
       } else {
         navigate('/daihatsu/models/granmax-van');
       }
@@ -130,6 +149,25 @@ function App() {
     else if (term.includes('nmax')) navigate('/yamaha/models/nmax');
     else if (term.includes('aerox')) navigate('/yamaha/models/aerox');
     else if (term.includes('lexi')) navigate('/yamaha/models/lexi');
+    else if (term.includes('filano')) navigate('/yamaha/models/filano');
+    else if (term.includes('fazzio')) navigate('/yamaha/models/fazzio');
+    else if (term.includes('gear') || term.includes('gear125')) navigate('/yamaha/models/gear125');
+    else if (term.includes('freego')) navigate('/yamaha/models/freego');
+    else if (term.includes('xride')) navigate('/yamaha/models/xride');
+    else if (term.includes('mio')) navigate('/yamaha/models/miom3');
+    else if (term.includes('fino')) navigate('/yamaha/models/fino');
+    else if (term.includes('xsr')) navigate('/yamaha/models/xsr');
+    else if (term.includes('r15')) navigate('/yamaha/models/r15');
+    else if (term.includes('r25')) navigate('/yamaha/models/r25');
+    else if (term.includes('mt25')) navigate('/yamaha/models/mt25');
+    else if (term.includes('mt15')) navigate('/yamaha/models/mt15');
+    else if (term.includes('vixion')) navigate('/yamaha/models/vixion');
+    else if (term.includes('wr155')) navigate('/yamaha/models/wr155r');
+    else if (term.includes('yz125x')) navigate('/yamaha/models/yz125x');
+    else if (term.includes('yz250series')) navigate('/yamaha/models/yz250series');
+    else if (term.includes('mxking')) navigate('/yamaha/models/mxking');
+    else if (term.includes('jupiterz1')) navigate('/yamaha/models/jupiterz1');
+    else if (term.includes('vegaforce')) navigate('/yamaha/models/vegaforce');
     else showToast('No matching product or brand found.');
   };
 
@@ -299,8 +337,27 @@ function App() {
         <Route path="/yamaha/models" element={<YamahaModels />} />
         <Route path="/yamaha/models/xmax" element={<Xmax />} />
         <Route path="/yamaha/models/lexi" element={<Lexi />} />
+        <Route path="/yamaha/models/xride" element={<Xride />} />
         <Route path="/yamaha/models/nmax" element={<Nmax />} />
         <Route path="/yamaha/models/aerox" element={<Aerox />} />
+        <Route path="/yamaha/models/filano" element={<Filano />} />
+        <Route path="/yamaha/models/fazzio" element={<Fazzio />} />
+        <Route path="/yamaha/models/gear125" element={<Gear125 />} />
+        <Route path="/yamaha/models/freego" element={<Freego />} />
+        <Route path="/yamaha/models/miom3" element={<MioM3 />} />
+        <Route path="/yamaha/models/fino" element={<Fino />} />
+        <Route path="/yamaha/models/xsr" element={<XSR />} />
+        <Route path="/yamaha/models/r15" element={<R15 />} />
+        <Route path="/yamaha/models/r25" element={<R25 />} />
+        <Route path="/yamaha/models/mt25" element={<Mt25 />} />
+        <Route path="/yamaha/models/mt15" element={<Mt15 />} />
+        <Route path="/yamaha/models/vixion" element={<Vixion />} />
+        <Route path="/yamaha/models/wr155r" element={<WR155R />} />
+        <Route path="/yamaha/models/yz125x" element={<Yz125x />} />
+        <Route path="/yamaha/models/yz250series" element={<Yz250Series />} />
+        <Route path="/yamaha/models/mxking" element={<Mxking />} />
+        <Route path="/yamaha/models/jupiterz1" element={<JupiterZ1 />} />
+        <Route path="/yamaha/models/vegaforce" element={<VegaForce />} />
         <Route path="/yamaha/test-drive" element={<YamahaTestDrive />} />
 
         {/* 404 Fallback */}

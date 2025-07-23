@@ -25,25 +25,22 @@ const Yamaha = () => {
 
   const vehicles = [
     {
-      name: 'NMAX',
-      type: 'Scooter',
-      price: 'Rp30.000.000 - Rp40.000.000',
+      name: 'NMAX Series',
+      type: 'MAXI',
+      colors: ['#231F20', '#C0C0C0', '#FF0000', '#FFFFFF', '#AFC8E0', '#000000'],
       route: 'nmax',
-      colors: ['#000000', '#ffffff', '#888888'],
     },
     {
-      name: 'Aerox',
-      type: 'Scooter',
-      price: 'Rp25.000.000 - Rp35.000.000',
+      name: 'Aerox Series',
+      type: 'MAXI',
+      colors: ['#3A3A3A', '#1E1E9D', '#FFD700', '#C0C0C0', '#C8102E', '#000000'],
       route: 'aerox',
-      colors: ['#222222', '#cccccc', '#ffcc00'],
     },
     {
-      name: 'R15',
-      type: 'Sport Bike',
-      price: 'Rp40.000.000 - Rp50.000.000',
+      name: 'R15 Series',
+      type: 'Sport',
+      colors: ['#DAD9D5', '#00205B', '#0F0F0F'],
       route: 'r15',
-      colors: ['#0033cc', '#ffffff', '#990000'],
     },
   ];
 
