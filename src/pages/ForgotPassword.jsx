@@ -45,7 +45,7 @@ export default function ForgotPassword() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full font-semibold py-2 rounded ${loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+            className={`w-full font-semibold py-2 rounded ${loading ? 'bg-black text-white py-2 rounded-md' : 'bg-gray-800 transition text-white'}`}
           >
             {loading ? 'Mengirim...' : 'Kirim Link Reset'}
           </button>

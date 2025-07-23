@@ -23,8 +23,15 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-wrapper">
-        <div className="navbar-left">Serba Mulia Auto</div>
-
+        <div className="navbar-left">
+          <Link to="/">
+            <img
+              src="/brands/Logo Serba Mulia Auto.png"
+              alt="Serba Mulia Auto"
+              className="h-10 object-contain"
+            />
+          </Link>
+        </div>
         <div className="navbar-right">
           {isMobile && !menuOpen && (
             <div className="hamburger" onClick={() => setMenuOpen(true)}>

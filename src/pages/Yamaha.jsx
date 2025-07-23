@@ -23,6 +23,48 @@ const Yamaha = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const vehicles = [
+    {
+      name: 'NMAX',
+      type: 'Scooter',
+      price: 'Rp30.000.000 - Rp40.000.000',
+      route: 'nmax',
+      colors: ['#000000', '#ffffff', '#888888'],
+    },
+    {
+      name: 'Aerox',
+      type: 'Scooter',
+      price: 'Rp25.000.000 - Rp35.000.000',
+      route: 'aerox',
+      colors: ['#222222', '#cccccc', '#ffcc00'],
+    },
+    {
+      name: 'R15',
+      type: 'Sport Bike',
+      price: 'Rp40.000.000 - Rp50.000.000',
+      route: 'r15',
+      colors: ['#0033cc', '#ffffff', '#990000'],
+    },
+  ];
+
+  const dealers = [
+    {
+      city: 'Yamaha Surabaya',
+      address: 'Jl. Panglima Sudirman No.55, Surabaya',
+      link: 'https://maps.google.com?q=Jl. Panglima Sudirman No.55, Surabaya',
+    },
+    {
+      city: 'Yamaha Bandung',
+      address: 'Jl. Asia Afrika No.8, Bandung',
+      link: 'https://maps.google.com?q=Jl. Asia Afrika No.8, Bandung',
+    },
+    {
+      city: 'Yamaha Jakarta',
+      address: 'Jl. Gajah Mada No.100, Jakarta',
+      link: 'https://maps.google.com?q=Jl. Gajah Mada No.100, Jakarta',
+    },
+  ];
+
   return (
     <div className={styles.page}>
       {/* Hero */}
@@ -38,7 +80,7 @@ const Yamaha = () => {
           ))}
         </div>
         <div className={styles.tagline}>
-          <h1 className={styles.title}>Yamaha</h1>
+          <img src="/brands/yamaha-landing.png" alt="Yamaha Logo" className={styles.brandLogo} />
           <p className={styles.subtitle}>Revs Your Heart. Performance Meets Passion.</p>
         </div>
       </section>
@@ -47,58 +89,62 @@ const Yamaha = () => {
       <section className={styles.categories}>
         <h2 className={styles.sectionTitle}>Our Vehicles</h2>
         <div className={styles.grid}>
-            {[
-            { name: 'NMAX', type: 'Scooter', price: 'Rp30.000.000 - Rp40.000.000', route: 'nmax' },
-            { name: 'Aerox', type: 'Scooter', price: 'Rp25.000.000 - Rp35.000.000', route: 'aerox' },
-            { name: 'R15', type: 'Sport Bike', price: 'Rp40.000.000 - Rp50.000.000', route: 'r15' }
-            ].map((vehicle, index) => (
-            <div className={styles.vehicleCard} key={index}>
-                <img src="/car2.jpg" alt={vehicle.name} className={styles.vehicleImage} />
-                <div className={styles.vehicleInfo}>
+          {vehicles.map((vehicle, index) => (
+            <Link to={`/yamaha/models/${vehicle.route}`} className={styles.vehicleCard} key={index}>
+              <img src="/car2.jpg" alt={vehicle.name} className={styles.vehicleImage} />
+              <div className={styles.vehicleInfo}>
                 <h3 className={styles.vehicleName}>{vehicle.name}</h3>
-                <p><strong>Type:</strong> {vehicle.type}</p>
-                <p><strong>OTR:</strong> {vehicle.price}</p>
-                <Link to={`/yamaha/models/${vehicle.route}`} className={styles.knowMoreBtn}>
-                    Know More
-                </Link>
-                </div>
-            </div>
-            ))}
+                <ul className={styles.specList}>
+                  <li className={styles.specRow}>
+                    <span className={styles.specLabel}>Type</span>
+                    <span>{vehicle.type}</span>
+                  </li>
+                  <li className={styles.colorRow}>
+                    <span className={styles.colorLabel}>Colors</span>
+                    <span className={styles.colorDots}>
+                      {vehicle.colors.map((color, i) => (
+                        <span
+                          key={i}
+                          className={styles.colorDot}
+                          style={{ backgroundColor: color }}
+                        ></span>
+                      ))}
+                    </span>
+                  </li>
+                </ul>
+                <div className={styles.vehiclePrice}>{vehicle.price}</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className={styles.viewAllBtn}>
+          <Link to="/yamaha/models">View All Models</Link>
         </div>
       </section>
-
 
       {/* Dealers */}
       <section className={styles.dealersSection}>
         <h2 className={styles.sectionTitle}>Our Dealers</h2>
         <div className={styles.dealerGrid}>
-          <div className={styles.dealerCard}>
-            <a href="https://maps.google.com?q=Jl. Panglima Sudirman No.55, Surabaya" target="_blank" rel="noreferrer">
-              <img src="/car.jpg" alt="Yamaha Surabaya" className={styles.dealerImage} />
-              <h3 className={styles.dealerHeading}>Surabaya</h3>
-              <p className={styles.dealerAddress}>Jl. Panglima Sudirman No.55, Surabaya</p>
-            </a>
-          </div>
-          <div className={styles.dealerCard}>
-            <a href="https://maps.google.com?q=Jl. Asia Afrika No.8, Bandung" target="_blank" rel="noreferrer">
-              <img src="/car.jpg" alt="Yamaha Bandung" className={styles.dealerImage} />
-              <h3 className={styles.dealerHeading}>Bandung</h3>
-              <p className={styles.dealerAddress}>Jl. Asia Afrika No.8, Bandung</p>
-            </a>
-          </div>
-          <div className={styles.dealerCard}>
-            <a href="https://maps.google.com?q=Jl. Gajah Mada No.100, Jakarta" target="_blank" rel="noreferrer">
-              <img src="/car.jpg" alt="Yamaha Jakarta" className={styles.dealerImage} />
-              <h3 className={styles.dealerHeading}>Jakarta</h3>
-              <p className={styles.dealerAddress}>Jl. Gajah Mada No.100, Jakarta</p>
-            </a>
-          </div>
+          {dealers.map((dealer, index) => (
+            <div key={index} className={styles.dealerCard}>
+              <a href={dealer.link} target="_blank" rel="noopener noreferrer">
+                <img src="/car.jpg" alt={`${dealer.city} Dealer`} className={styles.dealerImage} />
+              </a>
+              <h3 className={styles.dealerHeading}>{dealer.city}</h3>
+              <a className={styles.dealerLink} href={dealer.link} target="_blank" rel="noopener noreferrer">
+                {dealer.address}
+              </a>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <p>&copy; {new Date().getFullYear()} Yamaha Dealership. All rights reserved.</p>
+        <div className={styles.container}>
+          <p>&copy; {new Date().getFullYear()} Yamaha by DriveNow. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );

@@ -2,74 +2,52 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const carColors = [
-  { name: 'Scarlet Red Metallic', color: '#8B0000', image: '/cars/terios-red.jpg' },
-  { name: 'Icy White', color: '#ffffff', image: '/cars/terios-white.jpg' },
-  { name: 'Black Metallic', color: '#000000', image: '/cars/terios-black.jpg' },
-  { name: 'Green Gun Metallic', color: '#3b4b3b', image: '/cars/terios-green.jpg' },
-  { name: 'Glittering Silver Metallic', color: '#c0c0c0', image: '/cars/terios-silver.jpg' },
-  { name: 'Bronze Metallic', color: '#cd7f32', image: '/cars/terios-bronze.jpg' },
+  { name: 'Rock Grey Metallic', color: '#4a4a4a', image: '/cars/luxio-grey.jpg' },
+  { name: 'Icy White', color: '#ffffff', image: '/cars/luxio-white.jpg' },
+  { name: 'Black Metallic', color: '#000000', image: '/cars/luxio-black.jpg' },
+  { name: 'Classic Silver', color: '#c0c0c0', image: '/cars/luxio-silver.jpg' },
 ];
 
 const variantData = [
   {
+    name: 'D',
+    image: '/cars/luxio-d.jpg',
+    features: [
+      'Dual Multi Reflector Headlamp',
+      'Manual Outer Mirror',
+      '15” Steel Wheel',
+      '1 DIN Audio Head Unit',
+      'Single Blower AC',
+      '1.5L Engine (3SZ-VE)',
+    ],
+  },
+  {
     name: 'X',
-    image: '/cars/terios-white.jpg',
+    image: '/cars/luxio-x.jpg',
     features: [
-      'LED Headlamp',
-      '16” Silver Alloy Wheel',
-      '2DIN 7” Touchscreen Audio',
-      'Keyless',
-      'Digital AC',
+      'Kelengkapan tipe D ditambah:',
+      'Front Grille with Chrome',
+      'Foglamp',
+      '15” Alloy Wheel',
+      'Two Tone Dashboard',
       'Double Blower AC',
-      'Fabric Material Seat',
-      'Tersedia Varian Aksesoris (ADS)*'
-    ],
-  },
-  {
-    name: 'R',
-    image: '/cars/terios-bronze.jpg',
-    features: [
-      'Kelengkapan tipe X ditambah :',
-      'LED Smoked Headlamp',
-      '17” Gun Metal Alloy Wheel',
-      'LED Illumination Lamp',
-      'Fog Lamp',
-      'Retractable Outer Mirror',
-      'Roof Rail',
-      '2DIN 7” Touchscreen + Android Auto & Apple Car Play',
-      'Key Free',
-      'Push Start / Stop Engine',
-      'Digital Auto AC',
-      'Tersedia Varian Aksesoris (ADS)*'
-    ],
-  },
-  {
-    name: 'R CUSTOM',
-    image: '/cars/terios-green.jpg',
-    features: [
-      'Kelengkapan tipe R ditambah :',
-      '17” Polished 2 tone Alloy Wheel',
-      'Front & Rear Body Kit',
-      'Side Stone Guard',
-      'New Leather Combination Seat',
-      'New Instrument Panel Soft Pad',
-      '6 SRS Airbag',
+      '2DIN Touchscreen Audio Head Unit',
     ],
   },
 ];
 
-const Terios = () => {
+const Luxio = () => {
   const navigate = useNavigate();
   const [selectedColor, setSelectedColor] = useState(carColors[0]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      {/* Hero Section */}
       <div className="flex flex-col md:flex-row justify-between items-start px-6 md:px-10 py-8 md:py-10 gap-8 max-w-7xl mx-auto w-full">
         <div className="flex-1 min-w-[300px] space-y-6">
-          <h1 className="text-4xl font-bold">Terios</h1>
+          <h1 className="text-4xl font-bold">Luxio</h1>
           <p className="text-gray-700">
-            Terios adalah SUV tangguh untuk keluarga aktif dan petualang. Dilengkapi dengan kapasitas 7 penumpang,
-            desain modern, serta fitur kenyamanan dan keselamatan yang lengkap.
+            MPV yang mewah, elegan dan nyaman untuk keluarga maupun usaha harian.
           </p>
 
           <div className="w-full flex flex-col items-center justify-center text-center">
@@ -91,16 +69,14 @@ const Terios = () => {
                 </button>
               ))}
             </div>
-            {selectedColor && (
-              <div className="w-full flex justify-center mt-4">
-                <div className="text-base font-bold text-gray-800 text-center">{selectedColor.name}</div>
-              </div>
-            )}
+            <div className="w-full flex justify-center mt-4">
+              <div className="text-base font-bold text-gray-800 text-center">{selectedColor.name}</div>
+            </div>
           </div>
 
           <div className="flex gap-4 mt-6 justify-center">
             <button
-              onClick={() => navigate('/daihatsu/test-drive?model=Terios')}
+              onClick={() => navigate('/daihatsu/test-drive?model=Luxio')}
               className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 shadow"
             >
               Test Drive
@@ -125,50 +101,57 @@ const Terios = () => {
 
       {/* Detail Sections */}
       <div className="max-w-6xl mx-auto w-full px-8 py-10 space-y-16">
+        {/* Eksterior */}
         <div className="flex flex-col lg:flex-row items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/terios-exterior.jpg" alt="Eksterior" className="rounded shadow" />
+            <img src="/cars/luxio-exterior.jpg" alt="Eksterior" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Eksterior</h2>
-            <p className="text-gray-700 mb-4">SUV dengan Desain Sporty & Adventure membuat setiap moment bersamanya merupakan cerita petualangan yang membahagiakan</p>
+            <p className="text-gray-700 mb-4">Desain yang mewah dan elegan cocok menemani setiap perjalanan Sahabat</p>
           </div>
         </div>
 
+        {/* Interior */}
         <div className="flex flex-col lg:flex-row-reverse items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/terios-interior.jpg" alt="Interior" className="rounded shadow" />
+            <img src="/cars/luxio-interior.jpg" alt="Interior" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Interior</h2>
-            <p className="text-gray-700 mb-4">Desain Modern, Kabin luas, fitur lengkap & canggih memberi kenyamanan maksimal di setiap petualangan</p>
+            <p className="text-gray-700 mb-4">
+              Desain mewah dan elegan, kabin luas dan lega menambah kenyamanan perjalanan Sahabat
+            </p>
           </div>
         </div>
 
+        {/* Performa */}
         <div>
           <h2 className="text-3xl font-bold mb-4">Performa</h2>
-          <p className="text-gray-700 mb-4">Mesin 1,500 cc yang powerful & irit BBM, dengan Ground Clearance tinggi mampu menemani setiap petualangan</p>
+          <p className="text-gray-700 mb-4">
+            Makin kuat, makin aman dan bisnis makin maju
+          </p>
           <ul className="list-disc ml-6 text-gray-700 space-y-1">
-            <li><strong>2 NR–VE</strong> DOHC Dual VVT–i</li>
-            <li>Capacity: 1,496 cc</li>
-            <li>Max Power: 104 PS / 6,000 rpm</li>
-            <li>Max Torque: 136.3 Nm / 4,200 rpm</li>
+            <li><strong>1.5L Engine (3SZ-VE)</strong>: 1,495 cc / 97 PS / 13.7 Nm</li>
           </ul>
         </div>
 
+        {/* Platform */}
+        <div>
+          <h2 className="text-3xl font-bold mb-4">Transmisi & Platform</h2>
+          <ul className="list-disc ml-6 text-gray-700 space-y-1">
+            <li>Manual Transmission untuk pengendalian yang tangguh dan efisien</li>
+          </ul>
+        </div>
+
+        {/* Keamanan */}
         <div className="flex flex-col lg:flex-row items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/terios-safety.jpg" alt="Keamanan" className="rounded shadow" />
+            <img src="/cars/luxio-safety.jpg" alt="Keamanan" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Keamanan</h2>
-            <p className="text-gray-700 mb-4">Bersama New Terios, setiap momen di atas roda adalah cerita petualangan yang penuh kegembiraan</p>
-            <ul className="list-disc ml-6 text-gray-700 space-y-1">
-              <li>6 SRS Airbag</li>
-              <li>Vehicle Stability Control (VSC)</li>
-              <li>Hill Start Assist (HSA)</li>
-              <li>ABS & EBD</li>
-            </ul>
+            <p className="text-gray-700 mb-4">Fitur keselamatan standar membuat perjalanan lebih tenang dan aman</p>
           </div>
         </div>
       </div>
@@ -176,7 +159,7 @@ const Terios = () => {
       {/* Varian */}
       <div className="max-w-7xl mx-auto px-8 pb-20">
         <h2 className="text-3xl font-bold mb-6 text-center">Tipe Varian Standar</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {variantData.map((variant) => (
             <div
               key={variant.name}
@@ -206,6 +189,7 @@ const Terios = () => {
         </div>
       </div>
 
+      {/* Footer */}
       <footer className="w-full bg-black text-white text-center py-6 text-sm mt-auto">
         &copy; {new Date().getFullYear()} Daihatsu by DriveNow. All rights reserved.
       </footer>
@@ -213,4 +197,4 @@ const Terios = () => {
   );
 };
 
-export default Terios;
+export default Luxio;

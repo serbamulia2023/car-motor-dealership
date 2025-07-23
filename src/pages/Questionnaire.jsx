@@ -8,6 +8,7 @@ import {
   FaQuestionCircle,
 } from "react-icons/fa";
 
+import DashboardNavbar from "./DashboardNavbar";
 import PersonalInfoSection from "../components/forms/PersonalInfoSection";
 import DynamicFamilyTable from "../components/forms/DynamicFamilyTable";
 import DynamicEducationTable from "../components/forms/DynamicEducationTable";
@@ -17,7 +18,6 @@ import QuestionnaireSection from "../components/forms/QuestionnaireSection";
 import ReferenceSection from "../components/forms/ReferenceSection";
 import PDACheckboxSection from "../components/forms/PDACheckboxSection";
 import Toast from "../components/Toast";
-import DashboardNavbar from "./DashboardNavbar";
 
 const Questionnaire = () => {
   const navigate = useNavigate();
@@ -36,8 +36,6 @@ const Questionnaire = () => {
 
   const methods = useForm();
   const { reset, watch, handleSubmit } = methods;
-  const watchPDA = watch("pdaAccepted");
-  const watchFiles = watch("personalInfo") || {};
 
   const toggleSection = (key) =>
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -46,32 +44,27 @@ const Questionnaire = () => {
     setToast({ message, type });
   const handleCloseToast = () => setToast(null);
 
-  const normalizeDate = (value) =>
-    typeof value === "string" && value.includes("T")
-      ? value.slice(0, 10)
-      : value;
+  const normalizeDate = (val) =>
+    typeof val === "string" && val.includes("T") ? val.slice(0, 10) : val;
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const { data } = await axios.get("/me");
-
         emailRef.current = data.personalInfo?.email || data.user?.email || "";
-        nameRef.current = data.personalInfo?.fullName || data.full_name || "User";
-
-        const normalizedWork = (data.workExperience || []).map((job) => ({
-          ...job,
-          dari: normalizeDate(job.dari),
-          sampai: normalizeDate(job.sampai),
-        }));
+        nameRef.current = data.personalInfo?.full_name || data.full_name || "User";
 
         reset({
           personalInfo: {
-            ...(data.personalInfo || {}),
+            ...data.personalInfo,
+            hasBusiness: data.businesses?.length > 0,
             birth_date: normalizeDate(data.personalInfo?.birth_date),
-            ...(data.identification || {}),
-            photo: data.personalInfo?.photo || null,
-            cv: data.personalInfo?.cv || null,
+            kendaraan: {
+              jenis: data.personalInfo?.kendaraan?.jenis || "",
+              lainnya: data.personalInfo?.kendaraan?.lainnya || "",
+              status: data.personalInfo?.kendaraan?.status || "",
+              detail: data.personalInfo?.kendaraan?.detail || "",
+            },
           },
           family: {
             rows: data.family?.rows || [],
@@ -88,22 +81,27 @@ const Questionnaire = () => {
           kursus: data.kursus || [],
           bahasa: data.bahasa || [],
           kegiatan: data.kegiatan || [],
-          workExperience: {
-            workExperience: normalizedWork,
-            businesses: data.businesses || [],
+          workExperience: (data.workExperience || []).map((w) => ({
+            ...w,
+            dari: normalizeDate(w.dari),
+            sampai: normalizeDate(w.sampai),
+          })),
+          businesses: data.businesses || [],
+          leisure: {
+            frekuensi_membaca: data.leisure?.frekuensi_membaca || "",
+            topik_dibaca: data.leisure?.topik_dibaca || [],
+            jenis_bacaan: Array.isArray(data.leisure?.jenis_bacaan)
+              ? data.leisure.jenis_bacaan[0] || ""
+              : typeof data.leisure?.jenis_bacaan === "string"
+              ? data.leisure.jenis_bacaan
+              : "",
+            hobi: data.leisure?.hobi || "",
           },
-          leisure: data.leisure || {},
+          questionnaire: data.questionnaire || [],
           referensi: {
-            references: Array.isArray(data.reference)
-              ? data.reference.filter((r) => r.tipe === "referrer")
-              : data.reference?.references || [],
-            emergencyContacts: Array.isArray(data.reference)
-              ? data.reference.filter((r) => r.tipe === "emergency")
-              : data.reference?.emergencyContacts || [],
+            references: data.reference?.references || [],
+            emergencyContacts: data.reference?.emergencyContacts || [],
           },
-          questionnaire: Array.isArray(data.questionnaire)
-            ? data.questionnaire
-            : [],
           pdaAccepted: {
             first: data.pdaAccepted?.first || false,
             second: data.pdaAccepted?.second || false,
@@ -122,9 +120,23 @@ const Questionnaire = () => {
 
   const onSubmit = async (formValues) => {
     const form = new FormData();
-    const { personalInfo, referensi, education, workExperience, ...rest } =
-      formValues;
-    const { photo, cv, ...info } = personalInfo || {};
+    const {
+      personalInfo,
+      education,
+      kursus,
+      bahasa,
+      kegiatan,
+      family,
+      workExperience,
+      businesses,
+      leisure,
+      questionnaire,
+      referensi,
+      pdaAccepted,
+      hasBusiness,
+    } = formValues;
+
+    const { photo, cv, ...info } = personalInfo;
     const email = info.email || emailRef.current;
     if (!email) {
       showToast("Email tidak ditemukan untuk mengirim data.", "error");
@@ -134,36 +146,39 @@ const Questionnaire = () => {
     if (photo instanceof File) form.append("photo", photo);
     if (cv instanceof File) form.append("cv", cv);
 
-    const reference = [
-      ...(referensi?.references || []).map((r) => ({
-        ...r,
-        tipe: "referrer",
-      })),
-      ...(referensi?.emergencyContacts || []).map((r) => ({
-        ...r,
-        tipe: "emergency",
-      })),
-    ];
+    const reference = {
+      references: (referensi?.references || []).map((r) => ({ ...r, tipe: "referrer" })),
+      emergencyContacts: (referensi?.emergencyContacts || []).map((r) => ({ ...r, tipe: "emergency" })),
+    };
 
     const flatEducation = [
       ...(education?.base || []),
       ...(education?.universities || []),
-    ].map((e) => ({
-      ...e,
-      tahun_masuk: e.tahunMasuk ?? null,
-      tahun_lulus: e.tahunLulus ?? null,
-    }));
+    ];
 
-    const fullPayload = {
-      ...rest,
-      personalInfo: { ...info, email },
+    const payload = {
+      personalInfo: info,
       education: flatEducation,
-      reference,
+      kursus,
+      bahasa,
+      kegiatan,
+      family,
       workExperience,
+      businesses,
+      leisure,
+      questionnaire,
+      reference,
+      pdaAccepted,
+      hasBusiness,
     };
 
-    for (const [key, value] of Object.entries(fullPayload)) {
-      form.append(key, JSON.stringify(value));
+    // ✅ Console logs
+    console.log("📤 Payload being submitted:", payload);
+    console.log("📁 Photo:", photo);
+    console.log("📄 CV:", cv);
+
+    for (const [key, val] of Object.entries(payload)) {
+      form.append(key, JSON.stringify(val));
     }
 
     try {
@@ -180,26 +195,20 @@ const Questionnaire = () => {
     }
   };
 
-  const isPDACompleted = watchPDA?.first && watchPDA?.second;
+  const isPDACompleted = watch("pdaAccepted")?.first && watch("pdaAccepted")?.second;
 
-  if (loading)
-    return <div className="text-center py-12">Loading...</div>;
+  if (loading) return <div className="text-center py-12">Loading...</div>;
 
   return (
     <>
       <DashboardNavbar name={nameRef.current} />
-
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <h1 className="text-2xl font-bold mb-4">
-          Serba Mulia Questionnaire Form
-        </h1>
-
+        <h1 className="text-2xl font-bold mb-4">Serba Mulia Questionnaire Form</h1>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <Section title="1. Personal Information">
               <PersonalInfoSection />
             </Section>
-
             <Section
               title="2. Family & Partner Work"
               open={openSections.family}
@@ -207,7 +216,6 @@ const Questionnaire = () => {
             >
               <DynamicFamilyTable />
             </Section>
-
             <Section
               title="3. Education & Social Activities"
               open={openSections.education}
@@ -215,7 +223,6 @@ const Questionnaire = () => {
             >
               <DynamicEducationTable />
             </Section>
-
             <Section
               title="4. Work & Business"
               open={openSections.work}
@@ -223,7 +230,6 @@ const Questionnaire = () => {
             >
               <WorkExperienceSection mode="combined" />
             </Section>
-
             <Section
               title="5. Leisure"
               open={openSections.leisure}
@@ -231,7 +237,6 @@ const Questionnaire = () => {
             >
               <LeisureSection />
             </Section>
-
             <Section
               title="6. Additional Questions"
               open={openSections.questionnaire}
@@ -239,7 +244,6 @@ const Questionnaire = () => {
             >
               <QuestionnaireSection />
             </Section>
-
             <Section
               title="7. Reference"
               open={openSections.referensi}
@@ -247,11 +251,9 @@ const Questionnaire = () => {
             >
               <ReferenceSection />
             </Section>
-
             <Section title="8. Personal Data Agreement">
               <PDACheckboxSection />
             </Section>
-
             <div className="text-center mt-6">
               <button
                 type="submit"
@@ -267,25 +269,19 @@ const Questionnaire = () => {
             </div>
           </form>
         </FormProvider>
-
         {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onClose={handleCloseToast}
-          />
+          <Toast message={toast.message} type={toast.type} onClose={handleCloseToast} />
         )}
+        <a
+          href="/questionnaire-guide"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50"
+          title="Lihat Panduan Pengisian"
+        >
+          <FaQuestionCircle size={24} />
+        </a>
       </div>
-
-      <a
-        href="/questionnaire-guide"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50"
-        title="Lihat Panduan Pengisian"
-      >
-        <FaQuestionCircle size={24} />
-      </a>
     </>
   );
 };

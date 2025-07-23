@@ -19,7 +19,9 @@ const IdentificationSection = () => {
   }, [vehicleActive, setValue]);
 
   const sanitize = (val, field) => {
-    if (['personalInfo.sim_a', 'personalInfo.sim_c', 'personalInfo.no_bpjs'].includes(field)) {
+    if (
+      ['personalInfo.sim_a', 'personalInfo.sim_c', 'personalInfo.no_bpjs', 'personalInfo.nik'].includes(field)
+    ) {
       return val.replace(/[^0-9]/g, '');
     } else if (field === 'personalInfo.npwp') {
       return val.replace(/[^0-9.\-]/g, '');
@@ -30,6 +32,25 @@ const IdentificationSection = () => {
   return (
     <div className="space-y-4 mt-6">
       <h3 className="text-lg font-semibold text-gray-800">Data Identitas & Kendaraan</h3>
+
+      {/* ✅ NIK field */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">NIK</label>
+        <Controller
+          control={control}
+          name="personalInfo.nik"
+          render={({ field: { value, onChange, ...rest } }) => (
+            <input
+              {...rest}
+              value={value || ''}
+              onChange={(e) => onChange(sanitize(e.target.value, 'personalInfo.nik'))}
+              inputMode="numeric"
+              placeholder="Contoh: 3174XXXXXXXXXXXX"
+              className="mt-1 w-full px-4 py-2 border rounded-md shadow-sm"
+            />
+          )}
+        />
+      </div>
 
       {['sim_a', 'sim_c', 'npwp', 'no_bpjs'].map((field, idx) => (
         <div key={idx}>
@@ -98,7 +119,7 @@ const IdentificationSection = () => {
               render={({ field }) => (
                 <select
                   {...field}
-                  value={field.value ?? ''} // ✅ handle null
+                  value={field.value ?? ''}
                   onChange={(e) => {
                     field.onChange(e);
                     if (e.target.value !== 'lainnya') {
@@ -156,7 +177,7 @@ const IdentificationSection = () => {
               render={({ field }) => (
                 <select
                   {...field}
-                  value={field.value ?? ''} // ✅ handle null
+                  value={field.value ?? ''}
                   className="mt-1 w-full px-4 py-2 border rounded-md bg-white shadow-sm"
                 >
                   <option value="">Pilih salah satu</option>

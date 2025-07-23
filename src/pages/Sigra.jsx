@@ -2,74 +2,78 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const carColors = [
-  { name: 'Scarlet Red Metallic', color: '#8B0000', image: '/cars/terios-red.jpg' },
-  { name: 'Icy White', color: '#ffffff', image: '/cars/terios-white.jpg' },
-  { name: 'Black Metallic', color: '#000000', image: '/cars/terios-black.jpg' },
-  { name: 'Green Gun Metallic', color: '#3b4b3b', image: '/cars/terios-green.jpg' },
-  { name: 'Glittering Silver Metallic', color: '#c0c0c0', image: '/cars/terios-silver.jpg' },
-  { name: 'Bronze Metallic', color: '#cd7f32', image: '/cars/terios-bronze.jpg' },
+  { name: 'Orange Metallic', color: '#d35400', image: '/cars/sigra-orange.jpg' },
+  { name: 'Scarlet Red Metallic', color: '#c0392b', image: '/cars/sigra-red.jpg' },
+  { name: 'Bronze', color: '#cd7f32', image: '/cars/sigra-bronze.jpg' },
+  { name: 'Glittering Silver', color: '#bdc3c7', image: '/cars/sigra-silver.jpg' },
+  { name: 'Ultra Black Solid', color: '#000000', image: '/cars/sigra-black.jpg' },
+  { name: 'Icy White', color: '#ffffff', image: '/cars/sigra-white.jpg' },
+  { name: 'Rock Grey Metallic', color: '#7f8c8d', image: '/cars/sigra-grey.jpg' },
 ];
 
 const variantData = [
   {
-    name: 'X',
-    image: '/cars/terios-white.jpg',
+    name: '1.0 D',
+    image: '/cars/sigra-10d.jpg',
     features: [
-      'LED Headlamp',
-      '16” Silver Alloy Wheel',
-      '2DIN 7” Touchscreen Audio',
-      'Keyless',
-      'Digital AC',
-      'Double Blower AC',
-      'Fabric Material Seat',
-      'Tersedia Varian Aksesoris (ADS)*'
+      'Halogen Headlamp',
+      '13” Steel Wheel',
+      'Pole Antenna',
+      'Electric Power Steering',
+      'Air Conditioner',
+      '1.0L Engine',
+      '1DIN Audio Head Unit',
     ],
   },
   {
-    name: 'R',
-    image: '/cars/terios-bronze.jpg',
+    name: '1.0 M',
+    image: '/cars/sigra-10m.jpg',
     features: [
-      'Kelengkapan tipe X ditambah :',
-      'LED Smoked Headlamp',
-      '17” Gun Metal Alloy Wheel',
-      'LED Illumination Lamp',
-      'Fog Lamp',
-      'Retractable Outer Mirror',
-      'Roof Rail',
-      '2DIN 7” Touchscreen + Android Auto & Apple Car Play',
-      'Key Free',
-      'Push Start / Stop Engine',
-      'Digital Auto AC',
-      'Tersedia Varian Aksesoris (ADS)*'
+      'Kelengkapan tipe D ditambah:',
+      'Smoked LED Headlamp',
+      '14” Steel Wheel & Wheel Cap',
+      'Rear Wiper',
+      'Shark Fin Antenna',
+      'Rear Air Circulator',
     ],
   },
   {
-    name: 'R CUSTOM',
-    image: '/cars/terios-green.jpg',
+    name: '1.2 X',
+    image: '/cars/sigra-12x.jpg',
     features: [
-      'Kelengkapan tipe R ditambah :',
-      '17” Polished 2 tone Alloy Wheel',
-      'Front & Rear Body Kit',
-      'Side Stone Guard',
-      'New Leather Combination Seat',
-      'New Instrument Panel Soft Pad',
-      '6 SRS Airbag',
+      'Kelengkapan tipe M ditambah:',
+      'Rear Spoiler',
+      '2DIN Audio',
+      '1.2L Engine (3 NR-VE)',
+      'Dual SRS Airbag',
+      'ABS, EBD (AT Only)',
+    ],
+  },
+  {
+    name: '1.2 R',
+    image: '/cars/sigra-12r.jpg',
+    features: [
+      'Kelengkapan tipe X ditambah:',
+      'Dark Grille with Chrome Ornament',
+      'Foglamp',
+      '14” Polished Alloy Wheel',
+      '7” Touchscreen Head Unit',
+      'Rear Parking Camera',
     ],
   },
 ];
 
-const Terios = () => {
+const Sigra = () => {
   const navigate = useNavigate();
   const [selectedColor, setSelectedColor] = useState(carColors[0]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <div className="flex flex-col md:flex-row justify-between items-start px-6 md:px-10 py-8 md:py-10 gap-8 max-w-7xl mx-auto w-full">
+      <div className="fflex flex-col md:flex-row justify-between items-start px-6 md:px-10 py-8 md:py-10 gap-8 max-w-7xl mx-auto w-full">
         <div className="flex-1 min-w-[300px] space-y-6">
-          <h1 className="text-4xl font-bold">Terios</h1>
+          <h1 className="text-4xl font-bold">Daihatsu Sigra</h1>
           <p className="text-gray-700">
-            Terios adalah SUV tangguh untuk keluarga aktif dan petualang. Dilengkapi dengan kapasitas 7 penumpang,
-            desain modern, serta fitur kenyamanan dan keselamatan yang lengkap.
+            Daihatsu Sigra hadir dengan pilihan varian lengkap, desain stylish, dan fitur-fitur fungsional untuk kenyamanan keluarga.
           </p>
 
           <div className="w-full flex flex-col items-center justify-center text-center">
@@ -100,7 +104,7 @@ const Terios = () => {
 
           <div className="flex gap-4 mt-6 justify-center">
             <button
-              onClick={() => navigate('/daihatsu/test-drive?model=Terios')}
+              onClick={() => navigate('/daihatsu/test-drive?model=Sigra')}
               className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 shadow"
             >
               Test Drive
@@ -123,60 +127,72 @@ const Terios = () => {
         </div>
       </div>
 
-      {/* Detail Sections */}
-      <div className="max-w-6xl mx-auto w-full px-8 py-10 space-y-16">
+      <div className="max-w-7xl mx-auto w-full px-8 py-10 space-y-16">
         <div className="flex flex-col lg:flex-row items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/terios-exterior.jpg" alt="Eksterior" className="rounded shadow" />
+            <img src="/cars/sigra-exterior.jpg" alt="Eksterior" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Eksterior</h2>
-            <p className="text-gray-700 mb-4">SUV dengan Desain Sporty & Adventure membuat setiap moment bersamanya merupakan cerita petualangan yang membahagiakan</p>
+            <p className="text-gray-700 mb-4">
+              Desain modern dan stylish dengan aksen krom, membuat Sigra tampil lebih elegan dan berkelas untuk keluarga Indonesia.
+            </p>
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row-reverse items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/terios-interior.jpg" alt="Interior" className="rounded shadow" />
+            <img src="/cars/sigra-interior.jpg" alt="Interior" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Interior</h2>
-            <p className="text-gray-700 mb-4">Desain Modern, Kabin luas, fitur lengkap & canggih memberi kenyamanan maksimal di setiap petualangan</p>
+            <p className="text-gray-700 mb-4">
+              Kabin luas dan nyaman dengan konfigurasi 7 penumpang, dilengkapi fitur hiburan dan pendingin udara ganda.
+            </p>
           </div>
         </div>
 
         <div>
           <h2 className="text-3xl font-bold mb-4">Performa</h2>
-          <p className="text-gray-700 mb-4">Mesin 1,500 cc yang powerful & irit BBM, dengan Ground Clearance tinggi mampu menemani setiap petualangan</p>
-          <ul className="list-disc ml-6 text-gray-700 space-y-1">
-            <li><strong>2 NR–VE</strong> DOHC Dual VVT–i</li>
-            <li>Capacity: 1,496 cc</li>
-            <li>Max Power: 104 PS / 6,000 rpm</li>
-            <li>Max Torque: 136.3 Nm / 4,200 rpm</li>
+          <p className="text-gray-700 mb-6">
+            Sigra hadir dalam pilihan mesin 1.0L dan 1.2L yang irit dan responsif untuk kebutuhan harian keluarga.
+          </p>
+          <ul className="ml-4 space-y-4 text-gray-700">
+            <li>
+              <strong className="text-lg">1.2L Engine (3NR–VE)</strong>
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Kapasitas: 1,197 cc</li>
+                <li>Tenaga Maksimum: 88 PS @ 6,000 rpm</li>
+                <li>Torsi Maksimum: 108 Nm @ 4,200 rpm</li>
+              </ul>
+            </li>
+            <li>
+              <strong className="text-lg">1.0L Engine (1KR–VE)</strong>
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Kapasitas: 998 cc</li>
+                <li>Tenaga Maksimum: 67 PS @ 6,000 rpm</li>
+                <li>Torsi Maksimum: 89 Nm @ 4,400 rpm</li>
+              </ul>
+            </li>
           </ul>
         </div>
 
         <div className="flex flex-col lg:flex-row items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/terios-safety.jpg" alt="Keamanan" className="rounded shadow" />
+            <img src="/cars/sigra-safety.jpg" alt="Keamanan" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Keamanan</h2>
-            <p className="text-gray-700 mb-4">Bersama New Terios, setiap momen di atas roda adalah cerita petualangan yang penuh kegembiraan</p>
-            <ul className="list-disc ml-6 text-gray-700 space-y-1">
-              <li>6 SRS Airbag</li>
-              <li>Vehicle Stability Control (VSC)</li>
-              <li>Hill Start Assist (HSA)</li>
-              <li>ABS & EBD</li>
-            </ul>
+            <p className="text-gray-700 mb-4">
+              Dilengkapi dengan Dual SRS Airbag, ABS, dan Rear Parking Camera (tipe R), Sigra siap memberikan rasa aman maksimal.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Varian */}
       <div className="max-w-7xl mx-auto px-8 pb-20">
         <h2 className="text-3xl font-bold mb-6 text-center">Tipe Varian Standar</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {variantData.map((variant) => (
             <div
               key={variant.name}
@@ -213,4 +229,4 @@ const Terios = () => {
   );
 };
 
-export default Terios;
+export default Sigra;

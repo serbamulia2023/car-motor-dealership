@@ -14,12 +14,12 @@
 .brand-logo-grid {
   display: flex;
   justify-content: center;
-  gap: 5rem;
+  gap: 4rem;
   flex-wrap: wrap;
   align-items: center;
 }
 
-/* === Logo container === */
+/* === Logo Item Wrapper === */
 .brand-logo-item {
   display: inline-block;
   transition: all 0.3s ease;
@@ -34,7 +34,7 @@
   transform: scale(1.05);
 }
 
-/* === Default logo image size === */
+/* === Default logo size === */
 .brand-logo-item img {
   height: 60px;
   width: auto;
@@ -42,43 +42,40 @@
   object-fit: contain;
 }
 
-/* === Brand-specific tweaks === */
+/* === Brand-specific overrides === */
 .logo-castrol img {
-  height: 100px;
-  margin-top: 6px; /* lower castrol a bit */
+  height: 90px;
+  margin-top: 4px;
 }
 
-.logo-daihatsu {
-  margin-left: 1.5rem;
-}
 .logo-daihatsu img {
-  height: 180px;
+  height: 120px; /* ↓ Reduced from 180px */
 }
 
 .logo-yamaha img {
-  height: 150px;
+  height: 100px;
 }
 
-/* === Mobile (max 600px) === */
+/* === Mobile Responsiveness === */
 @media (max-width: 600px) {
   .brand-logo-grid {
-    gap: 2.5rem;
+    gap: 2rem;
   }
 
   .brand-logo-item img {
     height: 50px;
   }
 
+  .logo-castrol img {
+    height: 60px;
+    margin-top: 2px;
+  }
+
   .logo-daihatsu img {
-    height: 100px;
+    height: 80px;
   }
 
   .logo-yamaha img {
-    height: 100px;
-  }
-
-  .logo-castrol img {
-    height: 60px;
-    margin-top: 4px;
+    height: 80px;
   }
 }

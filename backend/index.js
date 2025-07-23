@@ -81,6 +81,7 @@ try {
   require('./routes/profile')(app, pool, upload);
   require('./routes/questionnaire')(app, pool, upload);
   require('./routes/jobs')(app, pool, seedJobs);
+  app.use('/api', require('./routes/testDrive')(pool));
 } catch (err) {
   console.error('❌ Route registration failed:', err);
 }

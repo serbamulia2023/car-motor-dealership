@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import './BrandLogos.css';
 
 const brands = [
-  { name: 'Castrol', image: '/brands/castrol.png', route: '/brands/castrol' },
   { name: 'Daihatsu', image: '/brands/daihatsu.png', route: '/daihatsu' },
-  { name: 'Yamaha', image: '/brands/yamaha.png', route: '/brands/yamaha' }
+  { name: 'Castrol', image: '/brands/castrol.png', route: '/castrol' },
+  { name: 'Yamaha', image: '/brands/yamaha.png', route: '/yamaha' }
 ];
 
 export default function BrandLogos() {
@@ -18,7 +18,7 @@ export default function BrandLogos() {
 
   return (
     <section className="brand-logos">
-      <h2 className="brand-section-title">Featured Brands</h2>
+      <h2 className="brand-section-title">Business Units</h2>
       <div className="brand-logo-grid">
         {brands.map((brand) => (
           <div

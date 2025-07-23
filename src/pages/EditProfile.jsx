@@ -206,103 +206,112 @@ export default function EditProfile() {
     watch("pdaAccepted")?.first && watch("pdaAccepted")?.second;
 
   return (
-    <>
-      <DashboardNavbar />
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <h1 className="text-2xl font-bold mb-4">Edit Profil Serba Mulia</h1>
-        <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <Section title="1. Personal Information">
-              <PersonalInfoSection />
-            </Section>
+  <div className="min-h-screen flex flex-col">
+    <DashboardNavbar />
 
-            <Section
-              title="2. Family & Partner Work"
-              open={openSections.family}
-              toggle={() => toggleSection("family")}
+    {/* Main Content */}
+    <main className="flex-1 max-w-4xl mx-auto px-4 py-8 space-y-6 relative">
+      <h1 className="text-2xl font-bold mb-4">Edit Profil Serba Mulia</h1>
+
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-2">
+          <Section title="1. Personal Information">
+            <PersonalInfoSection />
+          </Section>
+
+          <Section
+            title="2. Family & Partner Work"
+            open={openSections.family}
+            toggle={() => toggleSection("family")}
+          >
+            <DynamicFamilyTable />
+          </Section>
+
+          <Section
+            title="3. Education & Social Activities"
+            open={openSections.education}
+            toggle={() => toggleSection("education")}
+          >
+            <DynamicEducationTable />
+          </Section>
+
+          <Section
+            title="4. Work & Business"
+            open={openSections.work}
+            toggle={() => toggleSection("work")}
+          >
+            <WorkExperienceSection mode="combined" />
+          </Section>
+
+          <Section
+            title="5. Leisure"
+            open={openSections.leisure}
+            toggle={() => toggleSection("leisure")}
+          >
+            <LeisureSection />
+          </Section>
+
+          <Section
+            title="6. Additional Questions"
+            open={openSections.questionnaire}
+            toggle={() => toggleSection("questionnaire")}
+          >
+            <QuestionnaireSection />
+          </Section>
+
+          <Section
+            title="7. Reference"
+            open={openSections.referensi}
+            toggle={() => toggleSection("referensi")}
+          >
+            <ReferenceSection />
+          </Section>
+
+          <Section title="8. Personal Data Agreement">
+            <PDACheckboxSection />
+          </Section>
+
+          <div className="text-center mt-6">
+            <button
+              type="submit"
+              disabled={!isPDACompleted}
+              className={`px-6 py-2 rounded font-semibold text-white ${
+                isPDACompleted
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
             >
-              <DynamicFamilyTable />
-            </Section>
+              Simpan Perubahan
+            </button>
+          </div>
+        </form>
+      </FormProvider>
 
-            <Section
-              title="3. Education & Social Activities"
-              open={openSections.education}
-              toggle={() => toggleSection("education")}
-            >
-              <DynamicEducationTable />
-            </Section>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={handleCloseToast}
+        />
+      )}
 
-            <Section
-              title="4. Work & Business"
-              open={openSections.work}
-              toggle={() => toggleSection("work")}
-            >
-              <WorkExperienceSection mode="combined" />
-            </Section>
+      {/* Floating Question Button */}
+      <a
+        href="/questionnaire-guide"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50"
+        title="Lihat Panduan Pengisian"
+      >
+        <FaQuestionCircle size={24} />
+      </a>
+    </main>
 
-            <Section
-              title="5. Leisure"
-              open={openSections.leisure}
-              toggle={() => toggleSection("leisure")}
-            >
-              <LeisureSection />
-            </Section>
-
-            <Section
-              title="6. Additional Questions"
-              open={openSections.questionnaire}
-              toggle={() => toggleSection("questionnaire")}
-            >
-              <QuestionnaireSection />
-            </Section>
-
-            <Section
-              title="7. Reference"
-              open={openSections.referensi}
-              toggle={() => toggleSection("referensi")}
-            >
-              <ReferenceSection />
-            </Section>
-
-            <Section title="8. Personal Data Agreement">
-              <PDACheckboxSection />
-            </Section>
-
-            <div className="text-center mt-6">
-              <button
-                type="submit"
-                disabled={!isPDACompleted}
-                className={`px-6 py-2 rounded font-semibold text-white ${
-                  isPDACompleted
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-gray-400 cursor-not-allowed"
-                }`}
-              >
-                Simpan Perubahan
-              </button>
-            </div>
-          </form>
-        </FormProvider>
-
-        {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onClose={handleCloseToast}
-          />
-        )}
-
-        <a
-          href="/questionnaire-guide"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50"
-          title="Lihat Panduan Pengisian"
-        >
-          <FaQuestionCircle size={24} />
-        </a>
-      </div>
-    </>
+    {/* Footer OUTSIDE of the main form */}
+    <footer className="bg-black text-white text-center text-sm py-6">
+      © {new Date().getFullYear()} Serba Mulia Auto. All rights reserved.
+    </footer>
+  </div>
   );
 }
 

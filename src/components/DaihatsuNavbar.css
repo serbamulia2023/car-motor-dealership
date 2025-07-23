@@ -1,90 +1,86 @@
-/* ========= DAIHATSU NAVBAR ========= */
+/* DaihatsuNavbar.css */
+
 .daihatsu-navbar {
-  background-color: #fff;
-  color: #111;
-  padding: 0rem 3rem;
-  border-bottom: 1px solid #eee;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 50;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
+  padding: 0.5rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1280px;
+  margin: 0 auto;
   width: 100%;
 }
 
-/* Wrapper */
-.daihatsu-navbar .navbar-wrapper {
-  max-width: 1440px;
-  margin: 0 auto;
+.navbar-left .logo {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  height: auto;
+  max-height: 48px; /* Control overall height */
+  overflow: visible;
 }
 
-/* Logo */
 .navbarLogo {
-  height: 42px;
-  width: auto;
+  height: 48px;              /* Keep it fully visible */
+  object-fit: contain;
   display: block;
-  transform: scale(3.5); 
-  transform-origin: left center; 
-}
-
-
-/* Nav Links */
-.daihatsu-navbar .nav-links {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
+  cursor: pointer;
+  max-width: 100%;
+  user-select: none;
   margin: 0;
   padding: 0;
 }
 
-.daihatsu-navbar .nav-links li a {
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: #111;
+/* Right side links */
+.navbar-right .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-right .nav-links a {
   text-decoration: none;
-  transition: color 0.2s ease;
+  color: #374151;            /* Tailwind gray-700 */
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.2s ease-in-out, font-weight 0.2s;
 }
 
-.daihatsu-navbar .nav-links li a:hover {
-  color: #d60000;
+.navbar-right .nav-links a:hover,
+.navbar-right .nav-links a.active {
+  color: #e11d48;            /* Daihatsu red */
+  font-weight: 600;
 }
 
-/* ========= MOBILE STYLES ========= */
+/* Mobile responsive */
 @media (max-width: 768px) {
-  .daihatsu-navbar {
-    padding: 1rem 1.5rem;
-  }
-
-  .daihatsu-navbar .logo {
-    font-size: 1.5rem;
-  }
-
-  .daihatsu-navbar .nav-links {
+  .navbar-wrapper {
     flex-direction: column;
-    background-color: #fff;
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 100vh;
-    width: 250px;
-    padding: 3rem 2rem;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
-    transform: translateX(100%);
-    transition: transform 0.3s ease-in-out;
-    z-index: 999;
+    align-items: flex-start;
   }
 
-  .daihatsu-navbar .nav-links.open {
-    transform: translateX(0);
+  .navbar-right .nav-links {
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    width: 100%;
   }
 
-  .daihatsu-navbar .nav-links li {
-    margin-bottom: 1.5rem;
+  .navbar-left .logo {
+    max-height: 40px;
   }
 
-  .daihatsu-navbar .nav-links li a {
-    font-size: 1.25rem;
+  .navbarLogo {
+    height: 40px;
   }
 }

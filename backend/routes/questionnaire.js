@@ -72,16 +72,25 @@ module.exports = (app, pool) => {
     try {
       const parsed = parseBody(req.body);
       const {
-        personalInfo = {}, education = [], kursus = [], bahasa = [], kegiatan = [],
-        workExperience = {}, questionnaire = [], reference = [],
-        pdaAccepted = {}, family = { rows: [], partnerWork: [] }, leisure = {}
+        personalInfo = {},
+        education = [],
+        kursus = [],
+        bahasa = [],
+        kegiatan = [],
+        workExperience = [], // now flat
+        businesses = [],     // now flat
+        questionnaire = [],
+        reference = [],
+        pdaAccepted = {},
+        family = { rows: [], partnerWork: [] },
+        leisure = {}
       } = parsed;
 
       const familyRows = family.rows || [];
       const partnerWork = family.partnerWork || [];
-      const work = workExperience.workExperience || [];
-      const usaha = workExperience.businesses || [];
-
+      const work = Array.isArray(workExperience) ? workExperience : [];
+      const usaha = Array.isArray(businesses) ? businesses : [];
+      
       const client = await pool.connect();
       try {
         await client.query('BEGIN');

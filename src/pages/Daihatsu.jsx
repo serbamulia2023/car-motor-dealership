@@ -15,61 +15,61 @@ const Daihatsu = () => {
 
   const vehicles = [
     {
-      name: 'Ayla',
+      name: 'Sigra',
       type: 'LCGC',
-      colors: ['#000', '#ccc', '#f00'],
-      seats: 5,
-      price: 'Rp200.000.000 - Rp300.000.000',
-      route: 'ayla',
+      seats: 7,
+      colors: ['#d35400', '#c0392b', '#cd7f32', '#bdc3c7', '#000000', '#ffffff', '#7f8c8d'],
+      price: 'Rp136.000.000 - Rp180.000.000',
+      route: 'sigra',
     },
     {
-      name: 'Xenia',
-      type: 'MPV',
-      colors: ['#0055ff', '#999999'],
-      seats: 7,
-      price: 'Rp200.000.000 - Rp300.000.000',
-      route: 'xenia',
+      name: 'Gran Max',
+      type: 'Minivan',
+      seats: '2–9',
+      colors: ['#000000', '#555555', '#888888', '#c0c0c0', '#ffffff'],
+      price: 'Rp155.000.000 - Rp235.000.000',
+      route: 'granmax-van',
     },
     {
       name: 'Terios',
       type: 'SUV',
-      colors: ['#000000', '#dddddd', '#008000'],
+      colors: ['#8B0000', '#ffffff', '#000000', '#3b4b3b', '#c0c0c0', '#cd7f32'],
       seats: 7,
-      price: 'Rp200.000.000 - Rp300.000.000',
+      price: 'Rp250.000.000 - Rp310.000.000',
       route: 'terios',
     },
   ];
 
-  const dealers = [
+    const dealers = [
     {
-      city: 'Jakarta',
-      address: 'Jl. Merdeka No. 10, Central Jakarta',
-      phone: '+62 812-1010-1010',
-      link: 'https://www.google.com/maps?q=Jl.+Merdeka+No.+10,+Central+Jakarta',
+      city: 'Daihatsu Samarinda',
+      address: 'Jl. PM. Noor Kel No.8, Sempaja Sel., Kec. Samarinda Utara, Kota Samarinda, Kalimantan Timur',
+      phone: '(0541) 221117',
+      link: 'https://www.google.com/maps?q=Jl.+PM.+Noor+Kel+No.8,+Samarinda+Utara,+Kota+Samarinda,+Kalimantan+Timur',
     },
     {
-      city: 'Surabaya',
-      address: 'Jl. Raya Darmo No. 88, Surabaya',
-      phone: '+62 812-2020-2020',
-      link: 'https://www.google.com/maps?q=Jl.+Raya+Darmo+No.+88,+Surabaya',
+      city: 'Daihatsu Balikpapan',
+      address: 'Jl. Mayjend Sutoyo No.9, Klandasan Ilir, Balikpapan Kota, Kota Balikpapan, Kalimantan Timur',
+      phone: '(0542) 417543',
+      link: 'https://www.google.com/maps?q=Jl.+Mayjend+Sutoyo+No.9,+Balikpapan+Kota,+Kalimantan+Timur',
     },
     {
-      city: 'Bandung',
-      address: 'Jl. Setiabudi No. 50, Bandung',
-      phone: '+62 812-3030-3030',
-      link: 'https://www.google.com/maps?q=Jl.+Setiabudi+No.+50,+Bandung',
+      city: 'Daihatsu Jayapura',
+      address: 'Jl. Raya Abepura, Entrop, Jayapura Sel., Kota Jayapura, Papua',
+      phone: '(0967) 531326',
+      link: 'https://www.google.com/maps?q=Jl.+Raya+Abepura,+Entrop,+Jayapura+Sel.,+Kota+Jayapura,+Papua',
     },
     {
-      city: 'Yogyakarta',
-      address: 'Jl. Malioboro No. 123, Yogyakarta',
-      phone: '+62 812-4040-4040',
-      link: 'https://www.google.com/maps?q=Jl.+Malioboro+No.+123,+Yogyakarta',
+      city: 'Daihatsu Sorong',
+      address: 'Jl. Basuki Rahmat km 9,5, Melati Raya, Sorong, Papua Barat',
+      phone: '0823-5089-2897',
+      link: 'https://www.google.com/maps?q=Jl.+Basuki+Rahmat+km+9.5,+Melati+Raya,+Sorong,+Papua+Barat',
     },
     {
-      city: 'Medan',
-      address: 'Jl. Gatot Subroto No. 88, Medan',
-      phone: '+62 812-5050-5050',
-      link: 'https://www.google.com/maps?q=Jl.+Gatot+Subroto+No.+88,+Medan',
+      city: 'Daihatsu Serba Mulia Auto Paser Grogot',
+      address: 'Jl. Rm. Noto Sunardi, RT.006/RW.005, Tanah Grogot, Kec. Tanah Grogot, Kabupaten Paser, Kalimantan Timur 76251',
+      phone: '0821-3602-3700',
+      link: 'https://www.google.com/maps/place/Daihatsu+Serba+Mulia+Auto+Paser+Grogot',
     },
   ];
 
@@ -88,7 +88,7 @@ const Daihatsu = () => {
           ))}
         </div>
         <div className={styles.tagline}>
-          <img src="/brands/daihatsu.png" alt="Daihatsu Logo" className={styles.brandLogo} />
+          <img src="/brands/daihatsu-landing.png" alt="Daihatsu Logo" className={styles.brandLogo} />
           <p className={styles.subtitle}>Innovating Mobility, Empowering Lives</p>
         </div>
       </section>

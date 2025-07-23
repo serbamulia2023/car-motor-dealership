@@ -104,15 +104,39 @@ module.exports = (app, pool) => {
         to: email,
         subject: 'Permintaan Reset Password',
         html: `
-          <div style="font-family: sans-serif;">
-            <p>Halo,</p>
-            <p>Anda menerima email ini karena ada permintaan untuk mengatur ulang password akun Anda.</p>
-            <p>Silakan klik link berikut (berlaku selama 1 jam):</p>
-            <a href="${link}">${link}</a>
-            <p>Jika Anda tidak meminta reset password, abaikan email ini.</p>
+          <div style="max-width:600px; margin:auto; font-family:sans-serif; padding:24px; border:1px solid #eee; border-radius:8px; background-color:#f9f9f9;">
+
+            <p style="color:#444; font-size:15px;">
+              Anda menerima email ini karena ada permintaan untuk mengatur ulang password akun Anda.
+            </p>
+
+            <p style="color:#444; font-size:15px;">
+              Silakan klik tombol di bawah ini (berlaku selama 1 jam):
+            </p>
+
+            <div style="text-align:center; margin:30px 0;">
+              <a href="${link}" 
+                style="background-color:#2563eb; color:white; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:bold; display:inline-block;">
+                Reset Password
+              </a>
+            </div>
+
+            <p style="font-size:14px;">Atau salin dan tempel tautan berikut ke browser Anda:</p>
+            <p style="word-break: break-all; color:#2563eb;">${link}</p>
+
+            <p style="color:#888; font-size:13px;">
+              Jika Anda tidak meminta reset password, abaikan email ini.
+            </p>
+
+            <hr style="margin:32px 0; border-color:#eee;" />
+
+            <p style="text-align:center; color:#aaa; font-size:12px;">
+              © ${new Date().getFullYear()} Serba Mulia Auto. All rights reserved.
+            </p>
           </div>
         `,
       });
+
 
       console.log(`✅ Email reset terkirim ke ${email}`);
       res.sendStatus(200);

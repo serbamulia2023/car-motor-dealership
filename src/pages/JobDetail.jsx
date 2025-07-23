@@ -75,7 +75,7 @@ const JobDetail = () => {
           <p className="text-sm text-gray-500 mb-6">Posted on: {formatDate(job.created_at)}</p>
 
           <div className="text-left space-y-6 text-gray-700">
-            <p><strong>Perusahaan:</strong> {job.company}</p>
+            <p><strong>Business Unit:</strong> {job.company}</p>
             <p><strong>Lokasi:</strong> {job.location}</p>
             <div>
               <strong>Deskripsi:</strong>

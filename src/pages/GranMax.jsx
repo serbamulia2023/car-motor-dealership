@@ -2,63 +2,52 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const carColors = [
-  { name: 'Scarlet Red Metallic', color: '#8B0000', image: '/cars/terios-red.jpg' },
-  { name: 'Icy White', color: '#ffffff', image: '/cars/terios-white.jpg' },
-  { name: 'Black Metallic', color: '#000000', image: '/cars/terios-black.jpg' },
-  { name: 'Green Gun Metallic', color: '#3b4b3b', image: '/cars/terios-green.jpg' },
-  { name: 'Glittering Silver Metallic', color: '#c0c0c0', image: '/cars/terios-silver.jpg' },
-  { name: 'Bronze Metallic', color: '#cd7f32', image: '/cars/terios-bronze.jpg' },
+  { name: 'Ultra Black', color: '#000000', image: '/cars/granmax-black.jpg' },
+  { name: 'Rock Grey Metallic', color: '#888888', image: '/cars/granmax-grey.jpg' },
+  { name: 'Classic Silver', color: '#c0c0c0', image: '/cars/granmax-silver.jpg' },
+  { name: 'Icy White', color: '#ffffff', image: '/cars/granmax-white.jpg' },
+  { name: 'Icy White (Blindvan)', color: '#ffffff', image: '/cars/granmax-blindvan.jpg' },
 ];
 
 const variantData = [
   {
-    name: 'X',
-    image: '/cars/terios-white.jpg',
+    name: '1.3 Blindvan',
+    image: '/cars/granmax-blindvan.jpg',
     features: [
-      'LED Headlamp',
-      '16” Silver Alloy Wheel',
-      '2DIN 7” Touchscreen Audio',
-      'Keyless',
-      'Digital AC',
-      'Double Blower AC',
-      'Fabric Material Seat',
-      'Tersedia Varian Aksesoris (ADS)*'
+      'Halogen Multireflector Headlamp',
+      '13\" Steel Wheel (BV)',
+      '13\" Alloy Wheel (MB)',
+      '1 Bottle Holder',
+      '1.3L Engine (K3–DE)',
     ],
   },
   {
-    name: 'R',
-    image: '/cars/terios-bronze.jpg',
+    name: '1.3 Minibus',
+    image: '/cars/granmax-13mb.jpg',
     features: [
-      'Kelengkapan tipe X ditambah :',
-      'LED Smoked Headlamp',
-      '17” Gun Metal Alloy Wheel',
-      'LED Illumination Lamp',
-      'Fog Lamp',
-      'Retractable Outer Mirror',
-      'Roof Rail',
-      '2DIN 7” Touchscreen + Android Auto & Apple Car Play',
-      'Key Free',
-      'Push Start / Stop Engine',
-      'Digital Auto AC',
-      'Tersedia Varian Aksesoris (ADS)*'
+      'Halogen Multireflector Headlamp',
+      '13\" Steel Wheel (BV)',
+      '13\" Alloy Wheel (MB)',
+      '1 Bottle Holder',
+      '1.3L Engine (K3–DE)',
     ],
   },
   {
-    name: 'R CUSTOM',
-    image: '/cars/terios-green.jpg',
+    name: '1.5 Minibus',
+    image: '/cars/granmax-15mb.jpg',
     features: [
-      'Kelengkapan tipe R ditambah :',
-      '17” Polished 2 tone Alloy Wheel',
-      'Front & Rear Body Kit',
-      'Side Stone Guard',
-      'New Leather Combination Seat',
-      'New Instrument Panel Soft Pad',
-      '6 SRS Airbag',
+      'Kelengkapan tipe 1.3 ditambah:',
+      '14\" Steel Wheel (BV)',
+      '14\" Alloy Wheel (MB)',
+      '2 Bottle Holder',
+      'New Dashboard Design',
+      'New Steer Design',
+      '1.5L Engine (2NR–VE)',
     ],
   },
 ];
 
-const Terios = () => {
+const GranMax = () => {
   const navigate = useNavigate();
   const [selectedColor, setSelectedColor] = useState(carColors[0]);
 
@@ -66,10 +55,9 @@ const Terios = () => {
     <div className="min-h-screen flex flex-col bg-white">
       <div className="flex flex-col md:flex-row justify-between items-start px-6 md:px-10 py-8 md:py-10 gap-8 max-w-7xl mx-auto w-full">
         <div className="flex-1 min-w-[300px] space-y-6">
-          <h1 className="text-4xl font-bold">Terios</h1>
+          <h1 className="text-4xl font-bold">Gran Max</h1>
           <p className="text-gray-700">
-            Terios adalah SUV tangguh untuk keluarga aktif dan petualang. Dilengkapi dengan kapasitas 7 penumpang,
-            desain modern, serta fitur kenyamanan dan keselamatan yang lengkap.
+            Gran Max MB hadir dengan pilihan Blindvan dan Minibus. Cocok untuk kebutuhan usaha Anda, dengan desain luas, performa tangguh, dan efisiensi tinggi.
           </p>
 
           <div className="w-full flex flex-col items-center justify-center text-center">
@@ -100,7 +88,7 @@ const Terios = () => {
 
           <div className="flex gap-4 mt-6 justify-center">
             <button
-              onClick={() => navigate('/daihatsu/test-drive?model=Terios')}
+              onClick={() => navigate('/daihatsu/test-drive?model=GranMax')}
               className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 shadow"
             >
               Test Drive
@@ -112,6 +100,7 @@ const Terios = () => {
               Dapatkan Penawaran
             </button>
           </div>
+
         </div>
 
         <div className="flex-1 flex justify-center items-start">
@@ -127,48 +116,56 @@ const Terios = () => {
       <div className="max-w-6xl mx-auto w-full px-8 py-10 space-y-16">
         <div className="flex flex-col lg:flex-row items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/terios-exterior.jpg" alt="Eksterior" className="rounded shadow" />
+            <img src="/cars/granmax-exterior.jpg" alt="Eksterior" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Eksterior</h2>
-            <p className="text-gray-700 mb-4">SUV dengan Desain Sporty & Adventure membuat setiap moment bersamanya merupakan cerita petualangan yang membahagiakan</p>
+            <p className="text-gray-700 mb-4">Gran Max MB didesain dengan aman dan luas untuk membuat perjalanan bisnis Sahabat semakin mudah dan efisien.</p>
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row-reverse items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/terios-interior.jpg" alt="Interior" className="rounded shadow" />
+            <img src="/cars/granmax-interior.jpg" alt="Interior" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Interior</h2>
-            <p className="text-gray-700 mb-4">Desain Modern, Kabin luas, fitur lengkap & canggih memberi kenyamanan maksimal di setiap petualangan</p>
+            <p className="text-gray-700 mb-4">Gran Max MB hadir dengan kabin lega dan kapasitas besar, memudahkan perjalanan bisnis Sahabat.</p>
           </div>
         </div>
 
         <div>
           <h2 className="text-3xl font-bold mb-4">Performa</h2>
-          <p className="text-gray-700 mb-4">Mesin 1,500 cc yang powerful & irit BBM, dengan Ground Clearance tinggi mampu menemani setiap petualangan</p>
-          <ul className="list-disc ml-6 text-gray-700 space-y-1">
-            <li><strong>2 NR–VE</strong> DOHC Dual VVT–i</li>
-            <li>Capacity: 1,496 cc</li>
-            <li>Max Power: 104 PS / 6,000 rpm</li>
-            <li>Max Torque: 136.3 Nm / 4,200 rpm</li>
+          <p className="text-gray-700 mb-6">
+            Gran Max tersedia dalam dua pilihan mesin yang efisien dan bertenaga, mendukung kebutuhan bisnis harian Anda.
+          </p>
+          <ul className="ml-4 space-y-4 text-gray-700">
+            <li>
+              <strong className="text-lg">1.5L Engine (2NR–VE)</strong>
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Kapasitas: 1,496 cc</li>
+                <li>Tenaga Maksimum: 97 PS @ 6,000 rpm</li>
+                <li>Torsi Maksimum: 134 Nm @ 4,400 rpm</li>
+              </ul>
+            </li>
+            <li>
+              <strong className="text-lg">1.3L Engine (K3–DE)</strong>
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Kapasitas: 1,298 cc</li>
+                <li>Tenaga Maksimum: 88 PS @ 6,000 rpm</li>
+                <li>Torsi Maksimum: 115 Nm @ 4,400 rpm</li>
+              </ul>
+            </li>
           </ul>
         </div>
 
         <div className="flex flex-col lg:flex-row items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/terios-safety.jpg" alt="Keamanan" className="rounded shadow" />
+            <img src="/cars/granmax-safety.jpg" alt="Keamanan" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Keamanan</h2>
-            <p className="text-gray-700 mb-4">Bersama New Terios, setiap momen di atas roda adalah cerita petualangan yang penuh kegembiraan</p>
-            <ul className="list-disc ml-6 text-gray-700 space-y-1">
-              <li>6 SRS Airbag</li>
-              <li>Vehicle Stability Control (VSC)</li>
-              <li>Hill Start Assist (HSA)</li>
-              <li>ABS & EBD</li>
-            </ul>
+            <p className="text-gray-700 mb-4">Detail lengkap fitur dan keamanan Daihatsu Granmax MB Minibus. Lebih aman dengan fitur keselamatan yang lengkap.</p>
           </div>
         </div>
       </div>
@@ -213,4 +210,4 @@ const Terios = () => {
   );
 };
 
-export default Terios;
+export default GranMax;

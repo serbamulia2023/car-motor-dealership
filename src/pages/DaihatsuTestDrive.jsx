@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import axios from '../axios';
 import styles from './DaihatsuTestDrive.module.css';
 import Toast from '../components/Toast';
 
@@ -27,25 +28,39 @@ const DaihatsuTestDrive = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // You could add real form submission logic here
-    console.log({ ...formData, model: selectedModel });
+    try {
+      await axios.post('/book-test-drive/daihatsu', {
+        fullName: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        model: selectedModel,
+        location: formData.location,
+        date: formData.date, // optional: not stored yet
+      });
 
-    setToast({
-      message: 'Test drive request submitted successfully!',
-      type: 'success',
-    });
+      setToast({
+        message: 'Test drive request submitted successfully!',
+        type: 'success',
+      });
 
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      location: '',
-      date: '',
-    });
-    setSelectedModel('');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        location: '',
+        date: '',
+      });
+      setSelectedModel('');
+    } catch (err) {
+      console.error('❌ Submission failed:', err);
+      setToast({
+        message: 'Something went wrong. Please try again.',
+        type: 'error',
+      });
+    }
   };
 
   return (

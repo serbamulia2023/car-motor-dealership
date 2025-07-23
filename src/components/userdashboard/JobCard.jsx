@@ -4,15 +4,22 @@ const VALID_BRANDS = ['daihatsu', 'yamaha', 'castrol'];
 
 const JobCard = ({ job, onApply }) => {
   const renderBrandLogo = (brand) => {
-    const clean = brand?.toLowerCase();
+    if (!brand) return null;
+
+    const clean = brand.toLowerCase();
     if (!VALID_BRANDS.includes(clean)) return null;
+
+    const logoPath = `/brands/${clean}.png`;
 
     return (
       <img
-        src={`/brands/${clean}.png`}
-        alt={clean}
+        src={logoPath}
+        alt={`${clean} logo`}
         className="object-contain h-10 w-auto mx-auto mb-4"
-        onError={(e) => (e.target.style.display = 'none')}
+        onError={(e) => {
+          console.error(`Logo failed to load: ${logoPath}`);
+          e.target.style.display = 'none';
+        }}
       />
     );
   };
@@ -21,7 +28,9 @@ const JobCard = ({ job, onApply }) => {
     <div className="border border-gray-200 rounded-xl shadow-sm bg-white flex flex-col justify-between h-full p-6 hover:shadow-md transition">
       <div>
         {renderBrandLogo(job.brand)}
-        <h3 className="text-xl font-semibold text-center text-gray-800 mb-1">{job.title}</h3>
+        <h3 className="text-xl font-semibold text-center text-gray-800 mb-1">
+          {job.title}
+        </h3>
         <p className="text-sm text-center text-gray-500 mb-3">
           📍 {job.location || '-'} • 🕒 {job.type || '-'}
         </p>
@@ -32,7 +41,7 @@ const JobCard = ({ job, onApply }) => {
 
       <div className="flex justify-center mt-auto">
         <button
-          onClick={onApply} // ✅ You MUST use this for navigation to work
+          onClick={onApply}
           className="bg-black text-white text-sm font-medium px-5 py-2 rounded-md hover:bg-blue-600 transition"
         >
           Apply Now

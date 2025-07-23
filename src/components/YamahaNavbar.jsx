@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import './YamahaNavbar.css';
+import './YamahaNavbar.css'; // ✅ Match Daihatsu structure
 
 export default function YamahaNavbar() {
   const location = useLocation();
@@ -8,31 +8,21 @@ export default function YamahaNavbar() {
 
   const handleHomeClick = (e) => {
     e.preventDefault();
-
     if (path === '/brands/yamaha') {
-      navigate('/'); // from brand homepage to main homepage
+      navigate('/');
     } else {
-      navigate('/brands/yamaha'); // from subpages to brand homepage
+      navigate('/brands/yamaha');
     }
-  };
-
-  const handleContactClick = (e) => {
-    if (path === '/brands/yamaha') {
-      // already on brand homepage → scroll
-      return; // allow anchor href to scroll
-    }
-
-    e.preventDefault();
-    navigate('/brands/yamaha#yamaha-contact');
   };
 
   return (
-    <nav className="navbar yamaha-navbar">
+    <nav className="yamaha-navbar">
       <div className="navbar-wrapper">
         <div className="navbar-left">
-          <h1 className="logo">Yamaha</h1>
+          <div className="logo">
+            <img src="/brands/yamaha.png" alt="Yamaha Logo" className="navbarLogo" />
+          </div>
         </div>
-
         <div className="navbar-right">
           <ul className="nav-links">
             <li>

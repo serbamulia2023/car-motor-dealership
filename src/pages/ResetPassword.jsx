@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../axios';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
-import Toast from '../components/Toast'; 
+import Toast from '../components/Toast';
 
-export default function ResetPassword({ showToast }) {
+export default function ResetPassword() {
   const { token } = useParams();
   const navigate = useNavigate();
 
@@ -14,6 +14,7 @@ export default function ResetPassword({ showToast }) {
   const [loading, setLoading] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [toast, setToast] = useState(null);
 
   // ✅ Fetch email from token
   useEffect(() => {
@@ -22,40 +23,58 @@ export default function ResetPassword({ showToast }) {
         const res = await axios.get(`/reset-password/${token}`);
         setEmail(res.data.email);
       } catch (err) {
-        showToast?.('❌ Link tidak valid atau telah kedaluwarsa.', 'error');
+        setToast({
+          type: 'error',
+          message: 'Link tidak valid atau telah kedaluwarsa.',
+        });
       }
     };
     fetchEmail();
-  }, [token, showToast]);
+  }, [token]);
 
   // ✅ Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!newPassword || !confirmPassword) {
-      return showToast?.('❌ Mohon isi semua kolom.', 'error');
+      return setToast({ type: 'error', message: 'Mohon isi semua kolom.' });
     }
     if (newPassword.length < 6) {
-      return showToast?.('❌ Password harus minimal 6 karakter.', 'error');
+      return setToast({ type: 'error', message: 'Password harus minimal 6 karakter.' });
     }
     if (newPassword !== confirmPassword) {
-      return showToast?.('❌ Password dan konfirmasi tidak cocok.', 'error');
+      return setToast({ type: 'error', message: 'Password dan konfirmasi tidak cocok.' });
     }
 
     try {
       setLoading(true);
-      await axios.post(`/reset-password/${token}`, { newPassword });
-      showToast?.('✅ Password berhasil diubah. Anda akan diarahkan ke login...', 'success');
-      setTimeout(() => navigate('/login'), 3000);
+      const res = await axios.post(`/reset-password/${token}`, { newPassword });
+
+      if (res.status === 200) {
+        setToast({
+          type: 'success',
+          message: 'Password berhasil diubah..',
+        });
+        setTimeout(() => navigate('/login'), 3000);
+      } else {
+        throw new Error('Unexpected server response');
+      }
     } catch (err) {
-      showToast?.(err.response?.data?.message || '❌ Gagal mengubah password.', 'error');
+      const msg = err.response?.data?.message || 'Gagal mengubah password.';
+      setToast({ type: 'error', message: msg });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 relative">
+      {toast && (
+        <div className="absolute top-4 right-4 z-50">
+          <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+        </div>
+      )}
+
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold mb-6 text-center">Reset Password</h2>
 
@@ -114,7 +133,7 @@ export default function ResetPassword({ showToast }) {
             type="submit"
             disabled={loading}
             className={`w-full text-white py-2 rounded transition ${
-              loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+              loading ? 'bg-black text-white cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'
             }`}
           >
             {loading ? 'Menyimpan...' : 'Ubah Password'}
