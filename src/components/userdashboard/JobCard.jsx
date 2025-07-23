@@ -3,6 +3,11 @@ import React from 'react';
 const VALID_BRANDS = ['daihatsu', 'yamaha', 'castrol'];
 
 const JobCard = ({ job, onApply }) => {
+  /**
+   * Renders a brand logo based on the given brand name.
+   * @param {string} brand The brand name, which will be converted to lowercase and checked against the `VALID_BRANDS` array.
+   * @returns {ReactElement} The rendered brand logo, or null if the brand is invalid.
+   */
   const renderBrandLogo = (brand) => {
     if (!brand) return null;
 
