@@ -67,7 +67,7 @@ import Yz250Series from './pages/Yz250Series';
 import VegaForce from './pages/VegaForce'
 import JupiterZ1 from './pages/JupiterZ1';
 import DashboardNavbar from './pages/DashboardNavbar';
-import Mxking from './pages/MxKing';
+import MxKing from './pages/MxKing';
 
 function App() {
   const location = useLocation();
@@ -394,7 +394,7 @@ function App() {
         <Route path="/yamaha/models/wr155r" element={<WR155R />} />
         <Route path="/yamaha/models/yz125x" element={<Yz125x />} />
         <Route path="/yamaha/models/yz250series" element={<Yz250Series />} />
-        <Route path="/yamaha/models/mxking" element={<Mxking />} />
+        <Route path="/yamaha/models/mxking" element={<MxKing />} />
         <Route path="/yamaha/models/jupiterz1" element={<JupiterZ1 />} />
         <Route path="/yamaha/models/vegaforce" element={<VegaForce />} />
         <Route path="/yamaha/test-drive" element={<YamahaTestDrive />} />

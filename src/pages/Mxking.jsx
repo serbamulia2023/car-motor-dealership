@@ -41,7 +41,7 @@ const mxKingVariant = {
   ],
 };
 
-const Mxking = () => {
+const MxKing = () => {
   const navigate = useNavigate();
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const selectedColor = mxKingVariant.colors[selectedColorIndex];
@@ -129,4 +129,4 @@ const Highlight = ({ title, text }) => (
   </div>
 );
 
-export default Mxking;
+export default MxKing;
