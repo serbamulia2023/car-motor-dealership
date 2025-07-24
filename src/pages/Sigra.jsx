@@ -131,7 +131,7 @@ const Sigra = () => {
       <div className="max-w-7xl mx-auto w-full px-8 py-10 space-y-16">
         <div className="flex flex-col lg:flex-row items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/sigra-exterior.jpg" alt="Eksterior" className="rounded shadow" />
+            <img src="/cars/sigra-exterior.png" alt="Eksterior" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Eksterior</h2>
@@ -143,7 +143,7 @@ const Sigra = () => {
 
         <div className="flex flex-col lg:flex-row-reverse items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/sigra-interior.jpg" alt="Interior" className="rounded shadow" />
+            <img src="/cars/sigra-interior.png" alt="Interior" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Interior</h2>
@@ -180,7 +180,7 @@ const Sigra = () => {
 
         <div className="flex flex-col lg:flex-row items-center gap-10">
           <div className="lg:w-1/2">
-            <img src="/cars/sigra-safety.jpg" alt="Keamanan" className="rounded shadow" />
+            <img src="/cars/sigra-safety.png" alt="Keamanan" className="rounded shadow" />
           </div>
           <div className="lg:w-1/2">
             <h2 className="text-3xl font-bold mb-4">Keamanan</h2>

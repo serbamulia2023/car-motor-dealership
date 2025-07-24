@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import DashboardNavbar from './DashboardNavbar';
 
 const VALID_BRANDS = ['daihatsu', 'yamaha', 'castrol'];
 
@@ -148,7 +147,6 @@ export default function DashboardJobDetail({ showToast, user }) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <DashboardNavbar />
 
       <main className="flex-grow max-w-4xl mx-auto px-4 py-10 w-full">
         <div className="mb-4">

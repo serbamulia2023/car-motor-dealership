@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 
-export default function DashboardNavbar() {
+export default function DashboardNavbar({ user, onLogout }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState({
-    name: 'User',
-    photo: 'http://localhost:5050/uploads/profile-default.jpg',
-  });
-
+  const [userProfile, setUserProfile] = useState(null);
   const navigate = useNavigate();
 
+  // Fetch user profile from /api/me
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -18,57 +15,59 @@ export default function DashboardNavbar() {
         });
 
         if (res.status === 401) {
-          console.warn('🔒 Not authenticated, redirecting to login...');
+          console.warn('🔒 Not authenticated');
           return navigate('/login');
         }
 
         const data = await res.json();
-        console.log('✅ Fetched /api/me:', data);
 
         const fullName =
-          data.personalInfo?.full_name || data.full_name || data.name || 'User';
+          data?.personalInfo?.full_name || data?.full_name || data?.name || 'User';
 
-        const photoUrl = data.personalInfo?.photo?.startsWith('http')
-          ? data.personalInfo.photo
-          : 'http://localhost:5050/uploads/profile-default.jpg';
+        const photoUrl =
+          data?.personalInfo?.photo?.startsWith('http')
+            ? data.personalInfo.photo
+            : 'http://localhost:5050/uploads/profile-default.jpg';
 
-        setUserProfile({
-          name: fullName,
-          photo: photoUrl,
-        });
+        setUserProfile({ name: fullName, photo: photoUrl });
       } catch (err) {
-        console.error('❌ Error fetching profile:', err.message || err);
-        setUserProfile({
-          name: 'User',
-          photo: 'http://localhost:5050/uploads/profile-default.jpg',
-        });
+        console.error('❌ Failed to fetch profile:', err.message || err);
+        setUserProfile(null);
       }
     };
 
     fetchProfile();
   }, [navigate]);
 
-  const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
+  const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
 
-  const handleLogout = () => {
-    sessionStorage.clear();
-    localStorage.clear();
-    navigate('/login', { replace: true });
+  const displayName =
+    userProfile?.name || user?.full_name || user?.name || 'User';
+
+  const displayPhoto =
+    userProfile?.photo || 'http://localhost:5050/uploads/profile-default.jpg';
+
+  const handleLogoutClick = () => {
+    toggleDrawer();
+    onLogout?.();
+  };
+
+  const handleNavigate = (path, options = {}) => {
+    toggleDrawer();
+    navigate(path, options);
   };
 
   return (
     <div className="sticky top-0 z-50 bg-white border-b shadow-sm px-6 py-3 flex items-center justify-between">
       {/* Logo */}
-      <div className="flex items-center gap-10">
-        <img
-          src="/brands/Logo Serba Mulia Auto.png"
-          alt="Logo"
-          className="w-32 h-auto cursor-pointer -mt-2"
-          onClick={() => navigate('/dashboard')}
-        />
-      </div>
+      <img
+        src="/brands/Logo Serba Mulia Auto.png"
+        alt="Logo"
+        className="w-32 h-auto cursor-pointer -mt-2"
+        onClick={() => navigate('/dashboard')}
+      />
 
-      {/* Desktop Navigation */}
+      {/* Desktop Nav Center */}
       <div className="hidden sm:flex gap-8 text-gray-700 font-medium absolute left-1/2 transform -translate-x-1/2">
         <NavLink
           to="/dashboard"
@@ -80,6 +79,7 @@ export default function DashboardNavbar() {
         </NavLink>
         <NavLink
           to="/contact"
+          onClick={() => localStorage.setItem('navbarSource', 'dashboard')}
           className={({ isActive }) =>
             isActive ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
           }
@@ -88,13 +88,13 @@ export default function DashboardNavbar() {
         </NavLink>
       </div>
 
-      {/* Profile Section */}
+      {/* Profile Avatar */}
       <div className="flex items-center gap-4">
         <span className="text-gray-800 font-medium hidden sm:inline">
-          Hello, {userProfile.name}
+          Hello, {displayName}
         </span>
         <img
-          src={userProfile.photo}
+          src={displayPhoto}
           alt="Profile"
           className="w-10 h-10 rounded-full border object-cover cursor-pointer"
           onClick={toggleDrawer}
@@ -113,52 +113,47 @@ export default function DashboardNavbar() {
 
           <div className="mt-10 flex flex-col items-center text-center">
             <img
-              src={userProfile.photo}
+              src={displayPhoto}
               alt="Profile"
               className="w-20 h-20 rounded-full object-cover border mb-3"
             />
             <p className="text-lg font-semibold text-gray-800">
-              {userProfile.name}
+              {displayName}
             </p>
           </div>
 
           <hr className="my-6 border-t" />
 
-          {/* Mobile-only nav */}
+          {/* Mobile Nav */}
           <div className="sm:hidden mb-6 space-y-4 px-4">
             <div
               className="cursor-pointer text-gray-700 hover:text-blue-600 text-base font-medium"
-              onClick={() => {
-                navigate('/dashboard');
-                toggleDrawer();
-              }}
+              onClick={() => handleNavigate('/dashboard')}
             >
               Home
             </div>
             <div
               className="cursor-pointer text-gray-700 hover:text-blue-600 text-base font-medium"
               onClick={() => {
-                navigate('/contact');
-                toggleDrawer();
+                localStorage.setItem('navbarSource', 'dashboard');
+                handleNavigate('/contact');
               }}
             >
               Contact Us
             </div>
           </div>
 
+          {/* Drawer Actions */}
           <ul className="space-y-4 px-4">
             <li
               className="cursor-pointer text-blue-600 hover:underline text-base font-medium"
-              onClick={() => {
-                navigate('/edit-profile');
-                toggleDrawer();
-              }}
+              onClick={() => handleNavigate('/edit-profile')}
             >
               Edit Profile
             </li>
             <li
               className="cursor-pointer text-red-600 hover:underline text-base font-medium"
-              onClick={handleLogout}
+              onClick={handleLogoutClick}
             >
               Logout
             </li>

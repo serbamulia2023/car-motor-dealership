@@ -85,14 +85,31 @@ function App() {
   };
 
   const handleLoginSuccess = (userData) => {
+    localStorage.removeItem('navbarSource'); // ✅ clear override
     setUser(userData);
     navigate('/dashboard');
   };
 
   const handleSignUpSuccess = (userData) => {
+    localStorage.removeItem('navbarSource'); // ✅ clear override
     setUser(userData);
     navigate('/questionnaire');
   };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('/logout'); // or whatever invalidates the session on backend
+    } catch (err) {
+      console.warn('Failed to logout on backend:', err);
+    }
+
+    setUser(null);
+    localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('navbarSource');
+    navigate('/');
+  };
+
+
 
   useEffect(() => {
     const checkSession = async () => {
@@ -110,30 +127,47 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const brandPaths = ['/daihatsu', '/yamaha'];
+    const isBrandPath = brandPaths.some((prefix) => path.startsWith(prefix));
+    const isContact = path === '/contact';
+
+    // Clear navbarSource if not on brand page or contact with 'from'
+    if (!isBrandPath && !isContact && !path.startsWith('/dashboard')) {
+      localStorage.removeItem('navbarSource');
+    }
+  }, [path]);
+
+  useEffect(() => {
     setQuery('');
   }, [path]);
 
-  // ✅ CLEANED UP NAVBAR DECIDER
+ 
   const getNavbar = () => {
-    const noNavbarPaths = [
-      '/dashboard',
-      '/edit-profile',
-      '/questionnaire',
-      '/reset-password'
-    ];
+    const noNavbarPaths = ['/edit-profile', '/questionnaire', '/reset-password'];
+    const override = localStorage.getItem('navbarSource');
+
+    // ❌ Don't show navbar on some paths
     if (noNavbarPaths.some((prefix) => path.startsWith(prefix))) return null;
 
-    if (user) return DashboardNavbar;
+    // ✅ Always show DashboardNavbar when logged in and not on brand-specific pages
+    if (user && !path.startsWith('/daihatsu') && !path.startsWith('/yamaha')) {
+      return () => <DashboardNavbar user={user} onLogout={handleLogout} />;
+    }
 
-    const override = localStorage.getItem('navbarSource');
+    // 🌐 Show forced brand navbar
     if (override === 'daihatsu') return DaihatsuNavbar;
     if (override === 'yamaha') return YamahaNavbar;
 
-    if (path.startsWith('/daihatsu')) return DaihatsuNavbar;
-    if (path.startsWith('/yamaha')) return YamahaNavbar;
+    // ✅ Only show brand navbar when not logged in (fallback for public brand pages)
+    if (!user) {
+      if (path.startsWith('/daihatsu')) return DaihatsuNavbar;
+      if (path.startsWith('/yamaha')) return YamahaNavbar;
+    }
 
+    // Default fallback
     return Navbar;
   };
+
 
   const ActiveNavbar = getNavbar();
 

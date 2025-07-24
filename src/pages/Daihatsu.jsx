@@ -5,7 +5,7 @@ import styles from './Daihatsu.module.css';
 const Daihatsu = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const images = ['/car.jpg', '/car2.jpg'];
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -21,6 +21,7 @@ const Daihatsu = () => {
       colors: ['#d35400', '#c0392b', '#cd7f32', '#bdc3c7', '#000000', '#ffffff', '#7f8c8d'],
       price: 'Rp136.000.000 - Rp180.000.000',
       route: 'sigra',
+      image: '/cars/sigra-frontpage.png',
     },
     {
       name: 'Gran Max',
@@ -29,47 +30,54 @@ const Daihatsu = () => {
       colors: ['#000000', '#555555', '#888888', '#c0c0c0', '#ffffff'],
       price: 'Rp155.000.000 - Rp235.000.000',
       route: 'granmax-van',
+      image: '/cars/',
     },
     {
       name: 'Terios',
       type: 'SUV',
-      colors: ['#8B0000', '#ffffff', '#000000', '#3b4b3b', '#c0c0c0', '#cd7f32'],
       seats: 7,
+      colors: ['#8B0000', '#ffffff', '#000000', '#3b4b3b', '#c0c0c0', '#cd7f32'],
       price: 'Rp250.000.000 - Rp310.000.000',
       route: 'terios',
+      image: '/daihatsu/terios.jpg',
     },
   ];
 
-    const dealers = [
+  const dealers = [
     {
       city: 'Daihatsu Samarinda',
       address: 'Jl. PM. Noor Kel No.8, Sempaja Sel., Kec. Samarinda Utara, Kota Samarinda, Kalimantan Timur',
       phone: '(0541) 221117',
       link: 'https://www.google.com/maps?q=Jl.+PM.+Noor+Kel+No.8,+Samarinda+Utara,+Kota+Samarinda,+Kalimantan+Timur',
+      image: '/dealers/samarinda.jpg',
     },
     {
       city: 'Daihatsu Balikpapan',
       address: 'Jl. Mayjend Sutoyo No.9, Klandasan Ilir, Balikpapan Kota, Kota Balikpapan, Kalimantan Timur',
       phone: '(0542) 417543',
       link: 'https://www.google.com/maps?q=Jl.+Mayjend+Sutoyo+No.9,+Balikpapan+Kota,+Kalimantan+Timur',
+      image: '/dealers/balikpapan.jpg',
     },
     {
       city: 'Daihatsu Jayapura',
       address: 'Jl. Raya Abepura, Entrop, Jayapura Sel., Kota Jayapura, Papua',
       phone: '(0967) 531326',
       link: 'https://www.google.com/maps?q=Jl.+Raya+Abepura,+Entrop,+Jayapura+Sel.,+Kota+Jayapura,+Papua',
+      image: '/dealers/jayapura.jpg',
     },
     {
       city: 'Daihatsu Sorong',
       address: 'Jl. Basuki Rahmat km 9,5, Melati Raya, Sorong, Papua Barat',
       phone: '0823-5089-2897',
       link: 'https://www.google.com/maps?q=Jl.+Basuki+Rahmat+km+9.5,+Melati+Raya,+Sorong,+Papua+Barat',
+      image: '/dealers/sorong.jpg',
     },
     {
       city: 'Daihatsu Serba Mulia Auto Paser Grogot',
       address: 'Jl. Rm. Noto Sunardi, RT.006/RW.005, Tanah Grogot, Kec. Tanah Grogot, Kabupaten Paser, Kalimantan Timur 76251',
       phone: '0821-3602-3700',
       link: 'https://www.google.com/maps/place/Daihatsu+Serba+Mulia+Auto+Paser+Grogot',
+      image: '/dealers/grogot.jpg',
     },
   ];
 
@@ -103,7 +111,7 @@ const Daihatsu = () => {
               className={styles.vehicleCard}
               key={index}
             >
-              <img src="/car2.jpg" alt={vehicle.name} className={styles.vehicleImage} />
+              <img src={vehicle.image} alt={vehicle.name} className={styles.vehicleImage} />
               <div className={styles.vehicleInfo}>
                 <h3 className={styles.vehicleName}>{vehicle.name}</h3>
                 <ul className={styles.specList}>
@@ -145,7 +153,7 @@ const Daihatsu = () => {
           {dealers.map((dealer, index) => (
             <div key={index} className={styles.dealerCard}>
               <a href={dealer.link} target="_blank" rel="noopener noreferrer">
-                <img src="/car.jpg" alt={`${dealer.city} Dealer`} className={styles.dealerImage} />
+                <img src={dealer.image} alt={`${dealer.city} Dealer`} className={styles.dealerImage} />
               </a>
               <h3 className={styles.dealerHeading}>{dealer.city}</h3>
               <a className={styles.dealerLink} href={dealer.link} target="_blank" rel="noopener noreferrer">
