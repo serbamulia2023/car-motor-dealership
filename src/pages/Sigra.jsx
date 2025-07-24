@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const carColors = [
-  { name: 'Orange Metallic', color: '#d35400', image: '/cars/sigra-orange.jpg' },
-  { name: 'Scarlet Red Metallic', color: '#c0392b', image: '/cars/sigra-red.jpg' },
-  { name: 'Bronze', color: '#cd7f32', image: '/cars/sigra-bronze.jpg' },
-  { name: 'Glittering Silver', color: '#bdc3c7', image: '/cars/sigra-silver.jpg' },
-  { name: 'Ultra Black Solid', color: '#000000', image: '/cars/sigra-black.jpg' },
-  { name: 'Icy White', color: '#ffffff', image: '/cars/sigra-white.jpg' },
-  { name: 'Rock Grey Metallic', color: '#7f8c8d', image: '/cars/sigra-grey.jpg' },
+  { name: 'Orange Metallic', color: '#d35400', image: '/cars/sigra-orange.png' },
+  { name: 'Scarlet Red Metallic', color: '#c0392b', image: '/cars/sigra-red.png' },
+  { name: 'Bronze', color: '#cd7f32', image: '/cars/sigra-bronze.png' },
+  { name: 'Glittering Silver', color: '#bdc3c7', image: '/cars/sigra-silver.png' },
+  { name: 'Ultra Black Solid', color: '#000000', image: '/cars/sigra-black.png' },
+  { name: 'Icy White', color: '#ffffff', image: '/cars/sigra-white.png' },
+  { name: 'Rock Grey Metallic', color: '#7f8c8d', image: '/cars/sigra-grey.png' },
 ];
 
 const variantData = [
   {
     name: '1.0 D',
-    image: '/cars/sigra-10d.jpg',
+    image: '/cars/sigra-10d.png',
     features: [
       'Halogen Headlamp',
       '13” Steel Wheel',
@@ -27,7 +27,7 @@ const variantData = [
   },
   {
     name: '1.0 M',
-    image: '/cars/sigra-10m.jpg',
+    image: '/cars/sigra-10m.png',
     features: [
       'Kelengkapan tipe D ditambah:',
       'Smoked LED Headlamp',
@@ -39,7 +39,7 @@ const variantData = [
   },
   {
     name: '1.2 X',
-    image: '/cars/sigra-12x.jpg',
+    image: '/cars/sigra-12x.png',
     features: [
       'Kelengkapan tipe M ditambah:',
       'Rear Spoiler',
@@ -51,7 +51,7 @@ const variantData = [
   },
   {
     name: '1.2 R',
-    image: '/cars/sigra-12r.jpg',
+    image: '/cars/sigra-12r.png',
     features: [
       'Kelengkapan tipe X ditambah:',
       'Dark Grille with Chrome Ornament',
@@ -68,8 +68,8 @@ const Sigra = () => {
   const [selectedColor, setSelectedColor] = useState(carColors[0]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <div className="fflex flex-col md:flex-row justify-between items-start px-6 md:px-10 py-8 md:py-10 gap-8 max-w-7xl mx-auto w-full">
+    <div className="min-h-screen flex flex-col pt-24 bg-white">
+      <div className="flex flex-col md:flex-row justify-between items-start px-6 md:px-10 py-8 md:py-10 gap-8 max-w-7xl mx-auto w-full">
         <div className="flex-1 min-w-[300px] space-y-6">
           <h1 className="text-4xl font-bold">Daihatsu Sigra</h1>
           <p className="text-gray-700">
@@ -96,12 +96,13 @@ const Sigra = () => {
               ))}
             </div>
             {selectedColor && (
-              <div className="w-full flex justify-center mt-4">
+              <div className="w-full flex justify-center mt-6">
                 <div className="text-base font-bold text-gray-800 text-center">{selectedColor.name}</div>
               </div>
             )}
           </div>
 
+          {/* Buttons */}
           <div className="flex gap-4 mt-6 justify-center">
             <button
               onClick={() => navigate('/daihatsu/test-drive?model=Sigra')}
@@ -110,7 +111,7 @@ const Sigra = () => {
               Test Drive
             </button>
             <button
-              onClick={() => navigate('/contact')}
+              onClick={() => navigate('/contact', { state: { from: 'daihatsu' } })}
               className="bg-gray-200 text-gray-800 px-6 py-2 rounded hover:bg-gray-300 shadow"
             >
               Dapatkan Penawaran
@@ -118,7 +119,7 @@ const Sigra = () => {
           </div>
         </div>
 
-        <div className="flex-1 flex justify-center items-start">
+        <div className="flex-1 flex justify-center items-start mt-5 md:mt-0">
           <img
             src={selectedColor.image}
             alt={selectedColor.name}

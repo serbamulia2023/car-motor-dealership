@@ -84,7 +84,7 @@ const MioM3 = () => {
               Test Ride
             </button>
             <button
-              onClick={() => navigate('/contact')}
+              onClick={() => navigate('/contact', { state: { from: 'yamaha' } })}
               className="bg-gray-200 text-gray-800 px-6 py-2 rounded hover:bg-gray-300"
             >
               Dapatkan Penawaran

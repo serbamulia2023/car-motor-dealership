@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const carColors = [
-  { name: 'Greenish Gun Metal', color: '#434f4d', image: '/cars/xenia-green.jpg' },
-  { name: 'Purplish Silver', color: '#c8c6d7', image: '/cars/xenia-purple-silver.jpg' },
-  { name: 'Dark Grey Metallic', color: '#555555', image: '/cars/xenia-darkgrey.jpg' },
-  { name: 'Silver Metallic', color: '#c0c0c0', image: '/cars/xenia-silver.jpg' },
-  { name: 'White Solid', color: '#ffffff', image: '/cars/xenia-white.jpg' },
-  { name: 'Black Metallic', color: '#000000', image: '/cars/xenia-black.jpg' },
+  { name: 'Greenish Gun Metal', color: '#434f4d', image: '/cars/xenia-green.png' },
+  { name: 'Purplish Silver', color: '#c8c6d7', image: '/cars/xenia-purple-silver.png' },
+  { name: 'Dark Grey Metallic', color: '#555555', image: '/cars/xenia-darkgrey.png' },
+  { name: 'Silver Metallic', color: '#c0c0c0', image: '/cars/xenia-silver.png' },
+  { name: 'White Solid', color: '#ffffff', image: '/cars/xenia-white.png' },
+  { name: 'Black Metallic', color: '#000000', image: '/cars/xenia-black.png' },
 ];
 
 const variantData = [
   {
     name: '1.3 M*',
-    image: '/cars/xenia-13m.jpg',
+    image: '/cars/xenia-13m.png',
     features: [
       'LED Headlamp',
       'Electric outer mirror',
@@ -28,7 +28,7 @@ const variantData = [
   },
   {
     name: '1.3 X',
-    image: '/cars/xenia-13x.jpg',
+    image: '/cars/xenia-13x.png',
     features: [
       'Kelengkapan tipe M ditambah:',
       '15” Alloy Wheel Gun Metal',
@@ -39,7 +39,7 @@ const variantData = [
   },
   {
     name: '1.3 R',
-    image: '/cars/xenia-13r.jpg',
+    image: '/cars/xenia-13r.png',
     features: [
       'Kelengkapan tipe X ditambah:',
       'Foglamp',
@@ -54,7 +54,7 @@ const variantData = [
   },
   {
     name: '1.5 R',
-    image: '/cars/xenia-15r.jpg',
+    image: '/cars/xenia-15r.png',
     features: [
       'Kelengkapan tipe R ditambah:',
       'Front Grille with Red Accent',
@@ -74,7 +74,7 @@ const Xenia = () => {
   const [selectedColor, setSelectedColor] = useState(carColors[0]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col pt24 bg-white">
       <div className="flex flex-col md:flex-row justify-between items-start px-6 md:px-10 py-8 md:py-10 gap-8 max-w-7xl mx-auto w-full">
         <div className="flex-1 min-w-[300px] space-y-6">
           <h1 className="text-4xl font-bold">All New Xenia</h1>
@@ -116,7 +116,7 @@ const Xenia = () => {
               Test Drive
             </button>
             <button
-              onClick={() => navigate('/contact')}
+              onClick={() => navigate('/contact', { state: { from: 'daihatsu' } })}
               className="bg-gray-200 text-gray-800 px-6 py-2 rounded hover:bg-gray-300 shadow"
             >
               Dapatkan Penawaran
@@ -124,7 +124,7 @@ const Xenia = () => {
           </div>
         </div>
 
-        <div className="flex-1 flex justify-center items-start">
+        <div className="flex-1 flex justify-center items-start mt-5 md:mt-0">
           <img
             src={selectedColor.image}
             alt={selectedColor.name}

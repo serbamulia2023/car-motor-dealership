@@ -2,20 +2,48 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Toast from '../components/Toast';
 import Select from 'react-select';
-import styles from './Contact.module.css';
 
 const Contact = () => {
   const location = useLocation();
+  const loggedInUser = localStorage.getItem('loggedInUser');
 
+  const [navbarSource, setNavbarSource] = useState('general');
   const [inquiryType, setInquiryType] = useState('General');
+  const [toast, setToast] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    inquiry: '',
+    location: '',
+    customLocation: '',
+    message: '',
+  });
 
   useEffect(() => {
-    const from = location.state?.from;
-    if (from === 'careers') setInquiryType('Careers');
-    else if (from === 'daihatsu') setInquiryType('Daihatsu');
-    else if (from === 'yamaha') setInquiryType('Yamaha');
-    else setInquiryType('General');
-  }, [location]);
+    if (loggedInUser) return;
+
+    const origin = location.state?.from;
+    const validOrigins = ['daihatsu', 'yamaha'];
+
+    if (origin && validOrigins.includes(origin)) {
+      localStorage.setItem('navbarSource', origin);
+      setNavbarSource(origin);
+
+      const capitalized = origin.charAt(0).toUpperCase() + origin.slice(1);
+      setInquiryType(capitalized);
+      setForm((prev) => ({ ...prev, inquiry: capitalized }));
+    } else {
+      const saved = localStorage.getItem('navbarSource');
+      if (saved && validOrigins.includes(saved)) {
+        setNavbarSource(saved);
+        const capitalized = saved.charAt(0).toUpperCase() + saved.slice(1);
+        setInquiryType(capitalized);
+        setForm((prev) => ({ ...prev, inquiry: capitalized }));
+      }
+    }
+  }, [location.state, loggedInUser]);
 
   const inquiryOptions = [
     { value: 'Daihatsu', label: 'Daihatsu' },
@@ -34,17 +62,6 @@ const Contact = () => {
     { value: 'Other', label: 'Other' },
   ];
 
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    inquiry: '',
-    location: '',
-    customLocation: '',
-    message: '',
-  });
-
-  const [toast, setToast] = useState(null);
-
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -61,6 +78,7 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
 
     const finalLocation =
       form.location === 'Other' ? form.customLocation : form.location;
@@ -74,11 +92,14 @@ const Contact = () => {
     };
 
     try {
-      const res = await fetch('/api/contact-inquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/contact-inquiry`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!res.ok) throw new Error('Failed to send');
 
@@ -98,40 +119,46 @@ const Contact = () => {
         message: 'Failed to send inquiry. Please try again later.',
         type: 'error',
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <>
-      <div className={styles.contactPage}>
-        <h1>Contact Us</h1>
-        <p>Please send us your questions using the form below:</p>
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-grow px-4 py-12 max-w-md mx-auto w-full">
+        <h1 className="text-3xl font-semibold text-center mb-2">Contact Us</h1>
+        <p className="text-center text-sm text-gray-600 mb-8">
+          Please send us your questions using the form below:
+        </p>
 
-        <form className={styles.contactForm} onSubmit={handleSubmit}>
-          <label>
-            Name
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <div>
+            <label className="block text-sm mb-1">Name</label>
             <input
               type="text"
               name="name"
               required
               value={form.name}
               onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-4 py-2"
             />
-          </label>
+          </div>
 
-          <label>
-            Email
+          <div>
+            <label className="block text-sm mb-1">Email</label>
             <input
               type="email"
               name="email"
               required
               value={form.email}
               onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-4 py-2"
             />
-          </label>
+          </div>
 
-          <label>
-            Kind of Inquiry
+          <div>
+            <label className="block text-sm mb-1">Kind of Inquiry</label>
             <Select
               name="inquiry"
               options={inquiryOptions}
@@ -143,26 +170,27 @@ const Contact = () => {
               placeholder="Select inquiry"
               isClearable
             />
-          </label>
+          </div>
 
-          <label>
-            Closest Location
+          <div>
+            <label className="block text-sm mb-1">Closest Location</label>
             <Select
               name="location"
               options={locationOptions}
               value={
-                locationOptions.find((opt) => opt.value === form.location) ||
-                null
+                locationOptions.find((opt) => opt.value === form.location) || null
               }
               onChange={handleSelectChange}
               placeholder="Select location"
               isClearable
             />
-          </label>
+          </div>
 
           {form.location === 'Other' && (
-            <label>
-              Please specify your location
+            <div>
+              <label className="block text-sm mb-1">
+                Please specify your location
+              </label>
               <input
                 type="text"
                 name="customLocation"
@@ -170,24 +198,32 @@ const Contact = () => {
                 placeholder="Enter your city or region"
                 value={form.customLocation}
                 onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-4 py-2"
               />
-            </label>
+            </div>
           )}
 
-          <label>
-            Message
+          <div>
+            <label className="block text-sm mb-1">Message</label>
             <textarea
               name="message"
               rows="5"
               required
               value={form.message}
               onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-4 py-2"
             />
-          </label>
+          </div>
 
-          <button type="submit">Send Inquiry</button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
+          >
+            {submitting ? 'Sending...' : 'Send Inquiry'}
+          </button>
         </form>
-      </div>
+      </main>
 
       {toast && (
         <div id="toast-root">
@@ -199,10 +235,10 @@ const Contact = () => {
         </div>
       )}
 
-      <footer className={styles.footer}>
-        © 2025 Daihatsu by DriveNow. All rights reserved.
+      <footer className="bg-black text-white text-center text-sm py-6 mt-auto">
+        © 2025 Serba Mulia Auto. All rights reserved.
       </footer>
-    </>
+    </div>
   );
 };
 

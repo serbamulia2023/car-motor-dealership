@@ -1,4 +1,3 @@
-// src/App.jsx
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from './axios';
@@ -68,6 +67,7 @@ import Yz250Series from './pages/Yz250Series';
 import Mxking from './pages/MxKing';
 import VegaForce from './pages/VegaForce'
 import JupiterZ1 from './pages/JupiterZ1';
+import DashboardNavbar from './pages/DashboardNavbar';
 
 function App() {
   const location = useLocation();
@@ -113,30 +113,37 @@ function App() {
     setQuery('');
   }, [path]);
 
+  // ✅ CLEANED UP NAVBAR DECIDER
   const getNavbar = () => {
-    if (path.startsWith('/daihatsu')) return DaihatsuNavbar;
-    if (path.startsWith('/yamaha')) return YamahaNavbar;
-    if ([
+    const noNavbarPaths = [
       '/dashboard',
       '/edit-profile',
       '/questionnaire',
       '/reset-password'
-    ].some(prefix => path.startsWith(prefix))) return null;
+    ];
+    if (noNavbarPaths.some((prefix) => path.startsWith(prefix))) return null;
+
+    if (user) return DashboardNavbar;
+
+    const override = localStorage.getItem('navbarSource');
+    if (override === 'daihatsu') return DaihatsuNavbar;
+    if (override === 'yamaha') return YamahaNavbar;
+
+    if (path.startsWith('/daihatsu')) return DaihatsuNavbar;
+    if (path.startsWith('/yamaha')) return YamahaNavbar;
+
     return Navbar;
   };
 
+  const ActiveNavbar = getNavbar();
+
   const handleSearch = () => {
     const term = query.toLowerCase().trim();
-    console.log(term);
-    
     if (term.includes('terios')) navigate('/daihatsu/models/terios');
     else if (term.includes('xenia')) navigate('/daihatsu/models/xenia');
     else if (term.includes('granmax')) {
-      if (term.includes('pickup') || term.includes('pickup')) {
-        navigate('/daihatsu/models/granmax-pickup');
-      } else {
-        navigate('/daihatsu/models/granmax-van');
-      }
+      if (term.includes('pickup')) navigate('/daihatsu/models/granmax-pickup');
+      else navigate('/daihatsu/models/granmax-van');
     }
     else if (term.includes('sigra')) navigate('/daihatsu/models/sigra');
     else if (term.includes('sirion')) navigate('/daihatsu/models/sirion');
@@ -151,7 +158,7 @@ function App() {
     else if (term.includes('lexi')) navigate('/yamaha/models/lexi');
     else if (term.includes('filano')) navigate('/yamaha/models/filano');
     else if (term.includes('fazzio')) navigate('/yamaha/models/fazzio');
-    else if (term.includes('gear') || term.includes('gear125')) navigate('/yamaha/models/gear125');
+    else if (term.includes('gear')) navigate('/yamaha/models/gear125');
     else if (term.includes('freego')) navigate('/yamaha/models/freego');
     else if (term.includes('xride')) navigate('/yamaha/models/xride');
     else if (term.includes('mio')) navigate('/yamaha/models/miom3');
@@ -175,8 +182,6 @@ function App() {
 
   if (loading) return <div className="text-center p-10">Loading...</div>;
 
-  const ActiveNavbar = getNavbar();
-
   return (
     <>
       {toast && (
@@ -192,7 +197,7 @@ function App() {
         <Route path="/" element={
           <main>
             <section className="hero">
-              <img src="/car.jpg" alt="Hero Car" className="hero-img" />
+              <img src="/serbamuliaauto.jpg" alt="Hero Car" className="hero-img" />
               <div className="hero-overlay-text">
                 <h1 className="hero-title">The easiest way to buy a car</h1>
                 <p className="hero-subtitle">Drive your dream car down the stylish streets.</p>

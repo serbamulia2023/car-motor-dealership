@@ -1,7 +1,6 @@
 /* ========= BASE ========= */
 .page {
-  margin: 0;
-  padding: 0;
+  padding-top: 4.5rem;
   background-color: white;
   width: 100%;
   min-height: 100vh;

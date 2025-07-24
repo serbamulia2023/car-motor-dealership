@@ -41,7 +41,7 @@ const Luxio = () => {
   const [selectedColor, setSelectedColor] = useState(carColors[0]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col pt-24 bg-white">
       {/* Hero Section */}
       <div className="flex flex-col md:flex-row justify-between items-start px-6 md:px-10 py-8 md:py-10 gap-8 max-w-7xl mx-auto w-full">
         <div className="flex-1 min-w-[300px] space-y-6">
@@ -82,7 +82,7 @@ const Luxio = () => {
               Test Drive
             </button>
             <button
-              onClick={() => navigate('/contact')}
+              onClick={() => navigate('/contact', { state: { from: 'daihatsu' } })}
               className="bg-gray-200 text-gray-800 px-6 py-2 rounded hover:bg-gray-300 shadow"
             >
               Dapatkan Penawaran
@@ -90,7 +90,7 @@ const Luxio = () => {
           </div>
         </div>
 
-        <div className="flex-1 flex justify-center items-start">
+        <div className="flex-1 flex justify-center items-start mt-5 md:mt-0">
           <img
             src={selectedColor.image}
             alt={selectedColor.name}

@@ -80,6 +80,7 @@
 }
 
 /* Footer section */
+/* Footer styles */
 .footer {
   width: 100%;
   background-color: #000;
@@ -87,8 +88,8 @@
   text-align: center;
   font-size: 0.9rem;
   padding: 2rem 1rem;
-  margin-top: 4rem;
   box-sizing: border-box;
+  margin-top: auto; /* 👈 Ensures it pushes down when space is available */
 }
 
 .footer p {
@@ -99,5 +100,9 @@
 @media (max-width: 600px) {
   .contactForm {
     padding: 1.5rem;
+  }
+
+  .footer {
+    padding: 1.5rem 1rem; /* Adjusts spacing for small screens */
   }
 }

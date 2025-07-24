@@ -1,4 +1,3 @@
-// src/pages/YamahaTestDrive.jsx
 import React, { useState, useEffect } from 'react';
 import axios from '../axios';
 import styles from './YamahaTestDrive.module.css';
@@ -7,7 +6,6 @@ import Select from 'react-select';
 import { useSearchParams } from 'react-router-dom';
 
 const yamahaSeries = [
-  // MAXI Series
   { label: 'XMAX Series', value: 'XMAX' },
   { label: 'NMAX Series', value: 'NMAX' },
   { label: 'Aerox Series', value: 'Aerox' },
@@ -16,35 +14,35 @@ const yamahaSeries = [
   { label: 'Gear Series', value: 'Gear' },
   { label: 'Fazzio Series', value: 'Fazzio' },
   { label: 'Filano Series', value: 'Filano' },
-
-  // Matic Adventure
   { label: 'X-Ride Series', value: 'XRide' },
-
-  // Matic Classic / Trendy
   { label: 'Mio Series', value: 'Mio' },
   { label: 'Fino Series', value: 'Fino' },
-
-  // Sport Heritage
   { label: 'XSR Series', value: 'XSR' },
-
-  // Sport Racing
   { label: 'R15 Series', value: 'R15' },
   { label: 'R25 Series', value: 'R25' },
-
-  // Naked Sport
   { label: 'MT-25 Series', value: 'MT25' },
   { label: 'MT-15 Series', value: 'MT15' },
   { label: 'Vixion Series', value: 'Vixion' },
-
-  // Off-Road
   { label: 'WR155R Series', value: 'WR155R' },
   { label: 'YZ125X Series', value: 'YZ125X' },
   { label: 'YZ250 Series', value: 'YZ250' },
-
-  // Bebek / Underbone
   { label: 'MX King Series', value: 'MXKing' },
   { label: 'Jupiter Z1 Series', value: 'JupiterZ1' },
   { label: 'Vega Force Series', value: 'VegaForce' },
+];
+
+const dealerOptions = [
+  { value: 'Yamaha Melak', label: 'Yamaha Melak' },
+  { value: 'Yamaha Barong Tongkok', label: 'Yamaha Barong Tongkok' },
+  { value: 'Yamaha Bontang', label: 'Yamaha Bontang' },
+  { value: 'Yamaha Petung', label: 'Yamaha Petung' },
+  { value: 'Yamaha Sangatta', label: 'Yamaha Sangatta' },
+  { value: 'Yamaha Tanah Grogot', label: 'Yamaha Tanah Grogot' },
+  { value: 'Yamaha Lambung Mangkurat', label: 'Yamaha Lambung Mangkurat' },
+  { value: 'Yamaha Loa Janan Ilir', label: 'Yamaha Loa Janan Ilir' },
+  { value: 'Yamaha Karang Jati', label: 'Yamaha Karang Jati' },
+  { value: 'Yamaha Klandasan', label: 'Yamaha Klandasan' },
+  { value: 'Yamaha Tenggarong', label: 'Yamaha Tenggarong' },
 ];
 
 const YamahaTestDrive = () => {
@@ -61,6 +59,7 @@ const YamahaTestDrive = () => {
   });
 
   const [toast, setToast] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (modelFromQuery) {
@@ -72,8 +71,16 @@ const YamahaTestDrive = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  const handleSelectChange = (selectedOption, { name }) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: selectedOption ? selectedOption.value : '',
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
 
     try {
       await axios.post('/book-test-drive/yamaha', {
@@ -90,20 +97,15 @@ const YamahaTestDrive = () => {
         type: 'success',
       });
 
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        model: '',
-        location: '',
-        date: '',
-      });
+      setFormData({ name: '', email: '', phone: '', model: '', location: '', date: '' });
     } catch (err) {
       console.error('❌ Submission failed:', err);
       setToast({
         message: 'Something went wrong. Please try again.',
         type: 'error',
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -157,26 +159,26 @@ const YamahaTestDrive = () => {
           <div className={styles.formGroup}>
             <label htmlFor="model">Preferred Series</label>
             <Select
+              name="model"
               inputId="model"
               options={yamahaSeries}
               placeholder="Select a series"
-              value={yamahaSeries.find((opt) => opt.value === formData.model)}
-              onChange={(selectedOption) =>
-                setFormData({ ...formData, model: selectedOption?.value || '' })
-              }
+              value={yamahaSeries.find((opt) => opt.value === formData.model) || null}
+              onChange={handleSelectChange}
               isClearable
             />
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="location">Preferred Location</label>
-            <input
-              type="text"
-              id="location"
-              placeholder="e.g. Jakarta, Surabaya"
-              required
-              value={formData.location}
-              onChange={handleChange}
+            <Select
+              name="location"
+              inputId="location"
+              options={dealerOptions}
+              placeholder="Select location"
+              value={dealerOptions.find((opt) => opt.value === formData.location) || null}
+              onChange={handleSelectChange}
+              isClearable
             />
           </div>
 
@@ -191,8 +193,8 @@ const YamahaTestDrive = () => {
             />
           </div>
 
-          <button type="submit" className={styles.submitButton}>
-            Submit Request
+          <button type="submit" className={styles.submitButton} disabled={submitting}>
+            {submitting ? 'Submitting...' : 'Submit Request'}
           </button>
         </form>
       </section>

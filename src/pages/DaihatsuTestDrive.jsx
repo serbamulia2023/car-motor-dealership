@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import axios from '../axios';
 import styles from './DaihatsuTestDrive.module.css';
 import Toast from '../components/Toast';
+import Select from 'react-select';
 
 const DaihatsuTestDrive = () => {
   const [searchParams] = useSearchParams();
@@ -17,6 +18,7 @@ const DaihatsuTestDrive = () => {
     date: '',
   });
   const [toast, setToast] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (modelFromQuery) {
@@ -28,8 +30,16 @@ const DaihatsuTestDrive = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  const handleSelectChange = (selectedOption, { name }) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: selectedOption ? selectedOption.value : '',
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
 
     try {
       await axios.post('/book-test-drive/daihatsu', {
@@ -38,7 +48,7 @@ const DaihatsuTestDrive = () => {
         phone: formData.phone,
         model: selectedModel,
         location: formData.location,
-        date: formData.date, // optional: not stored yet
+        date: formData.date,
       });
 
       setToast({
@@ -60,8 +70,30 @@ const DaihatsuTestDrive = () => {
         message: 'Something went wrong. Please try again.',
         type: 'error',
       });
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  const locationOptions = [
+    { value: 'Samarinda', label: 'Samarinda' },
+    { value: 'Balikpapan', label: 'Balikpapan' },
+    { value: 'Paser', label: 'Paser' },
+    { value: 'Sorong', label: 'Sorong' },
+    { value: 'Jayapura', label: 'Jayapura' },
+    { value: 'Other', label: 'Other' },
+  ];
+
+  const modelOptions = [
+    { value: 'Ayla', label: 'Ayla' },
+    { value: 'Rocky', label: 'Rocky' },
+    { value: 'Terios', label: 'Terios' },
+    { value: 'Sigra', label: 'Sigra' },
+    { value: 'Granmax Pick Up', label: 'Granmax Pick Up' },
+    { value: 'Granmax Van', label: 'Granmax Van' },
+    { value: 'Xenia', label: 'Xenia' },
+    { value: 'Luxio', label: 'Luxio' },
+  ];
 
   return (
     <div className={styles.page}>
@@ -112,29 +144,25 @@ const DaihatsuTestDrive = () => {
 
           <div className={styles.formGroup}>
             <label htmlFor="model">Preferred Model</label>
-            <select
-              id="model"
-              required
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-            >
-              <option value="">Select a model</option>
-              <option value="Ayla">Ayla</option>
-              <option value="Rocky">Rocky</option>
-              <option value="Terios">Terios</option>
-              <option value="Sigra">Sigra</option>
-            </select>
+            <Select
+              name="model"
+              options={modelOptions}
+              value={modelOptions.find((opt) => opt.value === selectedModel) || null}
+              onChange={(option) => setSelectedModel(option?.value || '')}
+              placeholder="Select a model"
+              isClearable
+            />
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="location">Preferred Location</label>
-            <input
-              type="text"
-              id="location"
-              placeholder="e.g. Jakarta, Surabaya"
-              required
-              value={formData.location}
-              onChange={handleChange}
+            <Select
+              name="location"
+              options={locationOptions}
+              value={locationOptions.find((opt) => opt.value === formData.location) || null}
+              onChange={handleSelectChange}
+              placeholder="Select location"
+              isClearable
             />
           </div>
 
@@ -149,8 +177,8 @@ const DaihatsuTestDrive = () => {
             />
           </div>
 
-          <button type="submit" className={styles.submitButton}>
-            Submit Request
+          <button type="submit" className={styles.submitButton} disabled={submitting}>
+            {submitting ? 'Submitting...' : 'Submit Request'}
           </button>
         </form>
       </section>

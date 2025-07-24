@@ -88,7 +88,7 @@ const GranMaxPickup = () => {
           </div>
         </div>
 
-        <div className="flex-1 flex justify-center items-start">
+        <div className="flex-1 flex justify-center items-start mt-5 md:mt-0">
           <img
             src={selectedColor.image}
             alt={selectedColor.name}
