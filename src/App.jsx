@@ -64,10 +64,10 @@ import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/autoplay';
 import Yz250Series from './pages/Yz250Series';
-import Mxking from './pages/MxKing';
 import VegaForce from './pages/VegaForce'
 import JupiterZ1 from './pages/JupiterZ1';
 import DashboardNavbar from './pages/DashboardNavbar';
+import Mxking from './pages/MxKing';
 
 function App() {
   const location = useLocation();
